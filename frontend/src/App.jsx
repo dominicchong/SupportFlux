@@ -7,19 +7,21 @@ import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
+import { useThemeStore } from "./store/useThemeStore";
 import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore();
+  const { theme } = useThemeStore();
+
+  console.log({ onlineUsers })
 
   useEffect (() => {
     checkAuth();
   }, [checkAuth]);
-
-  console.log("Auth User:", authUser);
 
   if(isCheckingAuth && !authUser) 
     return (
@@ -29,8 +31,10 @@ const App = () => {
   );
 
   return (
-    <div data-theme="retro">
-      <Navbar/>
+    <div data-theme={theme} className="min-h-screen overflow-y-auto">
+      {/* Navbar is only shown when user is authenticated */}
+      {authUser && <Navbar />}
+
       <Routes>
         <Route path="/" element={ authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
