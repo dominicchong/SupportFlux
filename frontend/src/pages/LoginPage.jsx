@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, Headset } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, Headset, ChevronDown } from "lucide-react";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
+    role: "",
     email: "",
     password: "",
   });
@@ -40,15 +41,36 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="form-control">
               <label className="label">
+                <span className="label-text font-medium">Role</span>
+              </label>
+              <div className="relative w-full">
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full appearance-none bg-transparent border border-base-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base-content"
+                >
+                  <option value="">Select Role</option>
+                  <option value="student">Student</option>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+                
+                {/* Custom arrow icon */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <ChevronDown className="h-4 w-4 text-base-content/40" />
+                </div>
+              </div>
+            </div>
+            <div className="form-control">
+              <label className="label">
                 <span className="label-text font-medium">Email</span>
               </label>
-              <div className="relative">
+              <div className="relative input input-bordered w-full pl-10">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-base-content/40" />
                 </div>
                 <input
                   type="email"
-                  className={`input input-bordered w-full pl-10`}
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -60,13 +82,12 @@ const LoginPage = () => {
               <label className="label">
                 <span className="label-text font-medium">Password</span>
               </label>
-              <div className="relative">
+              <div className="relative input input-bordered w-full pl-10">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-base-content/40" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pl-10`}
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -84,6 +105,13 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
+            {/* <div className="text-right">
+              <p className="text-base-content/60">
+                <Link to="/forget-password" className="link link-primary">
+                  Forget Password?
+                </Link>
+              </p>
+            </div> */}
 
             <button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
               {isLoggingIn ? (
@@ -111,7 +139,7 @@ const LoginPage = () => {
       {/* Right Side - Image/Pattern */}
       <AuthImagePattern
         title={"Welcome back!"}
-        subtitle={"Sign in to continue your conversations and catch up with your messages."}
+        subtitle={"Sign in to get back in track with the support system."}
       />
     </div>
   );

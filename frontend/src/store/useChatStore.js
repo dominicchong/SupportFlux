@@ -9,6 +9,7 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  unreadMessages: {}, // { userId: count }
 
   getUsers: async () => {
     set({ isUsersLoading: true });
@@ -66,4 +67,18 @@ export const useChatStore = create((set, get) => ({
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 
+  setUnreadMessages: (newUnread) => set({ unreadMessages: newUnread }),
+  incrementUnread: (fromUserId) =>
+    set((state) => ({
+      unreadMessages: {
+        ...state.unreadMessages,
+        [fromUserId]: (state.unreadMessages[fromUserId] || 0) + 1,
+      },
+    })),
+  clearUnread: (userId) =>
+    set((state) => {
+      const { [userId]: _, ...rest } = state.unreadMessages;
+      return { unreadMessages: rest };
+    }),
+    
 }));

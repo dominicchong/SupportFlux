@@ -10,4 +10,6 @@ export const generateToken = (userId, res) => {
         sameSite: 'strict',  // Helps prevent CSRF attacks
         secure: process.env.NODE_ENV !== 'development',
     });
+
+    return token;
 }

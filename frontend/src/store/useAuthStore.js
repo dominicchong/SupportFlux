@@ -13,6 +13,7 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
+  isSendingReset: false,
   
   checkAuth: async() => {
     try {
@@ -34,7 +35,6 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success('Account created successfully');
       get().connectSocket();
-
     } catch (error) {
       toast.error(error.response.data.message || 'Error creating account');
     } finally {
@@ -71,6 +71,19 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
+  forgotPassword: async (email) => {
+    set({ isSendingReset: true });
+    try {
+      await axiosInstance.post('/auth/forgot-password', { email });
+      toast.success('A reset link has been sent to your email');
+    } catch (error) {
+      const msg = error?.response?.data?.message || error.message || 'Failed to send reset email';
+      toast.error(msg);
+    } finally {
+      set({ isSendingReset: false });
+    }
+  },
+
   updateProfile: async(data) => {
     set({ isUpdatingProfile: true });
     try {
@@ -80,7 +93,10 @@ export const useAuthStore = create((set, get) => ({
       return res.data;
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error(error.response.data.message || 'Error updating profile');
+      const message = error?.response?.data?.message ||        // server‑sent msg
+        (error?.response?.status === 413 ? 'Image is too large' : null) ||
+        error?.message || 'Error updating profile';  // fallback msg
+      toast.error(message);
       return null;
     } finally {
       set({ isUpdatingProfile: false });

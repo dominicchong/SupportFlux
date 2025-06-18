@@ -1,6 +1,6 @@
 import { useAuthStore } from '../store/useAuthStore';
 import { Link } from "react-router-dom";
-import { LogOut, MessageSquare, Settings, User, Headset } from "lucide-react";
+import { Home, Bot, MessageCircleMore, BookOpen, User, Headset } from "lucide-react";
 import {  } from "lucide-react";
 
 const Navbar = () => {
@@ -19,31 +19,48 @@ const Navbar = () => {
               </div>
               <h1 className="text-lg font-bold">SupportFlux</h1>
             </Link>
+            <span className="text-sm text-gray-600 font-medium capitalize">
+              <span className="bg-purple-100 text-purple-800 px-2 py-1.5 rounded-md">
+                {authUser ? `${authUser.role}` : "Guest"}
+              </span>
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to={"/settings"}
-              className={`
-              btn btn-sm gap-2 transition-colors
-              
-              `}
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </Link>
-
             {authUser && (
               <>
-                <Link to={"/profile"} className={`btn btn-sm gap-2`}>
-                  <User className="size-5" />
-                  <span className="hidden sm:inline">Profile</span>
+                <Link to={"/"} className="btn btn-sm gap-2">
+                  <Home className="size-5" />
+                  <span className="hidden sm:inline">Home</span>
                 </Link>
 
-                <button className="flex gap-2 items-center" onClick={logout}>
-                  <LogOut className="size-5" />
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
+                <Link to={"/chatbot"} className="btn btn-sm gap-2">
+                  <Bot className="size-5" />
+                  <span className="hidden sm:inline">Chatbot</span>
+                </Link> 
+
+                <Link to={"/live-chat"} className="btn btn-sm gap-2">
+                  <MessageCircleMore className="size-5" />
+                  <span className="hidden sm:inline">Live Chat</span>
+                </Link>
+
+                <Link to={"/knowledgebase"} className="btn btn-sm gap-2">
+                  <BookOpen className="size-5" />
+                  <span className="hidden sm:inline">Knowledge Base</span>
+                </Link>
+
+                <Link to={"/profile"} className="btn btn-sm gap-2">
+                  <User className="size-5" />
+                  <span className="hidden sm:inline">
+                    {authUser ? `${authUser.fullName}` : "Profile"}
+                  </span>
+                </Link>
+
+
+                {/* <Link to={"/settings"} className={`btn btn-sm gap-2 transition-colors`}>
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Settings</span>
+                </Link> */}
               </>
             )}
           </div>

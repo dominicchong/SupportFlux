@@ -19,9 +19,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
-    accessLevel: {
-        type: Number,
-        default: false,
+    role: {
+        type: String,
+        default: "",
     },
 }, {
     timestamps: true,
