@@ -9,6 +9,7 @@ import {connectDB} from './lib/db.js';
 import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
 import chatbotRoutes from './routes/chatbot.route.js';
+import knowledgeRoutes from './routes/knowledgebase.route.js';
 import { app, server } from './lib/socket.js';
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.use(cors({
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/chatbot", chatbotRoutes);
+app.use("/api/knowledge-base", knowledgeRoutes);
 
 if(process.env.NODE_ENV==="production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

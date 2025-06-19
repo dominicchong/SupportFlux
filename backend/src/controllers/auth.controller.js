@@ -5,7 +5,7 @@ import cloudinary from "../lib/cloudinary.js";
 import crypto from "crypto";
 import sendResetPasswordEmail from "../lib/sendResetPasswordEmail.js";
 
-export const signup = async (req, res) => {
+export const createUser = async (req, res) => {
     const { role, email, fullName, password } = req.body;
     try {
         if (!role || !email || !fullName || !password) {
@@ -40,14 +40,15 @@ export const signup = async (req, res) => {
                 _id: newUser._id,
                 email: newUser.email,
                 fullName: newUser.fullName,
-                proficPic: newUser.proficPic,
+                profilePic: newUser.profilePic,
                 role: newUser.role,
+                createdAt: user.createdAt,
              });
         } else {
             res.status(400).json({ message: "Invalid user data" });
         }
     } catch (error) {
-        console.log("Error in signup controller:", error.message);
+        console.log("Error in createUser controller:", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -78,8 +79,9 @@ export const login = async (req, res) => {
             _id: user._id,
             email: user.email,
             fullName: user.fullName,
-            proficPic: user.proficPic,
+            profilePic: user.profilePic,
             role: user.role,
+            createdAt: user.createdAt,
         });
     } catch (error) {
         console.log("Error in login controller:", error.message);
@@ -165,3 +167,47 @@ export const checkAuth = (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (error) {
+    console.error("Failed to get users:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { fullName, email, role, password } = req.body;
+    const updates = { fullName, email, role };
+
+    if (password) {
+      updates.password = await bcrypt.hash(password, 10);
+    }
+
+    const updated = await User.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+    }).select("-password");
+
+    if (!updated) return res.status(404).json({ message: "User not found" });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Update user error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "User not found" });
+
+    res.json({ message: "User deleted", _id: deleted._id });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

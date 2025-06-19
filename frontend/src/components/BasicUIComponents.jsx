@@ -1,8 +1,9 @@
 // Input.jsx
-export const Input = ({ placeholder, value, onChange, className }) => {
+export const Input = ({ name, placeholder, value, onChange, className }) => {
   return (
     <input
       type="text"
+      name={name}
       placeholder={placeholder}
       value={value}
       onChange={onChange}

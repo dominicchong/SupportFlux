@@ -14,6 +14,7 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
   isSendingReset: false,
+  users: [],
   
   checkAuth: async() => {
     try {
@@ -100,6 +101,47 @@ export const useAuthStore = create((set, get) => ({
       return null;
     } finally {
       set({ isUpdatingProfile: false });
+    }
+  },
+
+  fetchUsers: async () => {
+    try {
+      const { data } = await axiosInstance.get("/auth/users/get-all");
+      set({ users: data });
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+      toast.error("Failed to fetch users");
+    }
+  },
+
+  // Create or update a user
+  saveUser: async (id, userData) => {
+    try {
+      if (id) {
+        await axiosInstance.put(`/auth/users/update/${id}`, userData);
+        toast.success("User updated");
+      } else {
+        await axiosInstance.post("/auth/users/create", userData);
+        toast.success("User created");
+      }
+      await get().fetchUsers(); // Refresh list
+    } catch (error) {
+      console.error("Failed to save user", error);
+      toast.error("Failed to save user");
+      throw error;
+    }
+  },
+
+  // Delete a user
+  deleteUser: async (id) => {
+    try {
+      await axiosInstance.delete(`/auth/users/delete/${id}`);
+      await get().fetchUsers();
+      toast.success("User deleted");
+    } catch (error) {
+      console.error("Failed to delete user", error);
+      toast.error("Failed to delete user");
+      throw error;
     }
   },
 

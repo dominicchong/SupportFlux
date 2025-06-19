@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Bot, MessageCircleMore, BookOpen } from "lucide-react";
-import { Card, CardContent } from "../components/KnowledgeBaseComponent";
+import { Card, CardContent } from "../components/BasicUIComponents";
 
 export const FEATURES = [
   {
