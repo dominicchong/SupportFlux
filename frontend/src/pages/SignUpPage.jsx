@@ -2,7 +2,7 @@ import {useState} from 'react'
 
 import { useAuthStore } from "../store/useAuthStore.js";
 import { Eye, EyeOff, Loader2, Lock, Mail, Headset, User, ChevronDown  } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
@@ -15,25 +15,51 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
+  const navigate = useNavigate('/login');
 
   const { signup, isSigningUp } = useAuthStore();
   const validateForm = () => {
-    if (!formData.role.trim()) return toast.error("Role is required");
-    if (!formData.fullName.trim()) return toast.error("Full name is required");
-    if (!formData.email.trim()) return toast.error("Email is required");
-    if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
-    if (!formData.password) return toast.error("Password is required");
-    if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (!formData.role.trim()) {
+      toast.error("Role is required");
+      return false;
+    }
+    if (!formData.fullName.trim()) {
+      toast.error("Full name is required");
+      return false;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error("Invalid email format");
+      return false;
+    }
+    if (!formData.password) {
+      toast.error("Password is required");
+      return false;
+    }
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return false;
+    }
 
     return true;
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("Submitting form:", formData);
 
-    const success = validateForm();
-    if(success === true) signup(formData);
+    const isValidForm = validateForm();
+    if (!isValidForm) {
+      return;
+    } else {
+      await signup(formData);
+      setFormData({ role: '', fullName: '', email: '', password: '' }); // Reset form after successful signup
+      navigate('/login');
+      
+    }
   }
 
   return (
@@ -50,7 +76,7 @@ const SignUpPage = () => {
             >
               <Headset className="w-5 h-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold mt-2">Create Account</h1>
+            <h1 className="text-2xl font-bold mt-2">Register Account</h1>
             <p className="text-base-content/60">Get started with your free account</p>
           </div>
         </div>
@@ -69,7 +95,6 @@ const SignUpPage = () => {
                 <option value="">Select Role</option>
                 <option value="student">Student</option>
                 <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
               </select>
               
               {/* Custom arrow icon */}

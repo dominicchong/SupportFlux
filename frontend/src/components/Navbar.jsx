@@ -5,6 +5,7 @@ import {  } from "lucide-react";
 
 const Navbar = () => {
   const { authUser } = useAuthStore();
+  const isStudent = authUser?.role === "student";
   const isAdmin = authUser?.role === "admin";
 
   return (
@@ -44,10 +45,12 @@ const Navbar = () => {
                   <span className="hidden sm:inline">Home</span>
                 </Link>
 
-                <Link to={"/chatbot"} className="btn btn-sm gap-2">
-                  <Bot className="size-5" />
-                  <span className="hidden sm:inline">Chatbot</span>
-                </Link> 
+                {isStudent && (
+                  <Link to={"/chatbot"} className="btn btn-sm gap-2">
+                    <Bot className="size-5" />
+                    <span className="hidden sm:inline">Chatbot</span>
+                  </Link>
+                )}
 
                 <Link to={"/live-chat"} className="btn btn-sm gap-2">
                   <MessageCircleMore className="size-5" />

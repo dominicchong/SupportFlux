@@ -42,7 +42,6 @@ export const createUser = async (req, res) => {
                 fullName: newUser.fullName,
                 profilePic: newUser.profilePic,
                 role: newUser.role,
-                createdAt: user.createdAt,
              });
         } else {
             res.status(400).json({ message: "Invalid user data" });

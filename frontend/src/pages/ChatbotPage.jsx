@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { IoCodeSlash, IoSend } from "react-icons/io5";
 import { BiPlanet } from "react-icons/bi";
-import { FaPython } from "react-icons/fa";
+import { HiClipboardList, HiCollection } from "react-icons/hi";
 import { TbMessageChatbot } from "react-icons/tb";
 import { useChatbotStore } from "../store/useChatbotStore";
 import ReactMarkdown from "react-markdown";
 
 const FEATURES = [
-  { text: "What is coding? How can we learn it?", icon: IoCodeSlash },
-  { text: "Which is the red planet of the solar system?", icon: BiPlanet },
-  { text: "In which year was Python invented?", icon: FaPython },
+  { text: "How to learn Java effectively?", icon: IoCodeSlash },
+  { text: "How do I resolve the timetable clashes in Universiti Malaya?", icon: HiCollection },
+  { text: "How to register for courses in Universiti Malaya?", icon: HiClipboardList },
   { text: "How can we use AI for adoption?", icon: TbMessageChatbot },
 ];
 
@@ -61,25 +61,34 @@ const ChatbotPage = () => {
             {messages.map((m, idx) => (
               <div
                 key={idx}
-                className={`relative p-4 rounded-[30px] max-w-[50vw] min-w-[20vw] break-words self-${
-                  m.type === "user" ? "end" : "start"
-                } ${m.type === "bot" ? "bg-purple-100 text-purple-800" : "bg-[#e0e0e0] text-black"}`}
+                className={`flex ${
+                  m.type === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                {/* Arrow - Bot Message (Left) */}
-                {m.type === "bot" && (
-                  <div className="absolute -left-2 bottom-5 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-r-[10px] border-r-purple-100" />
-                )}
+                <div
+                  className={`
+                    relative p-4 rounded-[30px] break-words
+                    max-w-[80%] min-w-[20%]
+                    ${m.type === "bot" ? "bg-purple-100 text-purple-800 text-left" : "bg-[#e0e0e0] text-black text-right"}
+                  `}
+                >
+                  {/* Arrows */}
+                  {m.type === "bot" && (
+                    <div className="absolute -left-2 bottom-5 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-r-[10px] border-r-purple-100" />
+                  )}
+                  {m.type === "user" && (
+                    <div className="absolute -right-2 bottom-4 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[10px] border-l-[#e0e0e0]" />
+                  )}
 
-                {/* Arrow - User Message (Right) */}
-                {m.type === "user" && (
-                  <div className="absolute -right-2 bottom-4 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[10px] border-l-[#e0e0e0]" />
-                )}
-
-                {/* Message Text */}
-                {m.type === "bot" ? <ReactMarkdown>{m.text}</ReactMarkdown> : m.text}
+                  {/* Text */}
+                  {m.type === "bot" ? (
+                    <ReactMarkdown>{m.text}</ReactMarkdown>
+                  ) : (
+                    <p className="whitespace-pre-wrap">{m.text}</p>
+                  )}
+                </div>
               </div>
             ))}
-
 
             {/* Loading state */}
             {isLoading && (
