@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User, LogOut } from "lucide-react";
+import { DateTimeFormatter } from "../components/BasicUIComponents";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile, logout } = useAuthStore();
@@ -9,17 +10,29 @@ const ProfilePage = () => {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
+    if (file.size > 74 * 1024) {
+      toast.warning("Please upload an image smaller than 74KB.");
+      return;
+    }
     const reader = new FileReader();
-
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
       const base64Image = reader.result;
+      const originalImage = authUser?.profilePic;
+
       setSelectedImg(base64Image);
-      await updateProfile({ profilePic: base64Image });
+
+      try {
+        await updateProfile({ profilePic: base64Image });
+        toast.success("Profile picture updated!");
+      } catch (error) {
+        toast.error("Failed to update profile picture");
+        setSelectedImg(originalImage); // Revert on failure
+      }
     };
-  };
+};
+
 
   return (
     <div className="h-screen pt-20">
@@ -27,7 +40,6 @@ const ProfilePage = () => {
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">
             <h1 className="text-2xl font-semibold ">Profile</h1>
-            <p className="mt-2">Your profile information</p>
           </div>
 
           {/* avatar upload section */}
@@ -83,16 +95,14 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium  mb-4">Account Information</h2>
+          <div className="mt-6 bg-base-300 rounded-xl p-3">
+            <h2 className="text-lg font-medium border-b border-zinc-700 pb-2">Account Information</h2>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between py-2 border-b border-zinc-700">
+              <div className="flex items-center justify-between py-2 mt-2">
                 <span>Member Since</span>
-                <span>{authUser?.createdAt?.split("T")[0]}</span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <span>Account Status</span>
-                <span className="text-green-500">Active</span>
+                <span>
+                  <DateTimeFormatter value={authUser?.createdAt} format="simple"/>
+                </span>
               </div>
             </div>
           </div>

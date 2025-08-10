@@ -42,3 +42,55 @@ export const Badge = ({ children, variant = "default", className = "", onClick }
     </span>
   );
 };
+
+export const DateTimeFormatter = ({
+  value,
+  locale = "en-MY",
+  timeZone = "Asia/Kuala_Lumpur",
+  format = "full",
+  options = {},
+}) => {
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  const formatPresets = {
+    full: {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    },
+    fullNumeric: {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    },
+    simple: {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    },
+    timeOnly: {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    },
+  };
+
+  const formatOptions = {
+    ...formatPresets[format] || formatPresets.full,
+    ...options,
+  };
+
+  return (
+    <time dateTime={date.toISOString()}>
+      {date.toLocaleString(locale, { timeZone, ...formatOptions })}
+    </time>
+  );
+};

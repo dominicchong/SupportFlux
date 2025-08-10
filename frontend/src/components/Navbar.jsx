@@ -9,10 +9,7 @@ const Navbar = () => {
   const isAdmin = authUser?.role === "admin";
 
   return (
-    <header
-      className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 
-    backdrop-blur-lg"
-    >
+    <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg">
       <div className="container mx-auto px-4 h-16">
         <div className="flex items-center justify-between h-full">
           <div className="flex items-center gap-4">
@@ -22,10 +19,8 @@ const Navbar = () => {
               </div>
               <h1 className="text-lg font-bold">SupportFlux</h1>
             </Link>
-            <span className="text-sm text-gray-600 font-medium capitalize">
-              <span className="bg-purple-100 text-purple-800 px-2 py-1.5 rounded-md">
-                {authUser ? `${authUser.role}` : "Guest"}
-              </span>
+            <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1.5 rounded-md font-medium capitalize">
+              {authUser ? `${authUser.role}` : "Guest"}
             </span>
 
             {/* Only admins can manage accounts */}
@@ -45,12 +40,12 @@ const Navbar = () => {
                   <span className="hidden sm:inline">Home</span>
                 </Link>
 
-                {isStudent && (
-                  <Link to={"/chatbot"} className="btn btn-sm gap-2">
-                    <Bot className="size-5" />
-                    <span className="hidden sm:inline">Chatbot</span>
-                  </Link>
-                )}
+                {/* {isStudent && ( */}
+                <Link to={"/chatbot"} className="btn btn-sm gap-2">
+                  <Bot className="size-5" />
+                  <span className="hidden sm:inline">Chatbot</span>
+                </Link>
+                {/* )} */}
 
                 <Link to={"/live-chat"} className="btn btn-sm gap-2">
                   <MessageCircleMore className="size-5" />

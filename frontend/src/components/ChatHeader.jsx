@@ -27,8 +27,9 @@ const ChatHeader = () => {
         </div>
 
         {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
-          <X />
+        <button onClick={() => setSelectedUser(null)}
+          className="p-1 rounded-full hover:bg-zinc-100 active:scale-95 transition-all duration-150 cursor-pointer">
+          <X className="text-zinc-700"/>
         </button>
       </div>
     </div>

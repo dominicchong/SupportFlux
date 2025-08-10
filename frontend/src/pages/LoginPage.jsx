@@ -41,28 +41,6 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="form-control">
               <label className="label">
-                <span className="label-text font-medium">Role</span>
-              </label>
-              <div className="relative w-full">
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full appearance-none bg-transparent border border-base-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base-content"
-                >
-                  <option value="">Select Role</option>
-                  <option value="student">Student</option>
-                  <option value="staff">Staff</option>
-                  <option value="admin">Admin</option>
-                </select>
-                
-                {/* Custom arrow icon */}
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                  <ChevronDown className="h-4 w-4 text-base-content/40" />
-                </div>
-              </div>
-            </div>
-            <div className="form-control">
-              <label className="label">
                 <span className="label-text font-medium">Email</span>
               </label>
               <div className="relative input input-bordered w-full pl-10">
@@ -71,7 +49,7 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="student@siswa.um.edu.my"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />

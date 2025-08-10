@@ -76,23 +76,46 @@ const AccountsManagementPage = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         {users.length > 0 ? (
-          <table className="table w-full">
-            <thead>
+          <table className="table w-full border border-gray-200 rounded-lg overflow-hidden">
+            <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Updated At</th>
-                <th>Actions</th>
+                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Name</th>
+                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Email</th>
+                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Role</th>
+                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Created At</th>
+                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Updated At</th>
+                <th className="text-center px-4 py-3 hover:bg-gray-100 transition">Actions</th>
               </tr>
             </thead>
-            <tbody>
+
+            <tbody className="divide-y divide-gray-200 bg-white">
               {users.map((user) => (
-                <tr key={user._id}>
+                <tr key={user._id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td>{user.fullName}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
-                  <td>{new Date(user.updatedAt).toLocaleString("en-MY", { timeZone: "Asia/Kuala_Lumpur" })}</td>
+                  <td>
+                    {new Date(user.createdAt).toLocaleString("en-MY", {
+                      timeZone: "Asia/Kuala_Lumpur",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true, // or false if you want 24-hour format
+                    })}
+                  </td>
+                  <td>
+                    {new Date(user.updatedAt).toLocaleString("en-MY", {
+                      timeZone: "Asia/Kuala_Lumpur",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true, // or false if you want 24-hour format
+                    })}
+                  </td>
                   <td className="flex gap-2">
                     <button
                       onClick={() => openEditModal(user)}

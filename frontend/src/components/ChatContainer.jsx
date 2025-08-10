@@ -7,6 +7,7 @@ import MessageInput from "./MessageInput";
 import MessegeSkeleton from "./skeletons/MessageSkeleton";
 import { formatMessageTime } from '../lib/utils';
 import { useRef } from 'react';
+import { DateTimeFormatter } from './BasicUIComponents';
 
 const ChatContainer = () => {
   const {messages, getMessages, isMessageLoading, selectedUser, subscribeToMessages, unsubscribeFromMessages} = useChatStore();
@@ -61,7 +62,7 @@ const ChatContainer = () => {
             </div>
             <div className="chat-header mb-1">
               <time className="text-xs opacity-50 ml-1">
-                {formatMessageTime(message.createdAt)}
+                <DateTimeFormatter value={message.createdAt} format="fullNumeric" />
               </time>
             </div>
             <div className="chat-bubble flex flex-col">
