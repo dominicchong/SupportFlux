@@ -1,6 +1,6 @@
 // /store/useKnowledgeBaseStore.js
 import { create } from "zustand";
-import { axiosInstance } from '../lib/axios.js';
+import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
 export const useKnowledgeBaseStore = create((set, get) => ({
@@ -51,12 +51,41 @@ export const useKnowledgeBaseStore = create((set, get) => ({
 
   deleteKnowledge: async (id) => {
     try {
-      await axios.delete(`/knowledge-base/delete/${id}`);
-      set((s) => ({ knowledgeData: s.knowledgeData.filter((k) => k._id !== id) }));
+      await axiosInstance.delete(`/knowledge-base/delete/${id}`);
+      set((s) => {
+        const index = s.knowledgeData.findIndex(
+          (k) => k._id.toString() === id.toString()
+        );
+        if (index === -1) return s; // item not found, do nothing
+
+        const newData = [
+          ...s.knowledgeData.slice(0, index),
+          ...s.knowledgeData.slice(index + 1),
+        ];
+
+        return { knowledgeData: newData };
+      });
+
       toast.success("Article deleted");
     } catch (error) {
-      toast.error("Delete failed");
+      console.error("DeleteKnowledge error:", error);
+      toast.error(
+        error?.response?.data?.message || "Delete failed"
+      );
       throw error;
+    }
+  },
+
+
+  // NEW: semantic search helper (for chatbot or search bar)
+  searchKnowledge: async (query) => {
+    if (!query) return [];
+    try {
+      const { data } = await axiosInstance.post("/knowledge-base/search", { query });
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      toast.error("Search failed");
+      return [];
     }
   },
 
@@ -72,4 +101,3 @@ export const useKnowledgeBaseStore = create((set, get) => ({
     ];
   },
 }));
-

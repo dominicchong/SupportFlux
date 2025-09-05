@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { IoCodeSlash, IoSend } from "react-icons/io5";
-import { BiPlanet } from "react-icons/bi";
 import { HiClipboardList, HiCollection } from "react-icons/hi";
 import { TbMessageChatbot } from "react-icons/tb";
 import { useChatbotStore } from "../store/useChatbotStore";

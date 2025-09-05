@@ -6,7 +6,7 @@ import { useAuthStore } from "../store/useAuthStore";
 
 const KnowledgeBasePage = () => {
   const {authUser} = useAuthStore();
-  const isStaff = authUser?.role === "staff" || authUser?.role === "admin";
+  const isAuthorized = ["staff", "admin"].includes(authUser?.role?.trim().toLowerCase());
   
   const {
     knowledgeData,
@@ -71,10 +71,21 @@ const KnowledgeBasePage = () => {
     }
   };
 
+ const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this article?")) return;
-    await deleteKnowledge(id);
+    setIsDeleting(true);
+
+    try {
+      await deleteKnowledge(id);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
+
 
   
   return (
@@ -94,7 +105,7 @@ const KnowledgeBasePage = () => {
         </div>
 
         {/* Add Button */}
-        {isStaff && (
+        {isAuthorized && (
           <button
             onClick={openCreateModal}
             className="btn btn-primary flex gap-1 items-center"
@@ -137,10 +148,16 @@ const KnowledgeBasePage = () => {
                 <CardContent className="p-4 space-y-2">
                   <h2 className="text-lg font-semibold truncate">{item.title}</h2>
                   <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
-                  <Badge variant="secondary">{item.category}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{item.category}</Badge>
+                    <span className="text-xs text-gray-400">
+                      {item.createdBy?.name ? `by ${item.createdBy.name}` : ""}
+                      {item.updatedBy?.name ? ` • edited by ${item.updatedBy.name}` : ""}
+                    </span>
+                  </div>
                 </CardContent>
 
-                {isStaff && (
+                {isAuthorized && (
                   <div className="absolute top-2 right-2 flex gap-2">
                     <button
                       onClick={() => openEditModal(item)}
