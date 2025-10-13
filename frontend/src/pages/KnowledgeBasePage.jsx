@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Plus, Pencil, Trash } from "lucide-react";
 import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
+import UploadCsvForm from "../components/UploadCsvForm";
 
 const KnowledgeBasePage = () => {
   const {authUser} = useAuthStore();
   const isAuthorized = ["staff", "admin"].includes(authUser?.role?.trim().toLowerCase());
-  
+  const navigate = useNavigate();
+
+  const AddNewArticlePage = () => {
+    navigate("/add-new-article");
+  };
+
   const {
     knowledgeData,
     isLoading,
@@ -24,6 +31,7 @@ const KnowledgeBasePage = () => {
   const [formState, setFormState] = useState({ title: "", description: "", category: "" });
   const [editingId, setEditingId] = useState(null);
   const [isNewCategory, setIsNewCategory] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchKnowledge();
@@ -71,8 +79,6 @@ const KnowledgeBasePage = () => {
     }
   };
 
- const [isDeleting, setIsDeleting] = useState(false);
-
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this article?")) return;
     setIsDeleting(true);
@@ -85,7 +91,6 @@ const KnowledgeBasePage = () => {
       setIsDeleting(false);
     }
   };
-
 
   
   return (
@@ -114,8 +119,19 @@ const KnowledgeBasePage = () => {
             <span className="hidden sm:inline">Add</span>
           </button>
         )}
+
+        {isAuthorized && (
+          <button
+            onClick={AddNewArticlePage}
+            className="btn btn-primary flex gap-1 items-center"
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">New Article</span>
+          </button>
+        )}
       </div>
 
+      <UploadCsvForm/>
 
       {/* Filter + list */}
       <div className="flex gap-6">

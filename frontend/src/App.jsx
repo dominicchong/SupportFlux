@@ -16,6 +16,7 @@ import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+import AddNewArticlePage from "./pages/AddNewArticle";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -48,8 +49,9 @@ const App = () => {
         <Route path="/chatbot" element={authUser ? <ChatbotPage /> : <Navigate to="/login" />} />
         <Route path="/live-chat" element={ authUser ? <LiveChatPage /> : <Navigate to="/login" />} />
         <Route path="/knowledgebase" element={authUser ? <KnowledgeBasePage /> : <Navigate to="/login" />} />
+        <Route path="/add-new-article" element={authUser ? <AddNewArticlePage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={ authUser ? <ProfilePage /> : <Navigate to="/login" />} />
-        <Route path="/accounts" element={ authUser ? <AccountsManagementPage /> : <Navigate to="/accounts" />} />
+        <Route path="/accounts" element={ authUser ? <AccountsManagementPage /> : <Navigate to="/login" />} />
       </Routes>
 
       <Toaster/>

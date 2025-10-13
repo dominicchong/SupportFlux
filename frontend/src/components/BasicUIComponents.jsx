@@ -52,7 +52,25 @@ export const DateTimeFormatter = ({
 }) => {
   if (!value) return null;
 
-  const date = new Date(value);
+  let normalizedValue = value;
+  if (typeof value === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+    const [day, month, year] = value.split("/");
+    normalizedValue = `${year}-${month}-${day}`;
+  }
+
+  const date = new Date(normalizedValue);
+  if (isNaN(date.getTime())) {
+    console.warn("⚠️ Invalid date passed to DateTimeFormatter:", value);
+    return null;
+  }
+
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  // Custom format for banner display
+  const isToday = date.toDateString() === today.toDateString();
+  const isYesterday = date.toDateString() === yesterday.toDateString();
 
   const formatPresets = {
     full: {
@@ -81,16 +99,34 @@ export const DateTimeFormatter = ({
       minute: "2-digit",
       hour12: true,
     },
+    banner: {
+      weekday: "short",
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+    },
   };
 
-  const formatOptions = {
-    ...formatPresets[format] || formatPresets.full,
-    ...options,
-  };
+  let displayText;
 
-  return (
-    <time dateTime={date.toISOString()}>
-      {date.toLocaleString(locale, { timeZone, ...formatOptions })}
-    </time>
-  );
+  if (format === "banner") {
+    if (isToday) displayText = "Today";
+    else if (isYesterday) displayText = "Yesterday";
+    else {
+      displayText = date.toLocaleDateString(locale, {
+        timeZone,
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+  } else {
+    displayText = date.toLocaleString(locale, {
+      timeZone,
+      ...(formatPresets[format] || formatPresets.full),
+      ...options,
+    });
+  }
+
+  return <time dateTime={date.toISOString()}>{displayText}</time>;
 };

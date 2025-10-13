@@ -5,15 +5,16 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { MessageCircleMore } from "lucide-react";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadMessages, clearUnread, getUnreadCounts } = useChatStore();
 
   const { onlineUsers } = useAuthStore();
   const [ showOnlineOnly, setShowOnlineOnly ] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    getUsers()
-  }, [getUsers]);
+    getUsers();
+    getUnreadCounts();
+  }, [getUsers, getUnreadCounts]);
 
   const isStudent = useAuthStore((state) => state.authUser?.role === "student");
 
@@ -72,43 +73,53 @@ const Sidebar = () => {
         {visibleUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => {
+              setSelectedUser(user);
+              clearUnread(user._id); // ✅ Clear unread count when user is opened
+            }}
             className={`
               w-full p-3 flex items-center justify-between gap-3
               hover:bg-base-300 transition-colors
               ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
             `}
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative">
-                <img
-                  src={user.profilePic || "/avatar.png"}
-                  alt={user.name}
-                  className="size-12 object-cover rounded-full"
-                />
-                {onlineUsers.includes(user._id) && (
-                  <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-900" />
-                )}
-              </div>
+            <div className="flex items-center gap-3 min-w-0 w-full justify-between">
+              {/* Left section: avatar + user info */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative">
+                  <img
+                    src={user.profilePic || "/avatar.png"}
+                    alt={user.fullName}
+                    className="size-12 object-cover rounded-full"
+                  />
+                  {onlineUsers.includes(user._id) && (
+                    <span className="absolute bottom-0 right-0 size-3 bg-green-500 rounded-full ring-2 ring-zinc-900" />
+                  )}
+                </div>
 
-              <div className="hidden lg:block text-left min-w-0">
-                <div className="font-medium truncate">{user.fullName}</div>
-                <div className="text-sm text-zinc-400">
-                  {onlineUsers.includes(user._id) ? "Online" : "Offline"}
+                <div className="hidden lg:flex flex-col text-left min-w-0">
+                  <span className="font-medium truncate">{user.fullName}</span>
+                  <div
+                    className={`
+                      text-xs font-semibold px-2 py-0.5 rounded-full w-fit mt-1
+                      ${user.role === "admin" ? "bg-red-600 text-white" : ""}
+                      ${user.role === "staff" ? "bg-blue-600 text-white" : ""}
+                      ${user.role === "student" ? "bg-yellow-600 text-white" : ""}
+                    `}
+                  >
+                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right section: role */}
-            <div
-              className={`
-                hidden lg:block text-xs font-semibold px-2 py-0.5 rounded-full
-                ${user.role === "admin" ? "bg-red-600 text-white" : ""}
-                ${user.role === "staff" ? "bg-blue-600 text-white" : ""}
-                ${user.role === "student" ? "bg-yellow-600 text-white" : ""}
-              `}
-            >
-              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              {/* Right section: unread counter */}
+              {unreadMessages[user._id] > 0 && (
+                <div className="ml-auto">
+                  <span className="bg-purple-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[24px] text-center inline-block">
+                    {unreadMessages[user._id]}
+                  </span>
+                </div>
+              )}
             </div>
           </button>
         ))}
