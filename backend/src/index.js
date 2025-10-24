@@ -19,8 +19,13 @@ const __dirname = path.resolve();
 
 app.use(express.json());
 app.use(cookieParser()); 
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:5173"
+];
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: allowedOrigins,
   credentials: true
 }));
 
@@ -30,11 +35,12 @@ app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/knowledge-base", knowledgeRoutes);
 app.use("/api/chatrag", chatragRoutes);
 
-if(process.env.NODE_ENV==="production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-  
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../frontend/dist");
+  app.use(express.static(frontendPath));
+
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
 
