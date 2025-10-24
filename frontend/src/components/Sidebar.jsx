@@ -5,16 +5,20 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { MessageCircleMore } from "lucide-react";
 
 const Sidebar = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadMessages, clearUnread, getUnreadCounts } = useChatStore();
+  const { authUser } = useAuthStore();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadMessages, clearUnread, getUnreadCounts, latestMessages, getLatestMessages } = useChatStore();
 
   const { onlineUsers } = useAuthStore();
   const [ showOnlineOnly, setShowOnlineOnly ] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    getUsers();
-    getUnreadCounts();
-  }, [getUsers, getUnreadCounts]);
+    if (authUser) {
+      getUsers();
+      getUnreadCounts();
+      getLatestMessages();
+    }
+  }, [getUsers, getUnreadCounts, getLatestMessages]);
 
   const isStudent = useAuthStore((state) => state.authUser?.role === "student");
 
@@ -36,15 +40,15 @@ const Sidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-20 lg:w-76 border-r border-base-300 flex flex-col transition-all duration-200">
+    <aside className="h-full w-full border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
           <MessageCircleMore className="size-6" />
-          <span className="font-medium hidden lg:block">Live Chat</span>
+          <span className="font-medium">Live Chat</span>
         </div>
 
-        {/* ✅ Search Bar */}
-        <div className="mt-3 hidden lg:block">
+        {/* Search Bar */}
+        <div className="flex mt-3 gap-2">
           <input
             type="text"
             placeholder="Search users..."
@@ -55,7 +59,7 @@ const Sidebar = () => {
         </div>
 
         {/* Online filter toggle */}
-        <div className="mt-3 hidden lg:flex items-center gap-2">
+        <div className="flex mt-3 items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
               type="checkbox"
@@ -63,9 +67,9 @@ const Sidebar = () => {
               onChange={(e) => setShowOnlineOnly(e.target.checked)}
               className="checkbox checkbox-sm"
             />
-            <span className="text-sm">Show online only</span>
+            <span className="text-sm">Online</span>
           </label>
-          <span className="text-xs text-zinc-500">({onlineUsers.length - 1} online)</span>
+          <span className="text-xs text-zinc-500">({onlineUsers.length - 1})</span>
         </div>
       </div>
 
@@ -75,7 +79,7 @@ const Sidebar = () => {
             key={user._id}
             onClick={() => {
               setSelectedUser(user);
-              clearUnread(user._id); // ✅ Clear unread count when user is opened
+              clearUnread(user._id); // Clear unread count when chat is opened
             }}
             className={`
               w-full p-3 flex items-center justify-between gap-3
@@ -97,29 +101,49 @@ const Sidebar = () => {
                   )}
                 </div>
 
-                <div className="hidden lg:flex flex-col text-left min-w-0">
+                <div className="flex-row text-left min-w-0">
                   <span className="font-medium truncate">{user.fullName}</span>
-                  <div
-                    className={`
-                      text-xs font-semibold px-2 py-0.5 rounded-full w-fit mt-1
-                      ${user.role === "admin" ? "bg-red-600 text-white" : ""}
-                      ${user.role === "staff" ? "bg-blue-600 text-white" : ""}
-                      ${user.role === "student" ? "bg-yellow-600 text-white" : ""}
-                    `}
+
+                  {/* Need to figure out how to solve this part of code */}
+                  <div className="text-xs text-gray-500 truncate
+                      max-w-xs sm:max-w-[120px] md:max-w-[150px]"
                   >
-                    {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    {/* {latestMessages?.[user._id].text || "--No messages yet--"} */}
+
+                    {latestMessages?.[user._id] ? (
+                      <>
+                        {latestMessages?.[user._id].from === user._id
+                          ? `You: ${latestMessages[user._id].text}`
+                          : latestMessages?.[user._id].text}
+                      </>
+                    ) : (
+                      "--No messages yet--"
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Right section: unread counter */}
-              {unreadMessages[user._id] > 0 && (
-                <div className="ml-auto">
-                  <span className="bg-purple-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[24px] text-center inline-block">
-                    {unreadMessages[user._id]}
-                  </span>
+              <div className="flex-row text-center min-w-0">
+                <div
+                  className={`
+                    text-xs font-semibold px-2 py-0.5 rounded-full w-fit mt-1 mb-2
+                    ${user.role === "admin" ? "bg-red-600 text-white" : ""}
+                    ${user.role === "staff" ? "bg-blue-600 text-white" : ""}
+                    ${user.role === "student" ? "bg-yellow-600 text-white" : ""}
+                  `}
+                >
+                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </div>
-              )}
+
+                {unreadMessages[user._id] > 0 && (
+                  <div className="ml-auto">
+                    <span className="bg-purple-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[24px] text-center inline-block">
+                      {unreadMessages[user._id]}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </button>
         ))}

@@ -39,22 +39,23 @@ const FileUploadForm = ({ handleOnChangeFile, handleOnSubmitFile }) => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[30vh] bg-gray-50 px-4">
+    <div className="flex justify-left items-center min-h-[10vh]">
       <form
         onSubmit={onSubmit}
-        className="flex flex-col bg-white shadow-md rounded-2xl p-6 border border-gray-200 max-w-lg w-full sm:w-auto"
+        className="flex flex-row bg-white shadow-md rounded-2xl p-5 border border-gray-200 max-w-lg items-center justify-between gap-3 sm:w-auto"
       >
         {/* File Input */}
         <label
           htmlFor="csvFileInput"
-          className={`flex items-center gap-2 cursor-pointer font-semibold px-4 py-3 rounded-lg transition justify-center ${
+          title="Select a CSV file to upload"
+          className={`flex items-center gap-2 cursor-pointer font-semibold px-3 py-2 rounded-lg transition justify-center ${
             selectedFile
               ? "bg-green-500 text-white hover:bg-green-600"
               : "bg-amber-400 text-white hover:bg-amber-500"
           }`}
         >
           <FaFileCsv className="text-lg" />
-          <span>{selectedFile ? selectedFile.name : "Select CSV File"}</span>
+          <span alt="Select file">{selectedFile ? selectedFile.name : "Select CSV File"}</span>
         </label>
 
         <input
@@ -67,30 +68,28 @@ const FileUploadForm = ({ handleOnChangeFile, handleOnSubmitFile }) => {
         />
 
         {/* Import Button */}
-        <div className="mt-4 flex justify-center">
-          <button
-            type="submit"
-            disabled={!selectedFile || uploading}
-            className={`flex items-center gap-2 font-semibold px-5 py-3 rounded-lg transition w-full sm:w-auto justify-center
-              ${
-                selectedFile && !uploading
-                  ? "bg-blue-500 text-white hover:bg-blue-600"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-          >
-            {uploading ? (
-              <div className="flex items-center gap-2">
-                <AiOutlineLoading3Quarters className="animate-spin text-lg" />
-                <span>Uploading {progress}%</span>
-              </div>
-            ) : (
-              <>
-                <FaUpload className="text-lg" />
-                <span>Import</span>
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          title="Upload File"
+          disabled={!selectedFile || uploading}
+          className={`flex items-center gap-2 font-semibold px-4 py-2.5 rounded-lg transition justify-center
+            ${
+              selectedFile && !uploading
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+        >
+          {uploading ? (
+            <div className="flex items-center gap-2">
+              <AiOutlineLoading3Quarters className="animate-spin text-lg" />
+              <span>Uploading {progress}%</span>
+            </div>
+          ) : (
+            <>
+              <FaUpload className="text-lg" />
+            </>
+          )}
+        </button>
       </form>
     </div>
   );

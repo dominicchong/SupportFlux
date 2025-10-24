@@ -33,7 +33,7 @@ export const getMessages = async (req, res) => {
       { $set: { isRead: true } }
     );
 
-    // 🔹 Notify sender (userToChatId) their messages are read
+    // Notify sender (userToChatId) their messages are read
     const senderSocketId = getReceiverSocketId(userToChatId);
     if (senderSocketId) {
       io.to(senderSocketId).emit("messagesRead", { readerId: myId });
@@ -93,9 +93,55 @@ export const getUnreadCounts = async (req, res) => {
       { $group: { _id: "$senderId", count: { $sum: 1 } } },
     ]);
 
+    // Otherwise, return normal unread count array
     res.status(200).json(unreadCounts);
   } catch (error) {
     console.error("Error in getUnreadCounts controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getLatestMessages = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    // Aggregate messages where the logged-in user is either sender or receiver
+    const latestMessages = await Message.aggregate([
+      {
+        $match: {
+          $or: [
+            { senderId: userId },
+            { receiverId: userId }
+          ]
+        }
+      },
+      // Sort by newest first
+      { $sort: { createdAt: -1 } },
+      // Group to get the latest message per conversation partner
+      {
+        $group: {
+          _id: {
+            $cond: [
+              { $eq: ["$senderId", userId] },
+              "$receiverId",
+              "$senderId"
+            ]
+          },
+          text: { $first: "$text" },
+          senderId: { $first: "$senderId" },
+          receiverId: { $first: "$receiverId" },
+          createdAt: { $first: "$createdAt" },
+        }
+      }
+    ]);
+
+    if (!Array.isArray(latestMessages)) {
+      return res.status(200).json([]);
+    }
+    
+    res.status(200).json(latestMessages);
+  } catch (error) {
+    console.error("Error in getLatestMessages controller:", error.message);
+    res.status(500).json({ message: error.message });
   }
 };

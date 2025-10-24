@@ -17,12 +17,16 @@ const LiveChatPage = () => {
 
   return (
     <div className="h-screen bg-base-200">
-      <div className="flex items-center justify-center pt-20 px-4">
+      <div className="flex items-center justify-center pt-16">
         <div className="bg-base-100 rounded-lg shadow-cl w-full h-[calc(100vh-8rem)]">
           <div className="flex h-full rounded-lg overflow-hidden">
-            <Sidebar />
+            <div className={`${selectedUser ? "hidden sm:flex" : "flex sm:flex"} w-full xs:w-full sm:w-60 md:w-80 lg:w-88 flex-shrink-0`}>
+              <Sidebar />
+            </div>
 
-            {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            <div className={`${selectedUser ? "flex sm:flex" : "hidden sm:flex"} flex-1`}>
+              {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,6 @@ import { Search, Plus, Pencil, Trash } from "lucide-react";
 import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
-import UploadCsvForm from "../components/UploadCsvForm";
 
 const KnowledgeBasePage = () => {
   const {authUser} = useAuthStore();
@@ -130,8 +129,6 @@ const KnowledgeBasePage = () => {
           </button>
         )}
       </div>
-
-      <UploadCsvForm/>
 
       {/* Filter + list */}
       <div className="flex gap-6">

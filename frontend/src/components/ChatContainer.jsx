@@ -8,12 +8,12 @@ import MessegeSkeleton from "./skeletons/MessageSkeleton";
 import { DateTimeFormatter } from "./BasicUIComponents";
 
 const ChatContainer = () => {
-  const {messages, getMessages, isMessageLoading, selectedUser, subscribeToMessages, unsubscribeFromMessages, getGroupedMessages} = useChatStore();
+  const {messages, getMessages, isMessageLoading, selectedUser, subscribeToMessages, 
+    unsubscribeFromMessages, getGroupedMessages, activeDate, setActiveDate, resetActiveDate} = useChatStore();
   const {authUser} = useAuthStore();
   const messageEndRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
 
-  const [activeDate, setActiveDate] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollRef = useRef(null);
   const scrollTimeout = useRef(null);
@@ -23,9 +23,10 @@ const ChatContainer = () => {
     if(!selectedUser?._id) return;
     getMessages(selectedUser._id);
     subscribeToMessages();
+    resetActiveDate();  //Resets date banner when navigated to different chat
 
     return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages, resetActiveDate]);
 
   useEffect(() => {
     if (messageEndRef.current && messages) {
@@ -150,13 +151,14 @@ const ChatContainer = () => {
                 </div>
 
                 <div className={`chat-bubble flex flex-col ${ 
-                  message.senderId === authUser._id ? "items-start" : "items-end"
+                  message.senderId === authUser._id ? "items-start bg-purple-200" : "items-end"
                   }`}>
+                  <span>{}</span>
                   {message.image && (
                     <img
                       src={message.image}
                       alt="Attachment"
-                      className="sm:max-w-[250px] md:max-w-sm rounded-md mb-2 cursor-pointer transition-transform hover:scale-[1.02]" // 🟢 Added responsive widths + hover zoom
+                      className="max-w-[250px] md:max-w-xs rounded-md mb-2 cursor-pointer transition-transform hover:scale-[1.02]" // 🟢 Added responsive widths + hover zoom
                       onClick={() => setPreviewImage(message.image)} // Open preview
                     />
                   )}

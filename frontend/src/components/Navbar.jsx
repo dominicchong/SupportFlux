@@ -37,9 +37,10 @@ const Navbar = () => {
 
   return (
     <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="flex items-center justify-between h-16
+                      px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-16 w-full">
         {/* LEFT SECTION */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 flex-shrink-0">
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
             <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
               <Headset className="w-5 h-5 text-primary" />
@@ -52,7 +53,7 @@ const Navbar = () => {
           </span>
 
           {isAdmin && (
-            <Link to="/accounts" className="btn btn-sm gap-2 hidden sm:flex">
+            <Link to="/accounts" className="btn btn-sm gap-2 hidden lg:flex">
               <Users className="size-5" />
               <span>Accounts</span>
             </Link>
@@ -60,9 +61,9 @@ const Navbar = () => {
         </div>
 
         {/* RIGHT SECTION */}
-        <div className="flex items-center gap-2 pl-8">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-2">
             {authUser && (
               <>
                 <Link to="/" className="btn btn-sm gap-2">
@@ -104,7 +105,7 @@ const Navbar = () => {
           <button
             ref={buttonRef}
             type="button" // prevents form submit side effects
-            className="md:hidden flex items-center gap-2 btn btn-sm px-3 py-2"
+            className="lg:hidden flex items-center gap-2 btn btn-sm px-3 py-2"
             onClick={() => setMenuOpen((prev) => !prev)}
           >
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -117,7 +118,7 @@ const Navbar = () => {
       {menuOpen && (
         <div 
           ref={menuRef}
-          className={`md:hidden absolute right-4 top-16 bg-base-100 border border-base-300 rounded-xl shadow-lg flex flex-col items-start px-4 py-3 space-y-2 w-56 transition-all duration-300 ease-in-out 
+          className={`lg:hidden absolute right-4 top-16 bg-base-100 border border-base-300 rounded-xl shadow-lg flex flex-col items-start px-4 py-3 space-y-2 w-56 transition-all duration-300 ease-in-out 
             ${menuOpen
                 ? "opacity-100 translate-y-0 pointer-events-auto"
                 : "opacity-0 -translate-y-2 pointer-events-none"
