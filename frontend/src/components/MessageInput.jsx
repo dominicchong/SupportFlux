@@ -4,10 +4,11 @@ import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MessageInput = () => {
+  const { sendMessage } = useChatStore();
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -52,14 +53,32 @@ const MessageInput = () => {
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
-            />
+            <div>
+              {/* Small preview image */}
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-36 sm:w-36 md:w-48 h-auto object-contain rounded-lg border border-gray-200 cursor-pointer"
+                onClick={() => setIsOpen(true)}
+              />
+
+              {/* Modal for full-size view */}
+              {isOpen && (
+                <div
+                  className="fixed inset-0 bg-black/80 backdrop-blur-xs flex items-center justify-center z-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <img
+                    src={imagePreview}
+                    alt="Full Size"
+                    className="max-w-2xl max-h-2xl rounded-lg shadow-lg"
+                  />
+                </div>
+              )}
+            </div>
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
+              className="absolute -top-1.5 -  right-1 w-5 h-5 rounded-full bg-base-300
               flex items-center justify-center"
               type="button"
             >
@@ -88,8 +107,8 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className={`btn btn-circle
+                     ${imagePreview ? "bg-purple-400 text-white" : "text-zinc-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />

@@ -99,6 +99,11 @@ export const DateTimeFormatter = ({
       minute: "2-digit",
       hour12: true,
     },
+    numeric: {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    },
     banner: {
       weekday: "short",
       month: "numeric",

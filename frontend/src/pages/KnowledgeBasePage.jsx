@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus, Pencil, Trash } from "lucide-react";
-import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
+import { Input, Card, CardContent, Badge, DateTimeFormatter } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
 
 const KnowledgeBasePage = () => {
-  const {authUser} = useAuthStore();
+  const { authUser } = useAuthStore();
   const isAuthorized = ["staff", "admin"].includes(authUser?.role?.trim().toLowerCase());
   const navigate = useNavigate();
 
@@ -93,64 +93,74 @@ const KnowledgeBasePage = () => {
 
   
   return (
-    <div className="p-6 pt-20 space-y-6 max-w-7xl mx-auto">
-      <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
+    <div className="p-4 pt-20 space-y-6 max-w-[95%] mx-auto">
+      {/* <h1 className="flex w-full text-xl font-bold items-center">
+        Knowledge Base        
+      </h1> */}
+      <div className="w-full flex flex-wrap items-center gap-4 mx-auto">
         {/* Search Input */}
-        <div className="relative flex-grow">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="size-5 text-base-content/40" />
-          </div>
-          <Input
-            placeholder="Search information..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10"
-          />
+        <div className="relative flex-grow md:flex-1 order-1 md:mx-0 sm:pl-[22%]">
+          <label
+            className="flex items-center w-full lg:w-[70%] border border-gray-300 rounded-lg px-3 py-2
+                      focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent
+                      bg-base-100 transition-all cursor-text"
+          >
+            <Search className="size-5 text-base-content/40 mr-2" />
+            <input
+              type="text"
+              placeholder="Search information..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-transparent border-none focus:outline-none text-sm"
+            />
+          </label>
         </div>
 
-        {/* Add Button */}
-        {isAuthorized && (
-          <button
-            onClick={openCreateModal}
-            className="btn btn-primary flex gap-1 items-center"
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Add</span>
-          </button>
-        )}
+        {/* Add Buttons */}
+        <div className="flex gap-2 order-2">
+          {isAuthorized && (
+            <button
+              onClick={openCreateModal}
+              className="btn flex gap-1 items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Add</span>
+            </button>
+          )}
 
-        {isAuthorized && (
-          <button
-            onClick={AddNewArticlePage}
-            className="btn btn-primary flex gap-1 items-center"
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">New Article</span>
-          </button>
-        )}
+          {/* {isAuthorized && (
+            <button
+              onClick={AddNewArticlePage}
+              className="btn btn-primary flex gap-1 items-center"
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">New Article</span>
+            </button>
+          )} */}
+        </div>
       </div>
 
       {/* Filter + list */}
       <div className="flex gap-6">
         {/* Category filter */}
         <div className="w-1/5 space-y-2">
-          <h2 className="text-lg font-semibold">Filter by Category</h2>
+          <h2 className="text-md lg:text-lg font-semibold">Filter by Category</h2>
           <div className="flex flex-col gap-2">
-            {categories.map((cat) => (
+            {categories.map((item) => (
               <Badge
-                key={cat}
-                variant={selectedCategory === cat ? "default" : "outline"}
-                onClick={() => setSelectedCategory(cat)}
+                key={item}
+                variant={selectedCategory === item ? "default" : "outline"}
+                onClick={() => setSelectedCategory(item)}
                 className="w-fit cursor-pointer"
               >
-                {cat}
+                {item}
               </Badge>
             ))}
           </div>
         </div>
 
         {/* Cards */}
-        <div className="w-4/5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="w-4/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             <div className="text-center col-span-full text-gray-500">Loading...</div>
           ) : filteredData.length === 0 ? (
@@ -161,27 +171,26 @@ const KnowledgeBasePage = () => {
                 <CardContent className="p-4 space-y-2">
                   <h2 className="text-lg font-semibold truncate">{item.title}</h2>
                   <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">{item.category}</Badge>
-                    <span className="text-xs text-gray-400">
-                      {item.createdBy?.name ? `by ${item.createdBy.name}` : ""}
-                      {item.updatedBy?.name ? ` • edited by ${item.updatedBy.name}` : ""}
+                  <div className="flex gap-2 justify-between">
+                    <Badge className="items-center" variant="secondary">{item.category}</Badge>
+                    <span className="text-xs text-gray-400 text-right pt-1">
+                      <DateTimeFormatter value={item.updatedAt ? `${item.updatedAt}` : ""} format="numeric"/>
                     </span>
                   </div>
                 </CardContent>
 
                 {isAuthorized && (
-                  <div className="absolute top-2 right-2 flex gap-2">
+                  <div className="absolute top-3 right-2 flex gap-2">
                     <button
                       onClick={() => openEditModal(item)}
-                      className="p-1 rounded hover:bg-base-200 transition"
+                      className="p-1 rounded hover:bg-base-200 transition cursor-pointer"
                       title="Edit"
                     >
                       <Pencil className="size-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(item._id)}
-                      className="p-1 rounded hover:bg-base-200 transition text-error"
+                      className="p-1 rounded hover:bg-base-200 transition text-error cursor-pointer"
                       title="Delete"
                     >
                       <Trash className="size-4" />
@@ -194,7 +203,7 @@ const KnowledgeBasePage = () => {
         </div>
       </div>
 
-      {/* Modal (unchanged) … */}
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-base-100 p-6 rounded-lg w-full max-w-md space-y-4 shadow-lg">
@@ -263,7 +272,7 @@ const KnowledgeBasePage = () => {
               >
                 Cancel
               </button>
-              <button onClick={handleSubmit} className="btn btn-primary">
+              <button onClick={handleSubmit} className="btn bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                 {editingId ? "Update" : "Create"}
               </button>
             </div>

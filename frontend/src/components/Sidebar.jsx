@@ -6,7 +6,7 @@ import { MessageCircleMore } from "lucide-react";
 
 const Sidebar = () => {
   const { authUser } = useAuthStore();
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadMessages, clearUnread, getUnreadCounts, latestMessages, getLatestMessages } = useChatStore();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, unreadCount, clearUnread, getUnreadCounts, latestMessages, getLatestMessages } = useChatStore();
 
   const { onlineUsers } = useAuthStore();
   const [ showOnlineOnly, setShowOnlineOnly ] = useState(false);
@@ -136,10 +136,10 @@ const Sidebar = () => {
                   {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </div>
 
-                {unreadMessages[user._id] > 0 && (
+                {unreadCount[user._id] > 0 && (
                   <div className="ml-auto">
                     <span className="bg-purple-500 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[24px] text-center inline-block">
-                      {unreadMessages[user._id]}
+                      {unreadCount[user._id]}
                     </span>
                   </div>
                 )}
