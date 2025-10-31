@@ -9,7 +9,7 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
-  unreadMessages: {}, // { userId: count }
+  unreadCount: {}, // { userId: count }
   latestMessages: {},
   activeDate: null,
 
@@ -136,20 +136,20 @@ export const useChatStore = create((set, get) => ({
   },
 
   // Unread message utilities
-  setUnreadMessages: (newUnread) => set({ unreadMessages: newUnread }),
+  setUnreadCount: (newUnread) => set({ unreadCount: newUnread }),
 
   incrementUnread: (fromUserId) =>
     set((state) => ({
-      unreadMessages: {
-        ...state.unreadMessages,
-        [fromUserId]: (state.unreadMessages[fromUserId] || 0) + 1,
+      unreadCount: {
+        ...state.unreadCount,
+        [fromUserId]: (state.unreadCount[fromUserId] || 0) + 1,
       },
     })),
 
   clearUnread: (userId) =>
     set((state) => {
-      const { [userId]: _, ...rest } = state.unreadMessages;
-      return { unreadMessages: rest };
+      const { [userId]: _, ...rest } = state.unreadCount;
+      return { unreadCount: rest };
     }),
   
   getUnreadCounts: async () => {
@@ -165,7 +165,7 @@ export const useChatStore = create((set, get) => ({
         });
       }
 
-      set({ unreadMessages: unreadMap });
+      set({ unreadCount: unreadMap });
     } catch (error) {
       console.warn("Error: ", error)
       console.warn("Skipped unread count fetch due to network or format issue.");
