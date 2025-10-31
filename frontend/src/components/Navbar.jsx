@@ -3,6 +3,7 @@ import { useChatStore } from '../store/useChatStore';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from "react-router-dom";
 import { Headset, Users, Home, Bot, MessageCircleMore, BookOpen, CircleUser, Menu, X } from "lucide-react";
+import UnreadBadge from './UnreadBadge';
 
 const Navbar = () => {
   const { authUser } = useAuthStore();
@@ -12,10 +13,10 @@ const Navbar = () => {
   const buttonRef = useRef(null);
 
   // Messages
-  const { unreadMessages, getUnreadCounts, subscribeToMessages } = useChatStore();
+  const { unreadCount, getUnreadCounts, subscribeToMessages } = useChatStore();
   const totalUnread = useMemo(
-    () => Object.values(unreadMessages).reduce((a, b) => a + b, 0),
-    [unreadMessages]
+    () => Object.values(unreadCount).reduce((a, b) => a + b, 0),
+    [unreadCount]
   );
 
   // Close menu when clicking outside
@@ -76,15 +77,13 @@ const Navbar = () => {
                   <span className="hidden sm:inline">Chatbot</span>
                 </Link>
 
-                <Link to="/live-chat" className="btn btn-sm gap-2">
-                  <MessageCircleMore className="size-5" />
-                  <span className="hidden sm:inline">Live Chat</span>
-                  {totalUnread > 0 && (
-                    <span className="bg-purple-600 text-white text-xs font-semibold rounded-full px-2 py-0.5 ml-1 animate-pulse">
-                      {totalUnread > 9 ? "9+" : totalUnread}
-                    </span>
-                  )}
-                </Link>
+                <div className="relative inline-block">
+                  <Link to="/live-chat" className="btn btn-sm gap-2">
+                    <MessageCircleMore className="size-5" />
+                    <span className="hidden sm:inline">Live Chat</span>
+                  </Link>
+                  <UnreadBadge count={totalUnread} className="absolute -top-2 -right-1"/>
+                </div>
 
                 <Link to="/knowledgebase" className="btn btn-sm gap-2">
                   <BookOpen className="size-5" />
@@ -139,11 +138,7 @@ const Navbar = () => {
               <Link to="/live-chat" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
                 <MessageCircleMore className="size-5" />
                 Live Chat
-                {totalUnread > 0 && (
-                  <span className="bg-purple-600 text-white text-xs font-semibold rounded-full px-2 py-0.5 ml-1 animate-pulse">
-                    {totalUnread > 9 ? "9+" : totalUnread}
-                  </span>
-                )}
+                <UnreadBadge count={totalUnread} className="ml-2"/>
               </Link>
 
               <Link to="/knowledgebase" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
