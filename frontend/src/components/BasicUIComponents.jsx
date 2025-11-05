@@ -1,3 +1,5 @@
+import { ArrowDown } from "lucide-react";
+
 // Input.jsx
 export const Input = ({ name, placeholder, value, onChange, className }) => {
   return (
@@ -40,6 +42,19 @@ export const Badge = ({ children, variant = "default", className = "", onClick }
     <span onClick={onClick} className={`${baseStyle} ${variants[variant]} ${className}`}>
       {children}
     </span>
+  );
+};
+
+export const ScrollToBottom = ({ visible, onClick }) => {
+  if (!visible) return null;
+
+  return (
+    <button
+      onClick={onClick}
+      className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition"
+    >
+      <ArrowDown className="size-5" />
+    </button>
   );
 };
 

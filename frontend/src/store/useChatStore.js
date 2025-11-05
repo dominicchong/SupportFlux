@@ -9,15 +9,16 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isSendMessageLoading: false,
   unreadCount: {}, // { userId: count }
   latestMessages: {},
   activeDate: null,
 
-  setActiveDate: (activeDate) => set ({activeDate}),
+  setActiveDate: (date) => set ({activeDate: date}),
   resetActiveDate: () => set({ activeDate: null }),
-  setSelectedUser: (selectedUser) => { set({ selectedUser });},
+  setSelectedUser: (user) => set({ selectedUser: user }),
 
-  // 🔹 Fetch users
+  // Fetch users
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
@@ -56,6 +57,7 @@ export const useChatStore = create((set, get) => ({
 
   // Send message
   sendMessage: async (messageData) => {
+    set({ isSendMessageLoading: true });
     const { selectedUser, messages } = get();
     const authUser = useAuthStore.getState().authUser;
     const socket = useAuthStore.getState().socket;
@@ -79,6 +81,8 @@ export const useChatStore = create((set, get) => ({
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Error sending message");
+    } finally {
+      set({ isSendMessageLoading: false });
     }
   },
 
@@ -96,7 +100,7 @@ export const useChatStore = create((set, get) => ({
     return grouped;
   },
 
-  // 🔹 Subscribe to incoming messages (receiver’s side)
+  // Subscribe to incoming messages (receiver’s side)
   subscribeToMessages: () => {
     const { selectedUser } = get();
     const socket = useAuthStore.getState().socket;
@@ -109,7 +113,7 @@ export const useChatStore = create((set, get) => ({
       const { senderId, receiverId } = newMessage;
       const currentSelectedUser = get().selectedUser;
 
-      // ✅ Only increment unread if message is FOR this user (receiver)
+      // Only increment unread if message is FOR this user (receiver)
       if (receiverId === authUser._id) {
         get().setLatestMessage(senderId, newMessage);
 
@@ -172,7 +176,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getLatestMessages: async () => {
+  getLatestMessages: async (userId) => {
     try {
       const res = await axiosInstance.get("/messages/latest-messages");
       
@@ -185,16 +189,16 @@ export const useChatStore = create((set, get) => ({
       res.data.forEach((msg) => {
         latestMap[msg._id] = {
           text: msg.text,
+          image: msg.image,
           senderId: msg.senderId,
           receiverId: msg.receiverId,
           createdAt: msg.createdAt,
         };
       });
       set({ latestMessages: latestMap });
-      console.log(latestMap)
     } catch (error) {
       console.error("Error fetching latest messages:", error);
-      // set({ latestMessages: {} });
+      set({ latestMessages: {} });
     }
   },
 
@@ -206,5 +210,24 @@ export const useChatStore = create((set, get) => ({
       },
     }))
   },
+
+  // Need to change implementation
+  getFirstUnreadIndex: () => {
+    const { selectedUser, messages, authUser } = get();
+    if (!selectedUser || !messages?.length || !authUser) return -1;
+    const lastReadTime = selectedUser.lastRead 
+      ? new Date(selectedUser.lastRead).getTime() : null;
+
+    return messages.findIndex(
+      (msg) => 
+        msg.senderId !== authUser._id && 
+        (!lastReadTime || new Date(msg.createdAt).getTime() > lastReadTime)
+    );
+  },
+
+  hasUnread: () => {
+    const index = get().getFirstUnreadIndex();
+    return index !== -1;
+  }
 
 }));

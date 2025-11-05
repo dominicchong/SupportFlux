@@ -128,6 +128,7 @@ export const getLatestMessages = async (req, res) => {
             ]
           },
           text: { $first: "$text" },
+          image: { $first: "$image" },
           senderId: { $first: "$senderId" },
           receiverId: { $first: "$receiverId" },
           createdAt: { $first: "$createdAt" },
