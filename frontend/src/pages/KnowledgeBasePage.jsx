@@ -1,28 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Search, Plus, Pencil, Trash } from "lucide-react";
 import { Input, Card, CardContent, Badge, DateTimeFormatter } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
 
 const KnowledgeBasePage = () => {
-  const { authUser } = useAuthStore();
-  const isAuthorized = ["staff", "admin"].includes(authUser?.role?.trim().toLowerCase());
-  const navigate = useNavigate();
+  const { isUserAuthorized } = useAuthStore();
+  const isAuthorized = isUserAuthorized();
+  // const navigate = useNavigate();
 
-  const AddNewArticlePage = () => {
-    navigate("/add-new-article");
-  };
+  // const AddNewArticlePage = () => {
+  //   navigate("/add-new-article");
+  // };
 
-  const {
-    knowledgeData,
-    isLoading,
-    fetchKnowledge,
-    createKnowledge,
-    updateKnowledge,
-    deleteKnowledge,
-    getCategories,
-  } = useKnowledgeBaseStore();
+  const { knowledgeData, isLoading, fetchKnowledge, createKnowledge, 
+    updateKnowledge, deleteKnowledge, getCategories} = useKnowledgeBaseStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -121,7 +113,7 @@ const KnowledgeBasePage = () => {
           {isAuthorized && (
             <button
               onClick={openCreateModal}
-              className="btn flex gap-1 items-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="btn flex gap-1 items-center btn-custom-primary"
             >
               <Plus className="size-4" />
               <span className="hidden sm:inline">Add</span>
@@ -246,9 +238,9 @@ const KnowledgeBasePage = () => {
                   }}
                 >
                   <option value="">Select category</option>
-                  {categories.filter((cat) => cat !== "All").map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                  {categories.filter((item) => item !== "All").map((item) => (
+                    <option key={item} value={item}>
+                      {item}
                     </option>
                   ))}
                   <option value="__new">+ Add new...</option>
@@ -272,7 +264,7 @@ const KnowledgeBasePage = () => {
               >
                 Cancel
               </button>
-              <button onClick={handleSubmit} className="btn bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+              <button onClick={handleSubmit} className="btn btn-custom-primary">
                 {editingId ? "Update" : "Create"}
               </button>
             </div>

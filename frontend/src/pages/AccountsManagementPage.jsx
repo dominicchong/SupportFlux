@@ -68,7 +68,7 @@ const AccountsManagementPage = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Manage Accounts</h2>
-        <button onClick={openCreateModal} className="btn btn-primary">
+        <button onClick={openCreateModal} className="btn btn-custom-primary">
           <Plus className="size-4" /> <span className="ml-1">Add User</span>
         </button>
       </div>
@@ -183,7 +183,7 @@ const AccountsManagementPage = () => {
               <button onClick={() => setIsModalOpen(false)} className="btn btn-ghost">
                 Cancel
               </button>
-              <button onClick={handleSubmit} className="btn btn-primary">
+              <button onClick={handleSubmit} className="btn btn-custom-primary">
                 {editingId ? "Update" : "Create"}
               </button>
             </div>

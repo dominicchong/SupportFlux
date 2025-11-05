@@ -36,7 +36,7 @@ export const useAuthStore = create((set, get) => ({
       await axiosInstance.post('/auth/signup', data);
       toast.success('Register successful');
     } catch (error) {
-      toast.error(error.response.data.message || 'Error creating account');
+      toast.error(error.response?.message || 'Error creating account');
     } finally {
       set({ isSigningUp: false });
     }
@@ -51,7 +51,7 @@ export const useAuthStore = create((set, get) => ({
       get().connectSocket();
 
     } catch (error) {
-      toast.error(error.response.data.message || 'Error logging in');
+      toast.error(error.response?.message || 'Error logging in');
     } finally {
       set({ isLoggingIn: false });
     }
@@ -67,7 +67,7 @@ export const useAuthStore = create((set, get) => ({
       toast.success('Logged out successfully');
       get().disconnectSocket();
     } catch (error) {
-      toast.error(error.response.data.message || 'Error logging out');
+      toast.error(error.response?.message || 'Error logging out');
     } finally {
       set({ isLoggingOut: false });
     }
@@ -164,6 +164,23 @@ export const useAuthStore = create((set, get) => ({
   disconnectSocket: () => {
     if(get().socket?.connected) get().socket.disconnect();
 
+  },
+
+  isUserAuthorized: () => {
+    const { authUser } = get();
+    if (!authUser || !authUser.role) return false;
+
+    let isAuthorized = false;
+    const role = authUser.role.trim().toLowerCase();
+    if (role === "staff" || role === "admin") {
+      isAuthorized = true;
+    }
+    return isAuthorized;
+  },
+
+  isYou: (userId) => {
+    const { authUser } = get();
+    return userId === authUser._id;
   },
 
 }));
