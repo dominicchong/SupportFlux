@@ -31,7 +31,7 @@ export const useKnowledgeBaseStore = create((set, get) => ({
       set((s) => ({ knowledgeData: [data, ...s.knowledgeData] }));
       toast.success("Article created");
     } catch (error) {
-      toast.error("Create failed");
+      toast.error("Failed to create new article");
       throw error;
     }
   },
@@ -44,7 +44,7 @@ export const useKnowledgeBaseStore = create((set, get) => ({
       }));
       toast.success("Article updated");
     } catch (error) {
-      toast.error("Update failed");
+      toast.error("Failed to update article");
       throw error;
     }
   },
@@ -68,10 +68,7 @@ export const useKnowledgeBaseStore = create((set, get) => ({
 
       toast.success("Article deleted");
     } catch (error) {
-      console.error("DeleteKnowledge error:", error);
-      toast.error(
-        error?.response?.data?.message || "Delete failed"
-      );
+      toast.error(error?.response?.data?.message || "Failed to delete article");
       throw error;
     }
   },

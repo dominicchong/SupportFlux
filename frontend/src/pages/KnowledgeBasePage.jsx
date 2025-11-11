@@ -6,13 +6,6 @@ import { useAuthStore } from "../store/useAuthStore";
 
 const KnowledgeBasePage = () => {
   const { isUserAuthorized } = useAuthStore();
-  const isAuthorized = isUserAuthorized();
-  // const navigate = useNavigate();
-
-  // const AddNewArticlePage = () => {
-  //   navigate("/add-new-article");
-  // };
-
   const { knowledgeData, isLoading, fetchKnowledge, createKnowledge, 
     updateKnowledge, deleteKnowledge, getCategories} = useKnowledgeBaseStore();
 
@@ -24,12 +17,12 @@ const KnowledgeBasePage = () => {
   const [isNewCategory, setIsNewCategory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const isAuthorized = isUserAuthorized();
+  const categories = ["All", ...getCategories()];    // Categories and filtered data
+
   useEffect(() => {
     fetchKnowledge();
   }, [fetchKnowledge]);
-
-  // Categories and filetered data
-  const categories = ["All", ...getCategories()];
 
   const filteredData = knowledgeData.filter((item) => {
     const byCategory = selectedCategory === "All" || item.category === selectedCategory;
@@ -52,6 +45,11 @@ const KnowledgeBasePage = () => {
     setIsNewCategory(false);
     setIsModalOpen(true);
   };
+
+  // const openViewModal = (item) => {
+  //   setFormState({ title: item.title, description: item.description, category: item.category });
+  //   setIsModalOpen(true);
+  // };
 
   const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
 
@@ -119,16 +117,6 @@ const KnowledgeBasePage = () => {
               <span className="hidden sm:inline">Add</span>
             </button>
           )}
-
-          {/* {isAuthorized && (
-            <button
-              onClick={AddNewArticlePage}
-              className="btn btn-primary flex gap-1 items-center"
-            >
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">New Article</span>
-            </button>
-          )} */}
         </div>
       </div>
 
