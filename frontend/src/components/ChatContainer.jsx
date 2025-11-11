@@ -146,11 +146,11 @@ const ChatContainer = () => {
           {activeDate && <DateTimeFormatter value={activeDate} format="banner" />}
         </div>
 
-        {hasUnreadMsg && (
+        {/* {hasUnreadMsg && (
           <div className="text-center text-xs text-gray-500 bg-gray-100 my-1 p-2">
             ── Unread Messages ──
           </div>
-        )}
+        )} */}
 
         {/* 💬 Messages grouped by date */}
         {Object.entries(groupedMessages).map(([date, msgs]) => (
@@ -166,10 +166,7 @@ const ChatContainer = () => {
                 className={`chat ${
                   isYou(message.senderId) ? "chat-end" : "chat-start"
                 }`}
-                ref={index === msgs.length - 1
-                    ? messageEndRef : unreadRef && !unreadRef.current
-                    ? unreadRef : null
-                }
+                ref={index === msgs.length - 1 ? messageEndRef : null}
               >
                 <div className="chat-image avatar">
                   <div className="size-10 rounded-full border">

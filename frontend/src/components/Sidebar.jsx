@@ -61,7 +61,7 @@ const Sidebar = () => {
         </div>
 
         {/* Online filter toggle */}
-        <div className="flex mt-3 items-center gap-2">
+        {/* <div className="flex mt-3 items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
             <input
               type="checkbox"
@@ -72,7 +72,7 @@ const Sidebar = () => {
             <span className="text-sm">Online</span>
           </label>
           <span className="text-xs text-zinc-500">({onlineUsers.length - 1})</span>
-        </div>
+        </div> */}
       </div>
 
       <div className="overflow-y-auto w-full py-3">

@@ -1,8 +1,8 @@
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Link, NavLink } from "react-router-dom";
+import { Headset, Users, Home, Bot, MessageCircleMore, BookOpen, CircleUser, Menu, X } from "lucide-react";
 import { useAuthStore } from '../store/useAuthStore';
 import { useChatStore } from '../store/useChatStore';
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Link } from "react-router-dom";
-import { Headset, Users, Home, Bot, MessageCircleMore, BookOpen, CircleUser, Menu, X } from "lucide-react";
 import UnreadBadge from './UnreadBadge';
 
 const Navbar = () => {
@@ -54,10 +54,14 @@ const Navbar = () => {
           </span>
 
           {isAdmin && (
-            <Link to="/accounts" className="btn btn-sm gap-2 hidden lg:flex">
+            <NavLink
+              to="/accounts"
+              className={({ isActive }) => `btn btn-sm gap-2 hidden lg:flex ${isActive ? "btn-primary" : ""}`}
+              onClick={() => setMenuOpen(false)}
+            >
               <Users className="size-5" />
               <span>Accounts</span>
-            </Link>
+            </NavLink>
           )}
         </div>
 
@@ -67,35 +71,50 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-2">
             {authUser && (
               <>
-                <Link to="/" className="btn btn-sm gap-2">
+                <NavLink
+                  to="/"
+                  className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                >
                   <Home className="size-5" />
                   <span className="hidden sm:inline">Home</span>
-                </Link>
+                </NavLink>
 
-                <Link to="/chatbot" className="btn btn-sm gap-2">
+                <NavLink
+                  to="/chatbot"
+                  className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                >
                   <Bot className="size-5" />
                   <span className="hidden sm:inline">Chatbot</span>
-                </Link>
+                </NavLink>
 
                 <div className="relative inline-block">
-                  <Link to="/live-chat" className="btn btn-sm gap-2">
+                  <NavLink
+                    to="/live-chat"
+                    className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                  >
                     <MessageCircleMore className="size-5" />
                     <span className="hidden sm:inline">Live Chat</span>
-                  </Link>
+                  </NavLink>
                   <UnreadBadge count={totalUnread} className="absolute -top-2 -right-1"/>
                 </div>
 
-                <Link to="/knowledgebase" className="btn btn-sm gap-2">
+                <NavLink
+                  to="/knowledgebase"
+                  className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                >
                   <BookOpen className="size-5" />
                   <span className="hidden sm:inline">Knowledge Base</span>
-                </Link>
+                </NavLink>
 
-                <Link to="/profile" className="btn btn-sm gap-2">
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                >
                   <CircleUser className="size-5" />
                   <span className="hidden sm:inline">
                     {authUser ? `${authUser.fullName}` : "Profile"}
                   </span>
-                </Link>
+                </NavLink>
               </>
             )}
           </div>
@@ -125,38 +144,62 @@ const Navbar = () => {
             
           {authUser && (
             <>
-              <Link to="/" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
+              <NavLink
+                to="/"
+                className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
                 <Home className="size-5" />
-                Home
-              </Link>
+                <span>Home</span>
+              </NavLink>
 
-              <Link to="/chatbot" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
+              <NavLink
+                to="/chatbot"
+                className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
                 <Bot className="size-5" />
-                Chatbot
-              </Link>
+                <span>Chatbot</span>
+              </NavLink>
 
-              <Link to="/live-chat" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
+              <NavLink
+                to="/live-chat"
+                className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
                 <MessageCircleMore className="size-5" />
-                Live Chat
+                <span>Live Chat</span>
                 <UnreadBadge count={totalUnread} className="ml-2"/>
-              </Link>
+              </NavLink>
 
-              <Link to="/knowledgebase" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
+              <NavLink
+                to="/knowledgebase"
+                className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
                 <BookOpen className="size-5" />
-                Knowledge Base
-              </Link>
+                <span>Knowledge Base</span>
+              </NavLink>
 
               {isAdmin && (
-                <Link to="/accounts" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
+                <NavLink
+                  to="/accounts"
+                  className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
+                  onClick={() => setMenuOpen(false)}
+                >
                   <Users className="size-5" />
-                  Accounts
-                </Link>
+                  <span>Accounts</span>
+                </NavLink>
               )}
 
-              <Link to="/profile" className="btn btn-m w-full justify-start" onClick={() => setMenuOpen(false)}>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
                 <CircleUser className="size-5" />
                 {authUser ? `${authUser.fullName}` : "Profile"}
-              </Link>
+              </NavLink>
             </>
           )}
         </div>
