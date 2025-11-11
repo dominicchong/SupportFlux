@@ -1,5 +1,10 @@
 import { ArrowDown } from "lucide-react";
 
+export const preloadHeroImage = () => {
+  const img = new Image();
+  img.src = "/hero-banner.jpg";
+};
+
 // Input.jsx
 export const Input = ({ name, placeholder, value, onChange, className }) => {
   return (

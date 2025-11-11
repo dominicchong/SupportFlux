@@ -1,14 +1,3 @@
-import Navbar from "./components/Navbar";
-import LiveChatPage from "./pages/LiveChatPage";
-import SignUpPage from "./pages/SignUpPage";
-// import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
-import ProfilePage from "./pages/ProfilePage";
-import KnowledgeBasePage from "./pages/KnowledgeBasePage";
-import ChatbotPage from "./pages/ChatbotPage";
-import AccountsManagementPage from "./pages/AccountsManagementPage";
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import { useThemeStore } from "./store/useThemeStore";
@@ -16,7 +5,20 @@ import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
-import AddNewArticlePage from "./pages/AddNewArticle";
+
+import Navbar from "./components/Navbar";
+import SignUpPage from "./pages/SignUpPage";
+// import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
+import KnowledgeBasePage from "./pages/KnowledgeBasePage";
+import ChatbotPage from "./pages/ChatbotPage";
+import AccountsManagerPage from "./pages/AccountsManagerPage";
+import AddNewArticlePage from "./pages/AddNewArticlePage";
+import ChatPage from "./pages/ChatPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import { preloadHeroImage } from "./components/BasicUIComponents";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -24,6 +26,9 @@ const App = () => {
 
   useEffect (() => {
     checkAuth();
+    if (authUser) {
+      preloadHeroImage();
+    }
   }, [checkAuth]);
 
   if(isCheckingAuth && !authUser) 
@@ -47,11 +52,13 @@ const App = () => {
         {/* Protected Routes */}
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/chatbot" element={authUser ? <ChatbotPage /> : <Navigate to="/login" />} />
-        <Route path="/live-chat" element={ authUser ? <LiveChatPage /> : <Navigate to="/login" />} />
+        <Route path="/live-chat" element={ authUser ? <ChatPage /> : <Navigate to="/login" />} />
         <Route path="/knowledgebase" element={authUser ? <KnowledgeBasePage /> : <Navigate to="/login" />} />
         <Route path="/add-new-article" element={authUser ? <AddNewArticlePage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={ authUser ? <ProfilePage /> : <Navigate to="/login" />} />
-        <Route path="/accounts" element={ authUser ? <AccountsManagementPage /> : <Navigate to="/login" />} />
+        <Route path="/accounts" element={ authUser ? <AccountsManagerPage /> : <Navigate to="/login" />} />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
       <Toaster/>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Input } from "../components/BasicUIComponents";
+import { DateTimeFormatter, Input } from "../components/BasicUIComponents";
 import { Pencil, Trash, Plus } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 
-const AccountsManagementPage = () => {
+const AccountsManagerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formState, setFormState] = useState({
     fullName: "",
@@ -95,26 +95,10 @@ const AccountsManagementPage = () => {
                   <td>{user.email}</td>
                   <td>{user.role}</td>
                   <td>
-                    {new Date(user.createdAt).toLocaleString("en-MY", {
-                      timeZone: "Asia/Kuala_Lumpur",
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true, // or false if you want 24-hour format
-                    })}
+                    <DateTimeFormatter value={user.createdAt} format="full"/>
                   </td>
                   <td>
-                    {new Date(user.updatedAt).toLocaleString("en-MY", {
-                      timeZone: "Asia/Kuala_Lumpur",
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true, // or false if you want 24-hour format
-                    })}
+                    <DateTimeFormatter value={user.updatedAt} format="full"/>
                   </td>
                   <td className="flex gap-2">
                     <button
@@ -194,4 +178,4 @@ const AccountsManagementPage = () => {
   );
 };
 
-export default AccountsManagementPage;
+export default AccountsManagerPage;
