@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, Pencil, Trash } from "lucide-react";
-import { Input, Card, CardContent, Badge, DateTimeFormatter } from "../components/BasicUIComponents";
+import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
+import DateTimeFormatter from "../components/DateTimeFormatter";
 
 const KnowledgeBasePage = () => {
   const { isUserAuthorized } = useAuthStore();
@@ -112,6 +113,7 @@ const KnowledgeBasePage = () => {
             <button
               onClick={openCreateModal}
               className="btn flex gap-1 items-center btn-custom-primary"
+              title=""
             >
               <Plus className="size-4" />
               <span className="hidden sm:inline">Add</span>

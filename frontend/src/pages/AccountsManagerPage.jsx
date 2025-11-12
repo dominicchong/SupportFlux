@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { DateTimeFormatter, Input } from "../components/BasicUIComponents";
+import { Input } from "../components/BasicUIComponents";
 import { Pencil, Trash, Plus } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import DateTimeFormatter from "../components/DateTimeFormatter";
 
 const AccountsManagerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -11,12 +11,6 @@ const messageSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  // senderName: {
-
-  // },
-  // receiverName: {
-
-  // },
   text: {
     type: String,
   },

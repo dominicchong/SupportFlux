@@ -1,114 +1,140 @@
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
-import { useChatStore } from "../store/useChatStore"; // You will create/adjust this store
+import { useTicketStore } from "../store/useTicketStore";
+import { Search, Plus, Pencil, Trash } from "lucide-react";
+
 
 const ChatManagerPage = () => {
-  const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("all"); // all, pending, resolved
-
-  const { getMessages, messages, subscribeToMessages, markResolved } = useChatStore();
+  const { tickets, fetchAllTickets, markAsResolved, markAsInProgress, 
+    filter, setFilter, filteredTickets } = useTicketStore();
+  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formState, setFormState] = useState({ title: "", description: "", category: "" });
+  const [isNewCategory, setIsNewCategory] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    getMessages();
-    subscribeToMessages();
-  }, [getMessages, subscribeToMessages]);
+    fetchAllTickets();
+  }, [fetchAllTickets]);
 
-  // Filter logic for search + tab
-  const filteredChats = messages.filter((chat) => {
-    const matchesSearch =
-      chat.studentName.toLowerCase().includes(search.toLowerCase()) ||
-      chat.issueTitle.toLowerCase().includes(search.toLowerCase());
+  const visibleTickets = filteredTickets();
+  const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
+  const statusList = ["all", "new", "in progress", "resolved"];
 
-    const matchesStatus =
-      activeTab === "all" ? true : chat.status === activeTab;
+  const openCreateModal = () => {
+    setFormState({ category: "", status: "" });
+    setIsNewCategory(false);
+    setIsModalOpen(true);
+  };
 
-    return matchesSearch && matchesStatus;
-  });
+    const openEditModal = (item) => {
+    setFormState({ title: item.title, description: item.description, category: item.category });
+    setEditingId(item._id);
+    setIsNewCategory(false);
+    setIsModalOpen(true);
+  };
+
+  const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
+
+  const handleSubmit = async () => {
+    if (!formState.title || !formState.description || !formState.category) {
+      alert("All fields are required");
+      return;
+    }
+    try {
+      editingId
+        ? await updateKnowledge(editingId, formState)
+        : await createKnowledge(formState);
+      setIsModalOpen(false);
+    } catch {
+      /* toast handled in store */
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this article?")) return;
+    setIsDeleting(true);
+
+    try {
+      await deleteKnowledge(id);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="p-6 pt-20 w-full mx-auto max-w-5xl space-y-4">
-      <h2 className="text-xl font-semibold">Chat Issue Manager</h2>
+      <div className="flex justify-between">
+        <h2 className="text-xl font-semibold">Ticket Manager</h2>
 
-      {/* Search Bar */}
-      <div className="flex items-center gap-3 w-full">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-2.5 text-gray-400 size-4" />
-          <input
-            type="text"
-            placeholder="Search student or issue..."
-            className="input input-bordered w-full pl-10"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <button
+          onClick={openCreateModal}
+          className="btn flex gap-1 items-center btn-custom-primary"
+          title="Add a new ticket"
+        >
+          <Plus className="size-4" />
+          <span className="hidden sm:inline">Add Ticket</span>
+        </button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-3 border-b pb-2 text-sm">
-        {["all", "pending", "resolved"].map((tab) => (
+        {statusList.map((tab) => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab)}
+            onClick={() => setFilter(tab)}
             className={`px-3 py-1 border-b-2 ${
-              activeTab === tab
+              filter === tab
                 ? "border-blue-600 text-blue-600 font-medium"
                 : "border-transparent text-gray-500"
             }`}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {capitalizeWords(tab)}
           </button>
         ))}
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
-        {filteredChats.length > 0 ? (
+        {visibleTickets.length > 0 ? (
           <table className="table w-full">
             <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
               <tr>
-                <th className="text-left px-4 py-3">Student</th>
-                <th className="text-left px-4 py-3">Issue</th>
-                <th className="text-left px-4 py-3">Unread</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="text-left px-4 py-3">Last Updated</th>
-                <th className="text-center px-4 py-3">Actions</th>
+                <th className="px-4 py-3 text-left">Student</th>
+                <th className="px-4 py-3 text-left">Category</th>
+                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-center">Actions</th>
               </tr>
             </thead>
-
-            <tbody className="divide-y divide-gray-200">
-              {filteredChats.map((chat) => (
-                <tr key={chat._id} className="hover:bg-gray-50">
-                  <td>{chat.studentName}</td>
-                  <td>{chat.issueTitle}</td>
-                  <td>
-                    {chat.unreadCount > 0 ? (
-                      <span className="badge badge-error">{chat.unreadCount}</span>
-                    ) : (
-                      "0"
-                    )}
-                  </td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        chat.status === "pending"
-                          ? "badge-warning"
-                          : "badge-success"
-                      }`}
-                    >
-                      {chat.status}
-                    </span>
-                  </td>
-                  <td>{new Date(chat.updatedAt).toLocaleString("en-MY")}</td>
-
-                  <td className="text-center">
-                    {chat.status === "pending" && (
+            <tbody>
+              {visibleTickets.map((ticket) => (
+                <tr key={ticket._id} className="hover:bg-gray-50">
+                  <td>{ticket.studentId?.fullName || "Unknown"}</td>
+                  <td>{ticket.category}</td>
+                  <td>{ticket.status}</td>
+                  <td className="text-center space-x-2">
+                    {ticket.status !== "resolved" && (
                       <button
                         className="btn btn-xs btn-success"
-                        onClick={() => markResolved(chat._id)}
+                        onClick={() => markAsResolved(ticket._id)}
                       >
                         Mark Resolved
                       </button>
                     )}
+                    {ticket.status !== "in progress" && (
+                      <button
+                        className="btn btn-xs btn-warning"
+                        onClick={() => markAsInProgress(ticket._id)}
+                      >
+                        Mark In Progress
+                      </button>
+                    )}
+                    <button className="btn btn-xs btn-primary">
+                      Chat
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -116,10 +142,87 @@ const ChatManagerPage = () => {
           </table>
         ) : (
           <div className="text-center text-gray-500 py-6">
-            No chat issues found.
+            No tickets found.
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-base-100 p-6 rounded-lg w-full max-w-md space-y-4 shadow-lg">
+            <h2 className="text-lg font-semibold">
+              {editingId ? "Edit Article" : "Create Article"}
+            </h2>
+
+            <div className="space-y-3">
+              {/* Title input */}
+              <Input
+                placeholder="Title"
+                value={formState.title}
+                onChange={(e) => handleFormField("title", e.target.value)}
+                autoFocus
+              />
+
+              {/* Description input */}
+              <textarea
+                placeholder="Description"
+                value={formState.description}
+                onChange={(e) => handleFormField("description", e.target.value)}
+                className="textarea textarea-bordered w-full h-24 resize-none"
+              />
+
+              {/* Category selector and custom input */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Category</label>
+                <select
+                  className="select select-bordered w-full"
+                  value={isNewCategory ? "__new" : formState.category || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "__new") {
+                      setIsNewCategory(true);
+                      handleFormField("category", "");
+                    } else {
+                      setIsNewCategory(false);
+                      handleFormField("category", val);
+                    }
+                  }}
+                >
+                  <option value="">Select category</option>
+                  {categories.filter((item) => item !== "All").map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                  <option value="__new">+ Add new...</option>
+                </select>
+
+                {isNewCategory && (
+                  <Input
+                    placeholder="New category"
+                    value={formState.category}
+                    onChange={(e) => handleFormField("category", e.target.value)}
+                    className="mt-2"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="btn btn-ghost"
+              >
+                Cancel
+              </button>
+              <button onClick={handleSubmit} className="btn btn-custom-primary">
+                <span>Create</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
