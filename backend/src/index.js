@@ -11,7 +11,7 @@ import messageRoutes from './routes/message.route.js';
 import chatbotRoutes from './routes/chatbot.route.js';
 import knowledgeRoutes from './routes/knowledgebase.route.js';
 import chatragRoutes from './routes/chatrag.route.js';
-import ticketRoutes from './routes/ticket.route.js';
+// import ticketRoutes from './routes/ticket.route.js';
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -20,12 +20,8 @@ const __dirname = path.resolve();
 app.use(express.json());
 app.use(cookieParser()); 
 
-const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:5173"
-];
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 
@@ -34,7 +30,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/knowledge-base", knowledgeRoutes);
 app.use("/api/chatrag", chatragRoutes);
-app.use("/api/ticket", ticketRoutes);
+// app.use("/api/ticket", ticketRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
