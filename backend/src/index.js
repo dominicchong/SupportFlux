@@ -2,16 +2,16 @@ import express from 'express';
 import dotenv from "dotenv"; 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-
 import path from 'path';
 
 import {connectDB} from './lib/db.js';
+import { app, server } from './lib/socket.js';
 import authRoutes from './routes/auth.route.js';
 import messageRoutes from './routes/message.route.js';
 import chatbotRoutes from './routes/chatbot.route.js';
 import knowledgeRoutes from './routes/knowledgebase.route.js';
 import chatragRoutes from './routes/chatrag.route.js';
-import { app, server } from './lib/socket.js';
+import ticketRoutes from './routes/ticket.route.js';
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -34,13 +34,13 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/knowledge-base", knowledgeRoutes);
 app.use("/api/chatrag", chatragRoutes);
+app.use("/api/ticket", ticketRoutes);
 
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../frontend/dist");
-  app.use(express.static(frontendPath));
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }
 

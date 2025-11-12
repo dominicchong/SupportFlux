@@ -103,7 +103,7 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 1000 * 60 * 60; // 60 minutes
     await user.save();
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     // Use nodemailer here
     await sendResetPasswordEmail(user.email, 'Password Reset', `Reset link: ${resetLink}`);
