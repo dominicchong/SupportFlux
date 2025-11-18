@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const ticketSchema = new mongoose.Schema({
-  studentId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
@@ -9,14 +9,12 @@ const ticketSchema = new mongoose.Schema({
   staffId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
   },
   category: {
     type: String,
   },
   status: {
     type: String,
-    default: "new",
   },
 },
 { timestamps: true }

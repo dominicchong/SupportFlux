@@ -4,7 +4,7 @@ import { axiosInstance } from "../lib/axios";
 
 export const useTicketStore = create((set, get) => ({
   tickets: [],
-  filter: "all", // "all", "pending", "resolved"
+  filter: "All",
   isLoading: false,
 
   // Fetch all tickets
@@ -33,35 +33,19 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
-  // Mark a ticket as resolved
-  markAsResolved: async (ticketId) => {
+  // Update ticket status
+  updateTicketStatus: async (ticketId, newStatus) => {
     try {
-      await axiosInstance.put(`/ticket/${ticketId}/resolve`);
+      await axiosInstance.put(`/ticket/${ticketId}/update-status`, { status: newStatus });
       set((state) => ({
         tickets: state.tickets.map((t) =>
-          t._id === ticketId ? { ...t, status: "resolved" } : t
+          t._id === ticketId ? { ...t, status: newStatus } : t
         ),
       }));
-      toast.success("Ticket marked as resolved");
+      toast.success(`Ticket marked as ${newStatus}`);
     } catch (error) {
-      console.error("Error marking resolved:", error);
-      toast.error(error.response?.data?.message || "Failed to mark resolved");
-    }
-  },
-
-  // Mark a ticket as In Progress
-  markAsInProgress: async (ticketId) => {
-    try {
-      await axiosInstance.put(`/ticket/${ticketId}/in-progress`);
-      set((state) => ({
-        tickets: state.tickets.map((t) =>
-          t._id === ticketId ? { ...t, status: "in progress" } : t
-        ),
-      }));
-      toast.success("Ticket marked as In Progress");
-    } catch (error) {
-      console.error("Error marking In Progress:", error);
-      toast.error(error.response?.data?.message || "Failed to mark In Progress");
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
     }
   },
 
@@ -71,9 +55,30 @@ export const useTicketStore = create((set, get) => ({
   // Filter tickets
   filteredTickets: () => {
     const { tickets, filter } = get();
-    if (filter === "new") return tickets.filter((t) => t.status === "new");
-    if (filter === "in progress") return tickets.filter((t) => t.status === "in progress");
-    if (filter === "resolved") return tickets.filter((t) => t.status === "resolved");
+    if (filter === "New") return tickets.filter((t) => t.status === "New");
+    if (filter === "In Progress") return tickets.filter((t) => t.status === "In Progress");
+    if (filter === "Resolved") return tickets.filter((t) => t.status === "Resolved");
     return tickets;
   },
+
+  getCategories: () => {
+    const data = get().tickets;
+    return [
+      ...new Set(
+        data
+          .map((i) => i.category)
+          .filter((c) => typeof c === "string" && c.trim())
+      ),
+    ];
+  },
+
+  deleteAllTickets: async () => {
+    try {
+      await axiosInstance.delete(`/ticket/delete-all`);
+      toast.success("All tickets is deleted!");
+    } catch (error) {
+      toast.error("Error deleting all tickets");
+      console.error("Error in deleteAllTickets: ", error);
+    }
+  }
 }));

@@ -20,9 +20,9 @@ export const Input = ({ name, placeholder, value, onChange, className }) => {
 };
 
 // Card.jsx
-export const Card = ({ children, className }) => {
+export const Card = ({ children, className, ...props }) => {
   return (
-    <div className={`bg-white shadow-md rounded-lg ${className}`}>
+    <div className={`bg-white shadow-md rounded-lg ${className}`} {...props}>
       {children}
     </div>
   );

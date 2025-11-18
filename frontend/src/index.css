@@ -4,3 +4,7 @@
 .btn-custom-primary {
     @apply bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition;
 }
+
+.btn-custom-primary-light {
+    @apply bg-fuchsia-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-fuchsia-600 hover:text-white transition;
+}

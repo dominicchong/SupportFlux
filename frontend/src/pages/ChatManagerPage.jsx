@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { useTicketStore } from "../store/useTicketStore";
-import { Search, Plus, Pencil, Trash } from "lucide-react";
-
+import { Search, Plus, Trash, CheckCheck, Clock } from "lucide-react";
+import { Input } from "../components/BasicUIComponents"
 
 const ChatManagerPage = () => {
-  const { tickets, fetchAllTickets, markAsResolved, markAsInProgress, 
-    filter, setFilter, filteredTickets } = useTicketStore();
-  
+  const { tickets, fetchAllTickets, updateTicketStatus, filter, setFilter, 
+    filteredTickets, createTicket, getCategories, deleteAllTickets } = useTicketStore();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formState, setFormState] = useState({ title: "", description: "", category: "" });
+  const [formState, setFormState] = useState({ category: "" });
   const [isNewCategory, setIsNewCategory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -20,17 +20,11 @@ const ChatManagerPage = () => {
 
   const visibleTickets = filteredTickets();
   const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
-  const statusList = ["all", "new", "in progress", "resolved"];
+  const statusList = ["All", "New", "In Progress", "Resolved"];
+  const ticketCategories = ["All", ...getCategories()];
 
   const openCreateModal = () => {
-    setFormState({ category: "", status: "" });
-    setIsNewCategory(false);
-    setIsModalOpen(true);
-  };
-
-    const openEditModal = (item) => {
-    setFormState({ title: item.title, description: item.description, category: item.category });
-    setEditingId(item._id);
+    setFormState({ category: "" });
     setIsNewCategory(false);
     setIsModalOpen(true);
   };
@@ -38,14 +32,12 @@ const ChatManagerPage = () => {
   const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
 
   const handleSubmit = async () => {
-    if (!formState.title || !formState.description || !formState.category) {
+    if (!formState.category) {
       alert("All fields are required");
       return;
     }
     try {
-      editingId
-        ? await updateKnowledge(editingId, formState)
-        : await createKnowledge(formState);
+      await createTicket(formState);
       setIsModalOpen(false);
     } catch {
       /* toast handled in store */
@@ -53,15 +45,16 @@ const ChatManagerPage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this article?")) return;
+    if (!window.confirm("Delete all tickets?")) return;
     setIsDeleting(true);
 
     try {
-      await deleteKnowledge(id);
+      await deleteAllTickets(id);
     } catch (error) {
       console.error(error);
     } finally {
       setIsDeleting(false);
+      fetchAllTickets();
     }
   };
 
@@ -73,10 +66,19 @@ const ChatManagerPage = () => {
         <button
           onClick={openCreateModal}
           className="btn flex gap-1 items-center btn-custom-primary"
-          title="Add a new ticket"
+          title="Create new ticket"
         >
           <Plus className="size-4" />
-          <span className="hidden sm:inline">Add Ticket</span>
+          <span className="hidden sm:inline">New Ticket</span>
+        </button>
+
+        <button
+          onClick={(e) => handleDelete() }
+          className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
+          title="Delete all tickets"
+        >
+          <Trash className="size-4" />
+          Delete All
         </button>
       </div>
 
@@ -86,13 +88,12 @@ const ChatManagerPage = () => {
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-3 py-1 border-b-2 ${
-              filter === tab
-                ? "border-blue-600 text-blue-600 font-medium"
-                : "border-transparent text-gray-500"
-            }`}
+            className={`px-3 py-1 border-b-2 cursor-pointer transition-colors duration-200  ${filter === tab
+                ? "border-blue-700 text-blue-700"
+                : "border-transparent text-gray-500 hover:text-blue-400"
+              }`}
           >
-            {capitalizeWords(tab)}
+            {tab}
           </button>
         ))}
       </div>
@@ -103,8 +104,10 @@ const ChatManagerPage = () => {
           <table className="table w-full">
             <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
               <tr>
-                <th className="px-4 py-3 text-left">Student</th>
+                <th className="px-4 py-3 text-left">User</th>
+                <th className="px-4 py-3 text-left">Assigned To</th>
                 <th className="px-4 py-3 text-left">Category</th>
+                <th className="px-4 py-3 text-left">Latest Message</th>
                 <th className="px-4 py-3 text-left">Status</th>
                 <th className="px-4 py-3 text-center">Actions</th>
               </tr>
@@ -112,27 +115,37 @@ const ChatManagerPage = () => {
             <tbody>
               {visibleTickets.map((ticket) => (
                 <tr key={ticket._id} className="hover:bg-gray-50">
-                  <td>{ticket.studentId?.fullName || "Unknown"}</td>
+                  <td>{ticket.userId?.fullName || "Unknown"}</td>
+                  <td>{ticket?.staffId?.fullName || "(none)"}</td>
                   <td>{ticket.category}</td>
-                  <td>{ticket.status}</td>
-                  <td className="text-center space-x-2">
-                    {ticket.status !== "resolved" && (
-                      <button
-                        className="btn btn-xs btn-success"
-                        onClick={() => markAsResolved(ticket._id)}
-                      >
-                        Mark Resolved
-                      </button>
-                    )}
-                    {ticket.status !== "in progress" && (
+                  <td>(change this, add time date)</td>
+                  <td className="space-x-2">
+                    <span>{ticket.status}</span>
+                    <br/>
+                    {ticket.status !== "In Progress" && (
                       <button
                         className="btn btn-xs btn-warning"
-                        onClick={() => markAsInProgress(ticket._id)}
+                        onClick={() => updateTicketStatus(ticket._id, "In Progress")}
+                        title="Mark as In Progress"
                       >
-                        Mark In Progress
+                        <Clock className="size-5"/>
                       </button>
                     )}
-                    <button className="btn btn-xs btn-primary">
+                    {ticket.status !== "Resolved" && (
+                      <button
+                        className="btn btn-xs btn-success"
+                        onClick={() => updateTicketStatus(ticket._id, "Resolved")}
+                        title="Mark as Resolved"
+                      >
+                        <CheckCheck className="size-5"/>
+                      </button>
+                    )}
+                  </td>
+                  <td className="text-center space-x-2">
+                    <button className="btn btn-md btn-custom-primary-light"
+                      onClick={() => { }}    // To-do (Link the chat to the ticket id)
+                      title="Chat"
+                    >
                       Chat
                     </button>
                   </td>
@@ -152,26 +165,10 @@ const ChatManagerPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-base-100 p-6 rounded-lg w-full max-w-md space-y-4 shadow-lg">
             <h2 className="text-lg font-semibold">
-              {editingId ? "Edit Article" : "Create Article"}
+              <span>New Ticket</span>
             </h2>
 
             <div className="space-y-3">
-              {/* Title input */}
-              <Input
-                placeholder="Title"
-                value={formState.title}
-                onChange={(e) => handleFormField("title", e.target.value)}
-                autoFocus
-              />
-
-              {/* Description input */}
-              <textarea
-                placeholder="Description"
-                value={formState.description}
-                onChange={(e) => handleFormField("description", e.target.value)}
-                className="textarea textarea-bordered w-full h-24 resize-none"
-              />
-
               {/* Category selector and custom input */}
               <div className="space-y-1">
                 <label className="text-sm font-medium">Category</label>
@@ -190,7 +187,7 @@ const ChatManagerPage = () => {
                   }}
                 >
                   <option value="">Select category</option>
-                  {categories.filter((item) => item !== "All").map((item) => (
+                  {ticketCategories.filter((item) => item !== "All").map((item) => (
                     <option key={item} value={item}>
                       {item}
                     </option>

@@ -4,7 +4,7 @@ import Ticket from "../models/ticket.model.js";
 export const getAllTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
-      .populate("studentId", "fullName email role")
+      .populate("userId", "fullName email role")
       .populate("staffId", "fullName email role")
       .sort({ updatedAt: -1 });
 
@@ -18,10 +18,10 @@ export const getAllTickets = async (req, res) => {
 // Get tickets for a specific student
 export const getStudentTickets = async (req, res) => {
   try {
-    const studentId = req.user._id;
+    const userId = req.user._id;
 
-    const tickets = await Ticket.find({ studentId })
-      .populate("staffId", "fullName email role")
+    const tickets = await Ticket.find({ userId })
+      .populate("userId", "fullName email role")
       .sort({ updatedAt: -1 });
 
     res.status(200).json(tickets);
@@ -34,14 +34,16 @@ export const getStudentTickets = async (req, res) => {
 // Create new ticket
 export const createTicket = async (req, res) => {
   try {
-    const { staffId } = req.body;
-    const studentId = req.user._id;
+    const userId = req.user._id;
+    const { category } = req.body;
 
     const newTicket = await Ticket.create({
-      studentId,
-      staffId,
-      status: "pending",
+      userId,
+      category,
+      status: "New",
     });
+
+    console.log("New Ticket: ", newTicket)
 
     res.status(201).json(newTicket);
   } catch (error) {
@@ -50,38 +52,31 @@ export const createTicket = async (req, res) => {
   }
 };
 
-// Mark ticket as resolved
-export const markAsResolved = async (req, res) => {
+// Update ticket status
+export const updateStatus = async (req, res) => {
   try {
     const ticketId = req.params.id;
+    const { status } = req.body;
 
-    const ticket = await Ticket.findByIdAndUpdate(
+    const updatedTicket = await Ticket.findByIdAndUpdate(
       ticketId,
-      { status: "resolved" },
-      { new: true }
+      { status },
     );
 
-    res.status(200).json(ticket);
+    res.status(200).json(updatedTicket);
   } catch (error) {
-    console.error("markAsResolved Error:", error);
+    console.error("markAsInProgress Error:", error);
     res.status(500).json({ error: "Failed to update ticket" });
   }
 };
 
-// Mark ticket as In Progress
-export const markAsInProgress = async (req, res) => {
+export const deleteAllTickets = async (req, res) => {
   try {
-    const ticketId = req.params.id;
+    await Ticket.deleteMany();
 
-    const ticket = await Ticket.findByIdAndUpdate(
-      ticketId,
-      { status: "in progress" },
-      { new: true }
-    );
-
-    res.status(200).json(ticket);
+    res.status(200).json({ message: "All tickets deleted sucessfully"});
   } catch (error) {
-    console.error("markAsInProgress Error:", error);
-    res.status(500).json({ error: "Failed to update ticket" });
+    console.error("deleteAllTickets Error:", error);
+    res.status(500).json({ error: "Failed to delete tickets" });
   }
 };

@@ -180,19 +180,22 @@ const ChatContainer = () => {
                   </div>
                 </div>
 
-                <div className={`chat-bubble flex flex-col ${ 
-                  isYou(message.senderId) ? "items-start bg-purple-200" : "items-end"
-                  }`}>
-                  <span>{}</span>
+                <div className={`chat-bubble flex flex-col items-start ${ 
+                  isYou(message.senderId) ? "bg-purple-200" : ""}`}>
+                  <span className='text-blue-900 text-xs font-bold mb-1 truncate'>{isYou(message.senderId) ? "" : selectedUser.fullName}</span>
                   {message.image && (
                     <img
                       src={message.image}
                       alt="Attachment"
-                      className="max-w-[250px] md:max-w-xs rounded-md mb-2 cursor-pointer transition-transform hover:scale-[1.02]" // 🟢 Added responsive widths + hover zoom
+                      className="max-w-[250px] md:max-w-xs rounded-md mb-2 cursor-pointer transition-transform hover:scale-[1.02]" // Responsive widths + hover zoom
                       onClick={() => setPreviewImage(message.image)} // Open preview
                     />
                   )}
-                  {message.text && <p className='text-sm'>{message.text}</p>}
+                  {message.text && 
+                    <p className='text-sm'>
+                      {message.text}
+                    </p>
+                  }
 
                   <div className="chat-header mb-1 items-start self-end">
                     <time className="text-xs opacity-50 ml-1">
