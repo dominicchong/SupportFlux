@@ -5,10 +5,12 @@ import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
 import DateTimeFormatter from "../components/DateTimeFormatter";
 
+import toast from "react-hot-toast";
+
 const KnowledgeBasePage = () => {
   const { isUserAuthorized } = useAuthStore();
-  const { knowledgeData, isLoading, fetchKnowledge, createKnowledge, 
-    updateKnowledge, deleteKnowledge, getCategories} = useKnowledgeBaseStore();
+  const { knowledgeData, isLoading, fetchKnowledge, createKnowledge,
+    updateKnowledge, deleteKnowledge, getCategories } = useKnowledgeBaseStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -17,6 +19,8 @@ const KnowledgeBasePage = () => {
   const [editingId, setEditingId] = useState(null);
   const [isNewCategory, setIsNewCategory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewItem, setViewItem] = useState(null);
 
   const isAuthorized = isUserAuthorized();
   const categories = ["All", ...getCategories()];    // Categories and filtered data
@@ -47,16 +51,17 @@ const KnowledgeBasePage = () => {
     setIsModalOpen(true);
   };
 
-  // const openViewModal = (item) => {
-  //   setFormState({ title: item.title, description: item.description, category: item.category });
-  //   setIsModalOpen(true);
-  // };
+  const openViewModal = (item) => {
+    setViewItem(item);
+    setIsViewModalOpen(true);
+    // console.log("VIEW ITEM:", item);
+  };
 
   const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
 
   const handleSubmit = async () => {
     if (!formState.title || !formState.description || !formState.category) {
-      alert("All fields are required");
+      toast.error("All fields are required");
       return;
     }
     try {
@@ -82,7 +87,7 @@ const KnowledgeBasePage = () => {
     }
   };
 
-  
+
   return (
     <div className="p-4 pt-20 space-y-6 max-w-[95%] mx-auto">
       {/* <h1 className="flex w-full text-xl font-bold items-center">
@@ -113,10 +118,10 @@ const KnowledgeBasePage = () => {
             <button
               onClick={openCreateModal}
               className="btn flex gap-1 items-center btn-custom-primary"
-              title=""
+              title="Create new article"
             >
               <Plus className="size-4" />
-              <span className="hidden sm:inline">Add</span>
+              <span className="hidden sm:inline">New</span>
             </button>
           )}
         </div>
@@ -149,14 +154,14 @@ const KnowledgeBasePage = () => {
             <div className="text-center col-span-full text-gray-500">No matching articles found.</div>
           ) : (
             filteredData.map((item) => (
-              <Card key={item._id} className="hover:shadow-lg transition-shadow relative">
+              <Card key={item._id} className="hover:shadow-lg transition-shadow relative cursor-pointer" onClick={() => openViewModal(item)}>
                 <CardContent className="p-4 space-y-2">
                   <h2 className="text-lg font-semibold truncate">{item.title}</h2>
                   <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
                   <div className="flex gap-2 justify-between">
                     <Badge className="items-center" variant="secondary">{item.category}</Badge>
                     <span className="text-xs text-gray-400 text-right pt-1">
-                      <DateTimeFormatter value={item.updatedAt ? `${item.updatedAt}` : ""} format="numeric"/>
+                      <DateTimeFormatter value={item.updatedAt ? `${item.updatedAt}` : ""} format="numeric" />
                     </span>
                   </div>
                 </CardContent>
@@ -164,14 +169,20 @@ const KnowledgeBasePage = () => {
                 {isAuthorized && (
                   <div className="absolute top-3 right-2 flex gap-2">
                     <button
-                      onClick={() => openEditModal(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditModal(item);
+                      }}
                       className="p-1 rounded hover:bg-base-200 transition cursor-pointer"
                       title="Edit"
                     >
                       <Pencil className="size-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(item._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item._id);
+                      }}
                       className="p-1 rounded hover:bg-base-200 transition text-error cursor-pointer"
                       title="Delete"
                     >
@@ -261,6 +272,66 @@ const KnowledgeBasePage = () => {
           </div>
         </div>
       )}
+
+      {isViewModalOpen && viewItem && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-base-100 p-6 rounded-lg w-full max-w-lg space-y-4 shadow-lg">
+
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <h2 className="text-xl font-semibold">{viewItem.title}</h2>
+
+              {/* Edit + Delete buttons */}
+              {isAuthorized && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      openEditModal(viewItem);
+                      setIsViewModalOpen(false);
+                    }}
+                    className="p-1 rounded hover:bg-base-200"
+                    title="Edit"
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handleDelete(viewItem._id);
+                      setIsViewModalOpen(false);
+                    }}
+                    className="p-1 rounded hover:bg-base-200 text-error"
+                    title="Delete"
+                  >
+                    <Trash className="size-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Category */}
+            <Badge className="mb-2" variant="secondary">
+              {viewItem.category}
+            </Badge>
+
+            {/* Description */}
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">
+              {viewItem.description}
+            </p>
+
+            {/* Footer buttons */}
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="btn btn-ghost"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );
