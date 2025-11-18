@@ -1,4 +1,3 @@
-// /store/useKnowledgeBaseStore.js
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
@@ -74,7 +73,7 @@ export const useKnowledgeBaseStore = create((set, get) => ({
   },
 
 
-  // NEW: semantic search helper (for chatbot or search bar)
+  // Search helper
   searchKnowledge: async (query) => {
     if (!query) return [];
     try {

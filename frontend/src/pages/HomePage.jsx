@@ -10,12 +10,12 @@ const HomePage = () => {
       >
         <h1 className="text-4xl md:text-5xl font-bold mb-4 drop-shadow-lg">
           Welcome to 
-          <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent pl-2">
             SupportFlux
           </span>
         </h1>
         
-        <p className="text-lg md:text-xl max-w-4xl drop-shadow">
+        <p className="text-md md:text-xl max-w-4xl drop-shadow">
           Get quick support from our chatbot, live chat with faculty staff, or browse helpful resources.
         </p>
       </section>

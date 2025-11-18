@@ -20,7 +20,7 @@ export const createKnowledge = async (req, res) => {
   try {
     const { title, description, category } = req.body;
     if (!title || !description || !category) {
-      return res.status(400).json({ message: "All fields are required" }); // ✅ CHANGE: Basic validation
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     if (!req.user || !req.user._id) {
@@ -54,23 +54,27 @@ export const updateKnowledge = async (req, res) => {
     const existingItem = await KnowledgeItem.findById(req.params.id);
     if (!existingItem) return res.status(404).json({ message: "Item not found" });
 
+    const mergedTitle = title || existingItem.title;
+    const mergedDescription = description || existingItem.description;
+
     // Generate new embedding only if content changed
     let newEmbedding = existingItem.embedding;
-    if (title !== existingItem.title || description !== existingItem.description) {
-      newEmbedding = await generateEmbedding(title + " " + description);
+    if (mergedTitle !== existingItem.title || mergedDescription !== existingItem.description) {
+      newEmbedding = await generateEmbedding(mergedTitle + " " + mergedDescription);
     }
 
-    existingItem.title = title || existingItem.title;
-    existingItem.description = description || existingItem.description;
+    existingItem.title = mergedTitle;
+    existingItem.description = mergedDescription;
     existingItem.category = category || existingItem.category;
     existingItem.updatedBy = req.user._id;
     existingItem.embedding = newEmbedding;
 
     const updated = await existingItem.save();
 
-    const populated = await updated
-      .populate("createdBy", "fullName email")
-      .populate("updatedBy", "fullName email");
+    const populated = await await updated.populate([
+      { path: "createdBy", select: "fullName email" },
+      { path: "updatedBy", select: "fullName email" }
+    ]);
 
     res.json(populated);
   } catch (err) {

@@ -1,7 +1,6 @@
-import {useState} from 'react'
-
+import { useState } from 'react'
 import { useAuthStore } from "../store/useAuthStore.js";
-import { Eye, EyeOff, Loader2, Lock, Mail, Headset, User, ChevronDown  } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, Headset, User, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import AuthImagePattern from "../components/AuthImagePattern";
@@ -58,68 +57,67 @@ const SignUpPage = () => {
       await signup(formData);
       setFormData({ role: '', fullName: '', email: '', password: '' }); // Reset form after successful signup
       navigate('/login');
-      
     }
   }
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-    {/* left side */}
-    <div className="flex flex-col justify-center items-center p-6 sm:p-12">
-      <div className="w-full max-w-md space-y-8">
-        {/* LOGO */}
-        <div className="text-center mb-8">
-          <div className="flex flex-col items-center gap-2 group">
-            <div
-              className="size-12 rounded-xl bg-primary/10 flex items-center justify-center 
+      {/* left side */}
+      <div className="flex flex-col justify-center items-center p-6 sm:p-12">
+        <div className="w-full max-w-md space-y-8">
+          {/* LOGO */}
+          <div className="text-center mb-8">
+            <div className="flex flex-col items-center gap-2 group">
+              <div
+                className="size-12 rounded-xl bg-primary/10 flex items-center justify-center 
             group-hover:bg-primary/20 transition-colors"
-            >
-              <Headset className="w-5 h-5 text-primary" />
-            </div>
-            <h1 className="text-2xl font-bold mt-2">Register Account</h1>
-            <p className="text-base-content/60">Get started with your free account</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Role</span>
-            </label>
-            <div className="relative w-full">
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="w-full appearance-none bg-transparent border border-base-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base-content"
               >
-                <option value="">Select Role</option>
-                <option value="student">Student</option>
-                <option value="staff">Staff</option>
-              </select>
-              
-              {/* Custom arrow icon */}
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                <ChevronDown className="h-4 w-4 text-base-content/40" />
+                <Headset className="w-5 h-5 text-primary" />
               </div>
+              <h1 className="text-2xl font-bold mt-2">Register Account</h1>
+              <p className="text-base-content/60">Get started with your free account</p>
             </div>
           </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text font-medium">Full Name</span>
-            </label>
-            <div className="relative input input-bordered w-full pl-10">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="size-5 text-base-content/40" />
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Role</span>
+              </label>
+              <div className="relative w-full">
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full appearance-none bg-transparent border border-base-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base-content"
+                >
+                  <option value="student">Student</option>
+                </select>
+
+                {/* Custom arrow icon */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <ChevronDown className="h-4 w-4 text-base-content/40" />
+                </div>
               </div>
-              <input
-                type="text"
-                placeholder="John Doe"
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              />
+              <span className='text-sm'><i>*For staff, please ask the approval from admin after registering.</i></span>
             </div>
-          </div>
-          <div className="form-control">
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-medium">Full Name</span>
+              </label>
+              <div className="relative input input-bordered w-full pl-10">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="size-5 text-base-content/40" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Email</span>
               </label>

@@ -60,6 +60,7 @@ const ProfilePage = () => {
                   transition-all duration-200
                   ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}
                 `}
+                title="Update photo"
               >
                 <Camera className="w-5 h-5 text-base-200" />
                 <input

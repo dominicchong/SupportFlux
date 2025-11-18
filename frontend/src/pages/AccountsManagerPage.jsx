@@ -69,8 +69,9 @@ const AccountsManagerPage = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Manage Accounts</h2>
-        <button onClick={openCreateModal} className="btn btn-custom-primary">
-          <Plus className="size-4" /> <span className="ml-1">Add User</span>
+        <button onClick={openCreateModal} className="btn btn-custom-primary" title="Create new user">
+          <Plus className="size-4" /> 
+          <span className="ml-1">Add User</span>
         </button>
       </div>
 
