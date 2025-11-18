@@ -1,14 +1,12 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuthStore } from "./store/useAuthStore";
-import { useThemeStore } from "./store/useThemeStore";
 import { useEffect } from "react";
-
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "./store/useAuthStore";
+import { preloadHeroImage } from "./components/BasicUIComponents";
 
 import Navbar from "./components/Navbar";
 import SignUpPage from "./pages/SignUpPage";
-// import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
@@ -18,11 +16,9 @@ import AccountsManagerPage from "./pages/AccountsManagerPage";
 import AddNewArticlePage from "./pages/AddNewArticlePage";
 import ChatPage from "./pages/ChatPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import { preloadHeroImage } from "./components/BasicUIComponents";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
-  const { theme } = useThemeStore();
 
   useEffect (() => {
     checkAuth();
@@ -39,7 +35,7 @@ const App = () => {
   );
 
   return (
-    <div data-theme={theme} className="min-h-screen overflow-y-auto">
+    <div className="min-h-screen overflow-y-auto">
       {/* Navbar is only shown when user is authenticated */}
       {authUser && <Navbar />}
 
