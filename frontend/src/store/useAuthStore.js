@@ -12,6 +12,7 @@ export const useAuthStore = create((set, get) => ({
   isLoggingIn: false,
   isUpdatingProfile: false,
   isCheckingAuth: true,
+  isLoadingUsers: false,
   onlineUsers: [],
   socket: null,
   isSendingReset: false,
@@ -106,12 +107,15 @@ export const useAuthStore = create((set, get) => ({
   },
 
   fetchUsers: async () => {
+    set({ isLoadingUsers: true });
     try {
       const { data } = await axiosInstance.get("/auth/users/get-all");
       set({ users: data });
     } catch (error) {
       console.error("Failed to fetch users", error);
       toast.error("Failed to fetch users");
+    } finally {
+      set({ isLoadingUsers: false })
     }
   },
 

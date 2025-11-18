@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useTicketStore } from "../store/useTicketStore";
-import { Search, Plus, Trash, CheckCheck, Clock } from "lucide-react";
+import { Search, Plus, Trash, CheckCheck, Clock, Loader } from "lucide-react";
 import { Input } from "../components/BasicUIComponents"
 
 const ChatManagerPage = () => {
-  const { tickets, fetchAllTickets, updateTicketStatus, filter, setFilter, 
+  const { tickets, fetchAllTickets, updateTicketStatus, filter, setFilter, isLoadingTickets,
     filteredTickets, createTicket, getCategories, deleteAllTickets } = useTicketStore();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,7 +73,7 @@ const ChatManagerPage = () => {
         </button>
 
         <button
-          onClick={(e) => handleDelete() }
+          onClick={(e) => handleDelete()}
           className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
           title="Delete all tickets"
         >
@@ -89,8 +89,8 @@ const ChatManagerPage = () => {
             key={tab}
             onClick={() => setFilter(tab)}
             className={`px-3 py-1 border-b-2 cursor-pointer transition-colors duration-200  ${filter === tab
-                ? "border-blue-700 text-blue-700"
-                : "border-transparent text-gray-500 hover:text-blue-400"
+              ? "border-blue-700 text-blue-700"
+              : "border-transparent text-gray-500 hover:text-blue-400"
               }`}
           >
             {tab}
@@ -100,63 +100,72 @@ const ChatManagerPage = () => {
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
-        {visibleTickets.length > 0 ? (
-          <table className="table w-full">
-            <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
-              <tr>
-                <th className="px-4 py-3 text-left">User</th>
-                <th className="px-4 py-3 text-left">Assigned To</th>
-                <th className="px-4 py-3 text-left">Category</th>
-                <th className="px-4 py-3 text-left">Latest Message</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleTickets.map((ticket) => (
-                <tr key={ticket._id} className="hover:bg-gray-50">
-                  <td>{ticket.userId?.fullName || "Unknown"}</td>
-                  <td>{ticket?.staffId?.fullName || "(none)"}</td>
-                  <td>{ticket.category}</td>
-                  <td>(change this, add time date)</td>
-                  <td className="space-x-2">
-                    <span>{ticket.status}</span>
-                    <br/>
-                    {ticket.status !== "In Progress" && (
-                      <button
-                        className="btn btn-xs btn-warning"
-                        onClick={() => updateTicketStatus(ticket._id, "In Progress")}
-                        title="Mark as In Progress"
-                      >
-                        <Clock className="size-5"/>
-                      </button>
-                    )}
-                    {ticket.status !== "Resolved" && (
-                      <button
-                        className="btn btn-xs btn-success"
-                        onClick={() => updateTicketStatus(ticket._id, "Resolved")}
-                        title="Mark as Resolved"
-                      >
-                        <CheckCheck className="size-5"/>
-                      </button>
-                    )}
-                  </td>
-                  <td className="text-center space-x-2">
-                    <button className="btn btn-md btn-custom-primary-light"
-                      onClick={() => { }}    // To-do (Link the chat to the ticket id)
-                      title="Chat"
-                    >
-                      Chat
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="text-center text-gray-500 py-6">
-            No tickets found.
+        {isLoadingTickets ? (
+          <div className="flex flex-row text-center justify-center col-span-full text-gray-500 p-2">
+            <Loader className="size-6 animate-spin mr-2" />
+            <span>Loading</span>
           </div>
+        ) : (
+          <>
+            {visibleTickets.length > 0 ? (
+              <table className="table w-full">
+                <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
+                  <tr>
+                    <th className="px-4 py-3 text-left">User</th>
+                    <th className="px-4 py-3 text-left">Assigned To</th>
+                    <th className="px-4 py-3 text-left">Category</th>
+                    <th className="px-4 py-3 text-left">Latest Message</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleTickets.map((ticket) => (
+                    <tr key={ticket._id} className="hover:bg-gray-50">
+                      <td>{ticket.userId?.fullName || "Unknown"}</td>
+                      <td>{ticket?.staffId?.fullName || "(none)"}</td>
+                      <td>{ticket.category}</td>
+                      <td>(change this, add time date)</td>
+                      <td className="space-x-2">
+                        <span>{ticket.status}</span>
+                        <br />
+                        {ticket.status !== "In Progress" && (
+                          <button
+                            className="btn btn-xs btn-warning"
+                            onClick={() => updateTicketStatus(ticket._id, "In Progress")}
+                            title="Mark as In Progress"
+                          >
+                            <Clock className="size-5" />
+                          </button>
+                        )}
+                        {ticket.status !== "Resolved" && (
+                          <button
+                            className="btn btn-xs btn-success"
+                            onClick={() => updateTicketStatus(ticket._id, "Resolved")}
+                            title="Mark as Resolved"
+                          >
+                            <CheckCheck className="size-5" />
+                          </button>
+                        )}
+                      </td>
+                      <td className="text-center space-x-2">
+                        <button className="btn btn-md btn-custom-primary-light"
+                          onClick={() => { }}    // To-do (Link the chat to the ticket id)
+                          title="Chat"
+                        >
+                          Chat
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center text-gray-500 py-6">
+                No tickets found.
+              </div>
+            )}
+          </>
         )}
       </div>
 

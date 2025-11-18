@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Input } from "../components/BasicUIComponents";
-import { Pencil, Trash, Plus } from "lucide-react";
+import { Pencil, Trash, Plus, Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import DateTimeFormatter from "../components/DateTimeFormatter";
 
@@ -14,7 +14,7 @@ const AccountsManagerPage = () => {
   });
   const [editingId, setEditingId] = useState(null);
 
-  const { users, fetchUsers, saveUser, deleteUser } = useAuthStore();
+  const { users, fetchUsers, saveUser, deleteUser, isLoadingUsers } = useAuthStore();
 
   useEffect(() => {
     fetchUsers();
@@ -70,60 +70,69 @@ const AccountsManagerPage = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Manage Accounts</h2>
         <button onClick={openCreateModal} className="btn btn-custom-primary" title="Create new user">
-          <Plus className="size-4" /> 
+          <Plus className="size-4" />
           <span className="ml-1">Add User</span>
         </button>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        {users.length > 0 ? (
-          <table className="table w-full border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
-              <tr>
-                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Name</th>
-                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Email</th>
-                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Role</th>
-                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Created At</th>
-                <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Updated At</th>
-                <th className="text-center px-4 py-3 hover:bg-gray-100 transition">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {users.map((user) => (
-                <tr key={user._id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td>{user.fullName}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>
-                    <DateTimeFormatter value={user.createdAt} format="full"/>
-                  </td>
-                  <td>
-                    <DateTimeFormatter value={user.updatedAt} format="full"/>
-                  </td>
-                  <td className="flex gap-2">
-                    <button
-                      onClick={() => openEditModal(user)}
-                      className="btn btn-sm"
-                      title="Edit"
-                    >
-                      <Pencil className="size-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user._id)}
-                      className="btn btn-sm btn-error"
-                      title="Delete"
-                    >
-                      <Trash className="size-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {isLoadingUsers ? (
+          <div className="flex flex-row text-center justify-center col-span-full text-gray-500 p-2">
+            <Loader className="size-6 animate-spin mr-2" />
+            <span>Loading</span>
+          </div>
         ) : (
-          <div className="text-center text-gray-500">No users found.</div>
+        <>
+          {users.length === 0 ? (
+            <div className="text-center text-gray-500">No users found.</div>
+          ) : (
+            <table className="table w-full border border-gray-200 rounded-lg overflow-hidden">
+              <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
+                <tr>
+                  <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Name</th>
+                  <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Email</th>
+                  <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Role</th>
+                  <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Created At</th>
+                  <th className="text-left px-4 py-3 hover:bg-gray-100 transition">Updated At</th>
+                  <th className="text-center px-4 py-3 hover:bg-gray-100 transition">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {users.map((user) => (
+                  <tr key={user._id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td>{user.fullName}</td>
+                    <td>{user.email}</td>
+                    <td>{user.role}</td>
+                    <td>
+                      <DateTimeFormatter value={user.createdAt} format="full" />
+                    </td>
+                    <td>
+                      <DateTimeFormatter value={user.updatedAt} format="full" />
+                    </td>
+                    <td className="flex gap-2">
+                      <button
+                        onClick={() => openEditModal(user)}
+                        className="btn btn-sm btn-accent"
+                        title="Edit"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user._id)}
+                        className="btn btn-sm btn-error"
+                        title="Delete"
+                      >
+                        <Trash className="size-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
         )}
       </div>
 

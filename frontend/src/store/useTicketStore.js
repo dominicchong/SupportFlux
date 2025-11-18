@@ -5,19 +5,19 @@ import { axiosInstance } from "../lib/axios";
 export const useTicketStore = create((set, get) => ({
   tickets: [],
   filter: "All",
-  isLoading: false,
+  isLoadingTickets: false,
 
   // Fetch all tickets
   fetchAllTickets: async () => {
+    set({ isLoadingTickets: true });
     try {
-      set({ isLoading: true });
       const res = await axiosInstance.get("/ticket/all-tickets"); 
       set({ tickets: res.data });
     } catch (error) {
       console.error("Error fetching tickets:", error);
       toast.error(error.response?.data?.message || "Error fetching tickets");
     } finally {
-      set({ isLoading: false });
+      set({ isLoadingTickets: false });
     }
   },
 

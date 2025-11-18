@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Plus, Pencil, Trash } from "lucide-react";
+import { Search, Plus, Pencil, Trash, Loader } from "lucide-react";
 import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -149,7 +149,10 @@ const KnowledgeBasePage = () => {
         {/* Cards */}
         <div className="w-4/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
-            <div className="text-center col-span-full text-gray-500">Loading...</div>
+            <div className="flex flex-row justify-center text-center col-span-full text-gray-500">
+              <Loader className="size-6 animate-spin mr-2" />
+              <span>Loading</span>
+            </div>
           ) : filteredData.length === 0 ? (
             <div className="text-center col-span-full text-gray-500">No matching articles found.</div>
           ) : (
