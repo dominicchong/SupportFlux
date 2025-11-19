@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
 import { Search, Plus, Trash, CheckCheck, Clock, Loader } from "lucide-react";
-import { Input } from "../components/BasicUIComponents"
+import TicketModal from "../components/TicketModal"
 
-const ChatManagerPage = () => {
+const TicketManagerPage = () => {
   const { tickets, fetchAllTickets, updateTicketStatus, filter, setFilter, isLoadingTickets,
     filteredTickets, createTicket, getCategories, deleteAllTickets } = useTicketStore();
 
@@ -19,9 +20,10 @@ const ChatManagerPage = () => {
   }, [fetchAllTickets]);
 
   const visibleTickets = filteredTickets();
-  const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
+  // const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
   const statusList = ["All", "New", "In Progress", "Resolved"];
   const ticketCategories = ["All", ...getCategories()];
+  const navigate = useNavigate();
 
   const openCreateModal = () => {
     setFormState({ category: "" });
@@ -60,26 +62,36 @@ const ChatManagerPage = () => {
 
   return (
     <div className="p-6 pt-20 w-full mx-auto max-w-5xl space-y-4">
-      <div className="flex justify-between">
+      <div className="flex flex-row justify-between">
         <h2 className="text-xl font-semibold">Ticket Manager</h2>
 
-        <button
-          onClick={openCreateModal}
-          className="btn flex gap-1 items-center btn-custom-primary"
-          title="Create new ticket"
-        >
-          <Plus className="size-4" />
-          <span className="hidden sm:inline">New Ticket</span>
-        </button>
+        <div className="flex items-end justify-right space-x-3">
+          <button
+            onClick={(e) => navigate('/ticket-chats')}
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-emerald-400 cursor-pointer"
+            title="Delete all tickets"
+          >
+            Live Chat
+          </button>
 
-        <button
-          onClick={(e) => handleDelete()}
-          className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
-          title="Delete all tickets"
-        >
-          <Trash className="size-4" />
-          Delete All
-        </button>
+          <button
+            onClick={(e) => handleDelete()}
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
+            title="Delete all tickets"
+          >
+            <Trash className="size-4" />
+            Delete All
+          </button>
+
+          <button
+            onClick={openCreateModal}
+            className="btn flex gap-1 items-center btn-custom-primary"
+            title="Create new ticket"
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">New Ticket</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -122,7 +134,7 @@ const ChatManagerPage = () => {
                 <tbody>
                   {visibleTickets.map((ticket) => (
                     <tr key={ticket._id} className="hover:bg-gray-50">
-                      <td>{ticket.userId?.fullName || "Unknown"}</td>
+                      <td>{ticket.userId?.fullName}</td>
                       <td>{ticket?.staffId?.fullName || "(none)"}</td>
                       <td>{ticket.category}</td>
                       <td>(change this, add time date)</td>
@@ -170,67 +182,19 @@ const ChatManagerPage = () => {
       </div>
 
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-base-100 p-6 rounded-lg w-full max-w-md space-y-4 shadow-lg">
-            <h2 className="text-lg font-semibold">
-              <span>New Ticket</span>
-            </h2>
+      <TicketModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        formState={formState}
+        handleFormField={handleFormField}
+        handleSubmit={handleSubmit}
+        isNewCategory={isNewCategory}
+        setIsNewCategory={setIsNewCategory}
+        ticketCategories={ticketCategories}
+      />
 
-            <div className="space-y-3">
-              {/* Category selector and custom input */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Category</label>
-                <select
-                  className="select select-bordered w-full"
-                  value={isNewCategory ? "__new" : formState.category || ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "__new") {
-                      setIsNewCategory(true);
-                      handleFormField("category", "");
-                    } else {
-                      setIsNewCategory(false);
-                      handleFormField("category", val);
-                    }
-                  }}
-                >
-                  <option value="">Select category</option>
-                  {ticketCategories.filter((item) => item !== "All").map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                  <option value="__new">+ Add new...</option>
-                </select>
-
-                {isNewCategory && (
-                  <Input
-                    placeholder="New category"
-                    value={formState.category}
-                    onChange={(e) => handleFormField("category", e.target.value)}
-                    className="mt-2"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="btn btn-ghost"
-              >
-                Cancel
-              </button>
-              <button onClick={handleSubmit} className="btn btn-custom-primary">
-                <span>Create</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default ChatManagerPage;
+export default TicketManagerPage;

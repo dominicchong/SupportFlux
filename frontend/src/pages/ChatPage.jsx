@@ -1,5 +1,5 @@
 import { useAuthStore } from "../store/useAuthStore";
-import ChatManagerPage from "./ChatManagerPage";
+import TicketManagerPage from "./TicketManagerPage";
 import LiveChatPage from "./LiveChatPage";
 
 const ChatPage = () => {
@@ -7,7 +7,7 @@ const ChatPage = () => {
   const isStaff = isUserAuthorized();
 
   if (isStaff) {
-    return <ChatManagerPage />;
+    return <TicketManagerPage />;
   }
 
   return <LiveChatPage />;

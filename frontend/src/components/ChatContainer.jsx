@@ -46,10 +46,10 @@ const ChatContainer = () => {
 
   useEffect(() => {
     const container = scrollRef.current;
-    if (!container || !messages?.length) return;
+    if (!container) return;
     
     // Scroll to first unread message on load
-    if (hasUnreadMsg && unreadIndex !== -1) {
+    if (hasUnreadMsg && unreadIndex !== -1 && messages?.length > 0) {
       const unreadMessage = container.querySelector(
         `[data-message-index="${unreadIndex}"]`
       );
@@ -166,7 +166,7 @@ const ChatContainer = () => {
                 className={`chat ${
                   isYou(message.senderId) ? "chat-end" : "chat-start"
                 }`}
-                ref={index === msgs.length - 1 ? messageEndRef : null}
+                ref={messageEndRef}
               >
                 <div className="chat-image avatar">
                   <div className="size-10 rounded-full border">

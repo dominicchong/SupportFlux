@@ -26,9 +26,10 @@ export const useTicketStore = create((set, get) => ({
     try {
       const { data } = await axiosInstance.post("/ticket/create", item);
       set((s) => ({ tickets: [data, ...s.tickets] }));
+      await get().fetchAllTickets();
       toast.success("Ticket created");
     } catch (error) {
-      console.log("Error creating new ticket: ", error)
+      console.error("Error creating new ticket: ", error)
       toast.error("Failed to create new ticket");
     }
   },
@@ -75,6 +76,7 @@ export const useTicketStore = create((set, get) => ({
   deleteAllTickets: async () => {
     try {
       await axiosInstance.delete(`/ticket/delete-all`);
+      await get().fetchAllTickets();
       toast.success("All tickets is deleted!");
     } catch (error) {
       toast.error("Error deleting all tickets");

@@ -97,7 +97,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="mt-6 bg-base-300 rounded-xl p-3">
-            <h2 className="text-lg font-medium border-b border-zinc-700 pb-2">Account Information</h2>
+            <h2 className="text-md font-medium border-b border-zinc-700 pb-2 md:text-lg">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 mt-2">
                 <span>Member Since</span>
@@ -110,7 +110,8 @@ const ProfilePage = () => {
 
           <div className="flex justify-end">
             <button
-              className="flex gap-2 items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded cursor-pointer transition-colors"
+              className="flex gap-2 items-center bg-red-500 hover:bg-red-600 text-white 
+              px-4 py-2 rounded cursor-pointer transition-colors"
               onClick={() => {
                 const confirmLogout = window.confirm("Are you sure you want to log out?");
                 if (confirmLogout) {
@@ -119,7 +120,7 @@ const ProfilePage = () => {
               }}
             >
               <LogOut className="size-5" />
-              <span className="hidden sm:inline">Logout</span>
+              <span>Logout</span>
             </button>
           </div>
         </div>

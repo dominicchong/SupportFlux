@@ -16,6 +16,7 @@ import AccountsManagerPage from "./pages/AccountsManagerPage";
 import AddNewArticlePage from "./pages/AddNewArticlePage";
 import ChatPage from "./pages/ChatPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import LiveChatPage from "./pages/LiveChatPage";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -53,6 +54,9 @@ const App = () => {
         <Route path="/add-new-article" element={authUser ? <AddNewArticlePage /> : <Navigate to="/login" />} />
         <Route path="/profile" element={ authUser ? <ProfilePage /> : <Navigate to="/login" />} />
         <Route path="/accounts" element={ authUser ? <AccountsManagerPage /> : <Navigate to="/login" />} />
+
+        {/* TO-DO */}
+        <Route path="/ticket-chats" element={ authUser ? <LiveChatPage /> : <Navigate to="/login" />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
