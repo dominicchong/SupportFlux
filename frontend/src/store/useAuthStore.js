@@ -1,4 +1,4 @@
-import {create} from 'zustand';
+import { create } from 'zustand';
 import { axiosInstance } from '../lib/axios.js';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
@@ -17,8 +17,8 @@ export const useAuthStore = create((set, get) => ({
   socket: null,
   isSendingReset: false,
   users: [],
-  
-  checkAuth: async() => {
+
+  checkAuth: async () => {
     try {
       const res = await axiosInstance.get('/auth/check-auth');
       set({ authUser: res.data });
@@ -87,7 +87,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  updateProfile: async(data) => {
+  updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
       const res = await axiosInstance.put('/auth/update-profile', data);
@@ -153,33 +153,31 @@ export const useAuthStore = create((set, get) => ({
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
-    
+
     const socket = io(BASE_URL, {
       query: { userId: authUser._id },
     })
     socket.connect();
 
-    set({ socket: socket});
+    set({ socket: socket });
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
   },
-  
+
   disconnectSocket: () => {
-    if(get().socket?.connected) get().socket.disconnect();
+    if (get().socket?.connected) get().socket.disconnect();
 
   },
 
   isUserAuthorized: () => {
-    const { authUser } = get();
-    if (!authUser || !authUser.role) return false;
+    const role = get().authUser?.role?.trim().toLowerCase();
+    return role === "staff" || role === "admin";
+  },
 
-    let isAuthorized = false;
-    const role = authUser.role.trim().toLowerCase();
-    if (role === "staff" || role === "admin") {
-      isAuthorized = true;
-    }
-    return isAuthorized;
+  isStudent: () => {
+    const role = get().authUser?.role?.trim().toLowerCase();
+    return role === "student";
   },
 
   isYou: (userId) => {
