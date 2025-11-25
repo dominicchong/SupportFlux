@@ -23,11 +23,17 @@ const userSocketMap = {};  // {userId: socketId}
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
-  const userId = socket.handshake.query.userId;
-  if(userId) userSocketMap[userId] = socket.id;
+  const { userId, role} = socket.handshake.query;
+  if(userId) {
+    userSocketMap[userId] = {socketId: socket.id, role}; 
+  }
 
   // io.emit() is used to send events to all connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  socket.on("joinTicket", (ticketId) => {
+    socket.join(ticketId);
+  });
 
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);

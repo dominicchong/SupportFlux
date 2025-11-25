@@ -95,7 +95,7 @@ const Navbar = () => {
                     <MessageCircleMore className="size-5" />
                     <span className="hidden sm:inline">Live Chat</span>
                   </NavLink>
-                  <UnreadBadge count={totalUnread} className="absolute -top-2 -right-1"/>
+                  {/* <UnreadBadge count={totalUnread} className="absolute -top-2 -right-1"/> */}
                 </div>
 
                 <NavLink

@@ -41,8 +41,7 @@ const MessageInput = () => {
 
       // Clear form
       setText("");
-      setImagePreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      removeImage();
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -91,13 +90,6 @@ const MessageInput = () => {
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
           <input
-            type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
-            placeholder="Type a message..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-          />
-          <input
             type="file"
             accept="image/*"
             className="hidden"
@@ -107,12 +99,20 @@ const MessageInput = () => {
 
           <button
             type="button"
-            className={`btn btn-circle
+            className={`btn btn-circle btn-sm
                      ${imagePreview ? "bg-purple-400 text-white" : "text-zinc-400"}`}
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
           </button>
+          
+          <input
+            type="text"
+            className="w-full input input-bordered rounded-lg input-sm"
+            placeholder="Type a message..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
         </div>
         <button
           type="submit"
