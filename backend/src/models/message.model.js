@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
 const messageSchema = new mongoose.Schema({
+  ticketId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ticket',
+    required: true,
+  },
   senderId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -9,7 +14,6 @@ const messageSchema = new mongoose.Schema({
   receiverId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
   },
   text: {
     type: String,
@@ -21,6 +25,12 @@ const messageSchema = new mongoose.Schema({
     type: Boolean,
     default: false, // newly sent messages are unread by default
   },
+  readBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    }
+  ],
 },
 { timestamps: true }
 );

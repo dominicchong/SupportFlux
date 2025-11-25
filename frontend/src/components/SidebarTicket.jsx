@@ -3,48 +3,32 @@ import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { MessageCircleMore, Plus, Trash } from "lucide-react";
-import MessagePreview from "./MessagePreview";
-import TicketModal from "../components/TicketModal"
+import TicketPreview from "./TicketPreview";
+import TicketModal from "./TicketModal"
 import { useTicketStore } from "../store/useTicketStore";
 
-const Sidebar = () => {
-  const { authUser, onlineUsers } = useAuthStore();
+const SidebarTicket = () => {
+  const { isStudent, onlineUsers } = useAuthStore();
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, clearUnread,
     getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
-  const { tickets, fetchAllTickets, updateTicketStatus, filter, setFilter, isLoadingTickets,
-    statusList, filteredTickets, createTicket, getCategories, deleteAllTickets } = useTicketStore();
+  const { tickets, fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, filter, setFilter, isLoadingTickets,
+    statusList, filteredTickets, createTicket, getCategories } = useTicketStore();
 
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formState, setFormState] = useState({ category: "" });
   const [isNewCategory, setIsNewCategory] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (authUser) {
-      getUsers();
-      getUnreadCounts();
-      getLatestMessages();
-    }
-  }, [getUsers, getUnreadCounts, getLatestMessages]);
+    fetchMyTickets();
+    getUnreadCounts();
+    getLatestMessages();
+  }, [fetchMyTickets, getUnreadCounts, getLatestMessages]);
 
   const ticketCategories = ["All", ...getCategories()];
-  const isStudent = useAuthStore((state) => state.authUser?.role === "student");
-
-  // Apply online-only filter
-  const onlineFiltered = showOnlineOnly
-    ? users.filter(user => onlineUsers.includes(user._id))
-    : users;
-
-  // Role restriction for student
-  const roleFiltered = isStudent
-    ? onlineFiltered.filter(user => user.role === "admin" || user.role === "staff")
-    : onlineFiltered;
-
-  // Search filter
-  const visibleUsers = roleFiltered.filter(user =>
-    user.fullName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // console.log("My tickets:", myTickets);
 
   const openCreateModal = () => {
     setFormState({ category: "" });
@@ -60,22 +44,30 @@ const Sidebar = () => {
       return;
     }
 
-    await createTicket(formState);
-    setIsModalOpen(false);
-    fetchAllTickets();
+    try {
+      await createTicket(formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsModalOpen(false);
+      fetchAllTickets();
+    }
   };
 
   const handleDelete = async () => {
     if (!window.confirm("Delete all messages? \nThis is a permanent action.")) return;
     setIsDeleting(true);
 
-    await deleteAllMessages();
-    setIsDeleting(false);
-    getUsers();
-    getUnreadCounts();
-    getLatestMessages();
+    try {
+      await deleteAllMessages();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsDeleting(false);
+      fetchAllTickets();
+    }
   };
-
+  
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
@@ -110,7 +102,7 @@ const Sidebar = () => {
         <div className="flex mt-3 gap-2">
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Search tickets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input input-sm input-bordered w-full"
@@ -130,28 +122,28 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {visibleUsers.map((user) => (
+        {myTickets.map((ticket) => (
           <button
-            key={user._id}
+            key={ticket._id}
             onClick={() => {
-              setSelectedUser(user);
-              clearUnread(user._id); // Clear unread count when chat is opened
+              setSelectedTicket(ticket);
+              // clearUnread(ticket._id); // Clear unread count when chat is opened
             }}
             className={`
               w-full p-3 flex items-center justify-between gap-3
               hover:bg-base-300 transition-colors
-              ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+              ${selectedTicket?._id === ticket._id ? "bg-base-300 ring-1 ring-base-300" : ""}
             `}
           >
-            <MessagePreview user={user} onlineUsers={onlineUsers} />
+            <TicketPreview ticket={ticket} onlineUsers={onlineUsers} />
           </button>
         ))}
 
-        {visibleUsers.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No users found</div>
+        {myTickets.length === 0 && (
+          <div className="text-center text-zinc-500 py-4">No tickets found</div>
         )}
       </div>
     </aside>
   );
 };
-export default Sidebar;
+export default SidebarTicket;

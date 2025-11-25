@@ -2,11 +2,11 @@ import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import { axiosInstance } from '../lib/axios';
 import { useAuthStore } from './useAuthStore';
+import { useTicketStore } from './useTicketStore';
 
 export const useChatStore = create((set, get) => ({
   messages: [],
   users: [],
-  selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
   isSendMessageLoading: false,
@@ -16,13 +16,12 @@ export const useChatStore = create((set, get) => ({
 
   setActiveDate: (date) => set ({activeDate: date}),
   resetActiveDate: () => set({ activeDate: null }),
-  setSelectedUser: (user) => set({ selectedUser: user }),
 
   // Fetch users
-  getUsers: async () => {
+  getTickets: async () => {
     set({ isUsersLoading: true });
     try {
-      const res = await axiosInstance.get("/messages/users");
+      const res = await axiosInstance.get("/messages/tickets");
       set({ users: res.data });
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error fetching users');
@@ -31,23 +30,23 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // Fetch messages for selected user
-  getMessages: async (userId) => {
+  // Fetch messages for selected ticket
+  getMessages: async (ticketId) => {
     set({ isMessagesLoading: true });
     try {
       // Fetch all messages (and backend will auto-mark as read)
-      const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
-      const messages = res.data;
-      const messageLength = res.data.length;
+      const res = await axiosInstance.get(`/messages/${ticketId}`);
+      const messagesData = res.data;
+      const messageLength = messagesData.length;
+      set({ messages: messagesData });
 
       if (messageLength > 0) {
-        const lastMessage = messages[messageLength- 1];
-        get().setLatestMessage(userId, lastMessage);
+        const lastMessage = messagesData[messageLength- 1];
+        get().setLatestMessage(ticketId, lastMessage);
       }
 
       // Clear unread for this user in local store
-      get().clearUnread(userId);
+      // get().clearUnread(ticketId);
     } catch (error) {
       toast.error(error.response?.data?.message || "Error fetching messages");
     } finally {
@@ -58,29 +57,34 @@ export const useChatStore = create((set, get) => ({
   // Send message
   sendMessage: async (messageData) => {
     set({ isSendMessageLoading: true });
-    const { selectedUser, messages } = get();
+    const { messages } = get();
     const authUser = useAuthStore.getState().authUser;
     const socket = useAuthStore.getState().socket;
+    const selectedTicket = useTicketStore.getState().selectedTicket;
+    const senderId = authUser._id;
+    const ticketId = selectedTicket._id;
 
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
+      const res = await axiosInstance.post(`/messages/send/${selectedTicket._id}`, { ...messageData, ticketId: selectedTicket._id });
       const newMessage = res.data;
 
       // Add message to sender’s chat immediately
       set({ messages: [...messages, newMessage] });
 
-      get().setLatestMessage(selectedUser._id, newMessage);
+      get().setLatestMessage(ticketId, newMessage);
 
       // Emit socket event so receiver sees it instantly
       if (socket) {
         socket.emit("sendMessage", {
+          ticketId,
+          senderId,
           ...newMessage,
-          receiverId: selectedUser._id,
-          senderId: authUser._id,
+          readBy: [senderId],
         });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Error sending message");
+      console.error("sendMessage useChatStore Error:", error)
     } finally {
       set({ isSendMessageLoading: false });
     }
@@ -109,27 +113,19 @@ export const useChatStore = create((set, get) => ({
 
     socket.off("newMessage"); // avoid duplicate listeners
     socket.on("newMessage", (newMessage) => {
-      const { senderId, receiverId } = newMessage;
-      const currentSelectedUser = get().selectedUser;
+      const selectedTicket = useTicketStore.getState().selectedTicket;
 
-      // Only increment unread if message is FOR this user (receiver)
-      if (receiverId === authUser._id) {
-        get().setLatestMessage(senderId, newMessage);
-
-        // If chat with sender is NOT currently open → increment unread
-        if (!currentSelectedUser || currentSelectedUser._id !== senderId) {
-          get().incrementUnread(senderId);
-        } else {
-          // If open chat → directly append message
-          set((state) => ({
-            messages: [...state.messages, newMessage],
-          }));
-        }
+      // Only process messages belonging to the currently open ticket
+      if (!selectedTicket || newMessage.ticketId !== selectedTicket._id) {
+        return;
       }
 
-      if (senderId === authUser._id) {
-        get().setLatestMessage(receiverId, newMessage);
-      }
+      // Append message to current chat
+      set((state) => ({
+        messages: [...state.messages, newMessage],
+      }));
+
+      get().setLatestMessage(selectedTicket._id, newMessage);
     });
   },
 
@@ -141,17 +137,17 @@ export const useChatStore = create((set, get) => ({
   // Unread message utilities
   setUnreadCount: (newUnread) => set({ unreadCount: newUnread }),
 
-  incrementUnread: (fromUserId) =>
+  incrementUnread: (fromTicketId) =>
     set((state) => ({
       unreadCount: {
         ...state.unreadCount,
-        [fromUserId]: (state.unreadCount[fromUserId] || 0) + 1,
+        [fromTicketId]: (state.unreadCount[fromTicketId] || 0) + 1,
       },
     })),
 
-  clearUnread: (userId) =>
+  clearUnread: (ticketId) =>
     set((state) => {
-      const { [userId]: _, ...rest } = state.unreadCount;
+      const { [ticketId]: _, ...rest } = state.unreadCount;
       return { unreadCount: rest };
     }),
   
@@ -170,8 +166,8 @@ export const useChatStore = create((set, get) => ({
 
       set({ unreadCount: unreadMap });
     } catch (error) {
-      console.warn("Error: ", error)
-      console.warn("Skipped unread count fetch due to network or format issue.");
+      console.error("Error loading unread count: ", error);
+      toast.error("Failed loading unread count");
     }
   },
 
@@ -201,21 +197,21 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  setLatestMessage: (userId, message) => {
+  setLatestMessage: (ticketId, message) => {
     set((state) => ({
       latestMessages: {
         ...state.latestMessages,
-        [userId]: message,
+        [ticketId]: message,
       },
     }))
   },
 
-  // Need to change implementation
+  // TO-DO: Need to change implementation
   getFirstUnreadIndex: () => {
-    const { selectedUser, messages, authUser } = get();
-    if (!selectedUser || !messages?.length || !authUser) return -1;
-    const lastReadTime = selectedUser.lastRead 
-      ? new Date(selectedUser.lastRead).getTime() : null;
+    const { selectedTicket, messages, authUser } = get();
+    if (!selectedTicket || !messages?.length || !authUser) return -1;
+    const lastReadTime = selectedTicket.lastRead 
+      ? new Date(selectedTicket.lastRead).getTime() : null;
 
     return messages.findIndex(
       (msg) => 
@@ -227,6 +223,26 @@ export const useChatStore = create((set, get) => ({
   hasUnread: () => {
     const index = get().getFirstUnreadIndex();
     return index !== -1;
-  }
+  },
+
+  deleteMessagesByTicketId: async (ticketId) => {
+    try {
+      await axiosInstance.delete(`/messages/${ticketId}/delete-ticket`);
+      toast.success("All messages is deleted!");
+    } catch (error) {
+      toast.error("Error deleting all messages");
+      console.error("Error in deleteAllMessages: ", error);
+    }
+  },
+
+  deleteAllMessages: async () => {
+    try {
+      await axiosInstance.delete(`/messages/delete-all`);
+      toast.success("All messages is deleted!");
+    } catch (error) {
+      toast.error("Error deleting all messages");
+      console.error("Error in deleteAllMessages: ", error);
+    }
+  },
 
 }));

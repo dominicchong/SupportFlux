@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { axiosInstance } from '../lib/axios.js';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
-import { useChatStore } from './useChatStore.js';
+import { useTicketStore } from './useTicketStore.js';
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
@@ -59,10 +59,10 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: async () => {
-    useChatStore.getState().setSelectedUser(null); // Clear selected chat user on logout
-
     set({ isLoggingOut: true });
     try {
+      useTicketStore.getState().resetTicketStore(); // Clear my tickets on logout
+
       await axiosInstance.post('/auth/logout');
       set({ authUser: null });
       toast.success('Logged out successfully');

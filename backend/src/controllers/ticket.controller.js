@@ -4,8 +4,8 @@ import Ticket from "../models/ticket.model.js";
 export const getAllTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
-      .populate("userId", "fullName email role")
-      .populate("staffId", "fullName email role")
+      .populate("userId", "fullName email role profilePic")
+      .populate("staffId", "fullName email role profilePic")
       .sort({ updatedAt: -1 });
 
     res.status(200).json(tickets);
@@ -15,21 +15,39 @@ export const getAllTickets = async (req, res) => {
   }
 };
 
-// Get tickets for a specific student
-export const getStudentTickets = async (req, res) => {
+// Get own tickets
+export const getMyTickets = async (req, res) => {
   try {
     const userId = req.user._id;
 
     const tickets = await Ticket.find({ userId })
-      .populate("userId", "fullName email role")
+      .populate("userId", "fullName email role profilePic")
+      .populate("staffId", "fullName email role profilePic")
       .sort({ updatedAt: -1 });
 
     res.status(200).json(tickets);
   } catch (error) {
-    console.error("getStudentTickets Error:", error);
-    res.status(500).json({ error: "Failed to fetch student tickets" });
+    console.error("getUserTickets Error:", error);
+    res.status(500).json({ error: "Failed to fetch user tickets" });
   }
 };
+
+export const getByTicketId = async (req, res) => {
+  try {
+    const ticketId = req.params;
+
+    const ticket = await Ticket.findById({ ticketId })
+      .populate("userId", "fullName email role profilePic")
+      .populate("staffId", "fullName email role profilePic")
+      .sort({ updatedAt: -1 });
+
+    res.status(200).json(ticket);
+  } catch (error) {
+    console.error("getByTicketId Error:", error);
+    res.status(500).json({ error: "Failed to fetch ticket chat" });
+  }
+};
+
 
 // Create new ticket
 export const createTicket = async (req, res) => {

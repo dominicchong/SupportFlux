@@ -1,56 +1,80 @@
-import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
+import Ticket from "../models/ticket.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { io } from "../lib/socket.js";
 
-export const getUsersForSidebar = async (req, res) => {
+export const getTicketsForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
-    const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password")
-    return res.status(200).json(filteredUsers);
+    const role = req.user.role;
+
+    let tickets;
+
+    if (role === "staff") {
+      tickets = await Ticket.find().populate("userId");
+    } else {
+      tickets = await Ticket.find({ userId: loggedInUserId }).populate("userId");
+    }
+
+    return res.status(200).json(tickets);
   } catch (error) {
-    console.error("Error in getUsersForSidebar controller:", error.message);
+    console.error("Error in getTicketsForSidebar:", error.message);
     return res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
 export const getMessages = async (req, res) => {
   try {
-    const { id: userToChatId } = req.params
+    const { ticketId } = req.params;
     const myId = req.user._id;
+    const role = req.user.role;
 
-    const messages = await Message.find({
-      $or: [
-        { senderId: myId, receiverId: userToChatId },
-        { senderId: userToChatId, receiverId: myId }
-      ]
-    })
+    // ACCESS RULE: only staff or the ticket owner
+    const ticket = await Ticket.findById(ticketId);
+    if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
-    // Mark as read all messages sent to me that are unread
-    await Message.updateMany(
-      { senderId: userToChatId, receiverId: myId, isRead: false },
-      { $set: { isRead: true } }
-    );
+    const isStaff = role !== "student";  
+    const isCreator = ticket.userId._id.toString() === myId.toString();
 
-    // Notify sender (userToChatId) their messages are read
-    const senderSocketId = getReceiverSocketId(userToChatId);
-    if (senderSocketId) {
-      io.to(senderSocketId).emit("messagesRead", { readerId: myId });
+    if (!isStaff && !isCreator) {
+      return res.status(403).json({ message: "Unauthorized: You cannot view this ticket" });
     }
 
-    res.status(200).json(messages)
+    // Messages belong ONLY to the ticket now
+    const messages = await Message.find({ ticketId }).sort({ createdAt: 1 });
+
+    await Message.updateMany(
+      { ticketId, readBy: { $ne: userId } },
+      { $addToSet: { readBy: userId } }
+    );
+
+    res.status(200).json(messages);
   } catch (error) {
-    console.error("Error in getMessages controller:", error.message);
+    console.error("Error in getMessages:", error);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
-    const { id: receiverId } = req.params;
+    const { ticketId, text, image } = req.body;
     const senderId = req.user._id;
+    const role = req.user.role;
+
+    if (!ticketId) {
+      return res.status(400).json({ message: "Ticket ID is required" });
+    }
+
+    const ticket = await Ticket.findById(ticketId);
+    if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+
+    const isStaff = role !== "student";
+    const isCreator = ticket.userId._id.toString() === senderId.toString();
+
+    if (!isStaff && !isCreator) {
+      return res.status(403).json({ message: "Unauthorized: You cannot send messages to this ticket" });
+    }
 
     let imageUrl;
     if (image) {
@@ -59,8 +83,8 @@ export const sendMessage = async (req, res) => {
     }
 
     const newMessage = new Message({
+      ticketId,
       senderId,
-      receiverId,
       text,
       image: imageUrl,
       isRead: false,
@@ -68,11 +92,7 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      // only sending message to the receiver because it is private chat
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
+    io.to(ticketId).emit("newMessage", newMessage);
 
     res.status(201).json(newMessage);
   } catch (error) {
@@ -85,13 +105,11 @@ export const getUnreadCounts = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Group all unread messages where the logged-in user is the receiver
     const unreadCounts = await Message.aggregate([
-      { $match: { receiverId: userId, isRead: false } },
-      { $group: { _id: "$senderId", count: { $sum: 1 } } },
+      { $match: { readBy: { $ne: userId } } },
+      { $group: { _id: "$ticketId", count: { $sum: 1 }}},
     ]);
 
-    // Otherwise, return normal unread count array
     res.status(200).json(unreadCounts);
   } catch (error) {
     console.error("Error in getUnreadCounts controller:", error.message);
@@ -118,13 +136,7 @@ export const getLatestMessages = async (req, res) => {
       // Group to get the latest message per conversation partner
       {
         $group: {
-          _id: {
-            $cond: [
-              { $eq: ["$senderId", userId] },
-              "$receiverId",
-              "$senderId"
-            ]
-          },
+          _id: "$ticketId",
           text: { $first: "$text" },
           image: { $first: "$image" },
           senderId: { $first: "$senderId" },
@@ -144,3 +156,14 @@ export const getLatestMessages = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteAllMessages = async (req, res) => {
+  try {
+    await Message.deleteMany();
+
+    res.status(200).json({ message: "All messages deleted sucessfully"});
+  } catch (error) {
+    console.error("Error in deleteAllMessages controller:", error);
+    res.status(500).json({ message: error.message });
+  }
+}

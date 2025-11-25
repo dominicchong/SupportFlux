@@ -4,15 +4,38 @@ import { axiosInstance } from "../lib/axios";
 
 export const useTicketStore = create((set, get) => ({
   tickets: [],
+  myTickets: [],
+  selectedTicket: null,
   filter: "All",
+  statusList: ["All", "New", "In Progress", "Resolved"],
   isLoadingTickets: false,
+
+  setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
+  resetTicketStore: () => set({
+    myTickets: [],
+    selectedTicket: null,
+  }),
 
   // Fetch all tickets
   fetchAllTickets: async () => {
     set({ isLoadingTickets: true });
     try {
-      const res = await axiosInstance.get("/ticket/all-tickets"); 
+      const res = await axiosInstance.get("/ticket/all"); 
       set({ tickets: res.data });
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+      toast.error(error.response?.data?.message || "Error fetching tickets");
+    } finally {
+      set({ isLoadingTickets: false });
+    }
+  },
+
+  // Fetch all tickets
+  fetchMyTickets: async () => {
+    set({ isLoadingTickets: true });
+    try {
+      const res = await axiosInstance.get(`/ticket/my-tickets`); 
+      set({ myTickets: res.data });
     } catch (error) {
       console.error("Error fetching tickets:", error);
       toast.error(error.response?.data?.message || "Error fetching tickets");
@@ -26,7 +49,6 @@ export const useTicketStore = create((set, get) => ({
     try {
       const { data } = await axiosInstance.post("/ticket/create", item);
       set((s) => ({ tickets: [data, ...s.tickets] }));
-      await get().fetchAllTickets();
       toast.success("Ticket created");
     } catch (error) {
       console.error("Error creating new ticket: ", error)
@@ -76,7 +98,6 @@ export const useTicketStore = create((set, get) => ({
   deleteAllTickets: async () => {
     try {
       await axiosInstance.delete(`/ticket/delete-all`);
-      await get().fetchAllTickets();
       toast.success("All tickets is deleted!");
     } catch (error) {
       toast.error("Error deleting all tickets");

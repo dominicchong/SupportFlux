@@ -5,8 +5,8 @@ import { Search, Plus, Trash, CheckCheck, Clock, Loader } from "lucide-react";
 import TicketModal from "../components/TicketModal"
 
 const TicketManagerPage = () => {
-  const { tickets, fetchAllTickets, updateTicketStatus, filter, setFilter, isLoadingTickets,
-    filteredTickets, createTicket, getCategories, deleteAllTickets } = useTicketStore();
+  const { tickets, fetchAllTickets, setSelectedTicket, updateTicketStatus, filter, setFilter, isLoadingTickets,
+    statusList, filteredTickets, createTicket, getCategories, chatByTicket, deleteAllTickets } = useTicketStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -19,9 +19,8 @@ const TicketManagerPage = () => {
     fetchAllTickets();
   }, [fetchAllTickets]);
 
-  const visibleTickets = filteredTickets();
   // const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
-  const statusList = ["All", "New", "In Progress", "Resolved"];
+  const visibleTickets = filteredTickets();
   const ticketCategories = ["All", ...getCategories()];
   const navigate = useNavigate();
 
@@ -31,6 +30,11 @@ const TicketManagerPage = () => {
     setIsModalOpen(true);
   };
 
+  const handleChat = (ticket) => {
+    setSelectedTicket(ticket);
+    navigate(`/ticket/${ticket._id}/chat`)
+  }
+
   const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
 
   const handleSubmit = async () => {
@@ -38,20 +42,23 @@ const TicketManagerPage = () => {
       alert("All fields are required");
       return;
     }
+
     try {
       await createTicket(formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setIsModalOpen(false);
-    } catch {
-      /* toast handled in store */
+      fetchAllTickets();
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete all tickets?")) return;
+  const handleDelete = async () => {
+    if (!window.confirm("Delete all tickets? \nThis is a permanent action.")) return;
     setIsDeleting(true);
 
     try {
-      await deleteAllTickets(id);
+      await deleteAllTickets();
     } catch (error) {
       console.error(error);
     } finally {
@@ -69,7 +76,7 @@ const TicketManagerPage = () => {
           <button
             onClick={(e) => navigate('/ticket-chats')}
             className="btn flex p-1 rounded hover:bg-base-200 transition bg-emerald-400 cursor-pointer"
-            title="Delete all tickets"
+            title="Navigate to Live Chat"
           >
             Live Chat
           </button>
@@ -162,7 +169,7 @@ const TicketManagerPage = () => {
                       </td>
                       <td className="text-center space-x-2">
                         <button className="btn btn-md btn-custom-primary-light"
-                          onClick={() => { }}    // To-do (Link the chat to the ticket id)
+                          onClick={() => { handleChat(ticket) }}    // To-do (Link the chat to the ticket id)
                           title="Chat"
                         >
                           Chat
