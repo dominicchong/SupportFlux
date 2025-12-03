@@ -6,8 +6,6 @@ import { useTicketStore } from './useTicketStore';
 
 export const useChatStore = create((set, get) => ({
   messages: [],
-  users: [],
-  isUsersLoading: false,
   isMessagesLoading: false,
   isSendMessageLoading: false,
   unreadCount: {}, // { userId: count }
@@ -16,19 +14,6 @@ export const useChatStore = create((set, get) => ({
 
   setActiveDate: (date) => set ({activeDate: date}),
   resetActiveDate: () => set({ activeDate: null }),
-
-  // Fetch users
-  getTickets: async () => {
-    set({ isUsersLoading: true });
-    try {
-      const res = await axiosInstance.get("/messages/tickets");
-      set({ users: res.data });
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Error fetching users');
-    } finally {
-      set({ isUsersLoading: false });
-    }
-  },
 
   // Fetch messages for selected ticket
   getMessages: async (ticketId) => {
@@ -65,7 +50,7 @@ export const useChatStore = create((set, get) => ({
     const ticketId = selectedTicket._id;
 
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedTicket._id}`, { ...messageData, ticketId: selectedTicket._id });
+      const res = await axiosInstance.post(`/messages/${selectedTicket._id}/send`, { ...messageData, ticketId: selectedTicket._id });
       const newMessage = res.data;
 
       // Add message to sender’s chat immediately
@@ -171,7 +156,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getLatestMessages: async (userId) => {
+  getLatestMessages: async () => {
     try {
       const res = await axiosInstance.get("/messages/latest-messages");
       
@@ -182,7 +167,8 @@ export const useChatStore = create((set, get) => ({
 
       const latestMap = {};
       res.data.forEach((msg) => {
-        latestMap[msg._id] = {
+        const ticketId = msg._id;
+        latestMap[ticketId] = {
           text: msg.text,
           image: msg.image,
           senderId: msg.senderId,
@@ -206,6 +192,28 @@ export const useChatStore = create((set, get) => ({
     }))
   },
 
+  formatLatestMessages: (ticketId, authUserId) => {
+    const { latestMessages } = get();
+    const noMessage = "(No messages yet)";
+
+    const msg = latestMessages?.[ticketId];
+    if (!msg) return noMessage;
+
+    const isYou = msg.senderId === authUserId;
+
+    let content = "";
+    if (msg.text) {
+      content = msg.text;
+    } else if (msg.image) {
+      content = "🖼️ Image";
+    } else {
+      return noMessage;
+    }
+
+    return isYou ? `You: ${content}` : content;
+  },
+
+
   // TO-DO: Need to change implementation
   getFirstUnreadIndex: () => {
     const { selectedTicket, messages, authUser } = get();
@@ -225,7 +233,8 @@ export const useChatStore = create((set, get) => ({
     return index !== -1;
   },
 
-  deleteMessagesByTicketId: async (ticketId) => {
+  // TODO: add the method to the controller backend to link with database
+  deleteMessagesByTicketId: async (ticketId) => { 
     try {
       await axiosInstance.delete(`/messages/${ticketId}/delete-ticket`);
       toast.success("All messages is deleted!");

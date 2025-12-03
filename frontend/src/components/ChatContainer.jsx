@@ -39,13 +39,15 @@ const ChatContainer = () => {
   };
 
   useEffect(() => {
-    if(!selectedTicket?._id) return;
+    if(!selectedTicket?._id) {
+      return;
+    }
+    resetActiveDate();  //Resets date banner when navigated to different chat
     getMessages(selectedTicket._id);
     subscribeToMessages();
-    resetActiveDate();  //Resets date banner when navigated to different chat
 
     return () => unsubscribeFromMessages();
-  }, [selectedTicket._id, getMessages, subscribeToMessages, unsubscribeFromMessages, resetActiveDate]);
+  }, [selectedTicket, getMessages, subscribeToMessages, unsubscribeFromMessages, resetActiveDate]);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -132,11 +134,7 @@ const ChatContainer = () => {
 
 
   return (
-    <div className="flex flex-col relative">
-      {previewImage && (
-        <PreviewImage previewImage={previewImage} setPreviewImage={setPreviewImage} />
-      )}
-
+    <div className="flex flex-col h-full w-full relative">
       <ChatHeader />
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 space-y-1 relative">
@@ -155,11 +153,11 @@ const ChatContainer = () => {
           </div>
         )} */}
 
-        {/* 💬 Messages grouped by date */}
+        {/* Messages grouped by date */}
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div key={date} data-date-banner={date}>
             
-            <div className="text-center text-gray-500 text-sm my-2 font-semibold">
+            <div className="text-center text-gray-500 text-sm my-1 font-semibold">
               <DateTimeFormatter value={date} format="banner" />
             </div>
 
@@ -185,7 +183,7 @@ const ChatContainer = () => {
 
                 <div className={`chat-bubble flex flex-col items-start ${ 
                   isYou(message.senderId) ? "bg-purple-200" : ""}`}>
-                  <span className='text-blue-900 text-xs font-bold mb-1 truncate'>{isYou(message.senderId) ? "" : selectedTicket.userId.fullName}</span>
+                  <span className='text-blue-900 text-xs font-bold mb-1 truncate'>{isYou(message.senderId) ? "" : selectedTicket?.userId.fullName}</span>
                   {message.image && (
                     <img
                       src={message.image}
@@ -212,8 +210,13 @@ const ChatContainer = () => {
         ))}
       </div>
       
-      <ScrollToBottom visible={showScrollButton} onClick={scrollToBottom} />
-      <MessageInput />
+      <div className="flex-shrink-0">
+        <ScrollToBottom visible={showScrollButton} onClick={scrollToBottom} />
+        <MessageInput />
+        {previewImage && (
+          <PreviewImage previewImage={previewImage} setPreviewImage={setPreviewImage} />
+        )}
+      </div>
     </div>
   )
 };

@@ -6,11 +6,11 @@ import { MessageCircleMore, Plus, Trash } from "lucide-react";
 import TicketPreview from "./TicketPreview";
 import TicketModal from "./TicketModal"
 import { useTicketStore } from "../store/useTicketStore";
+import toast from "react-hot-toast";
 
 const SidebarTicket = () => {
   const { isStudent, onlineUsers } = useAuthStore();
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, clearUnread,
-    getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
+  const { isTicketsLoading, clearUnread, getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
   const { tickets, fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, filter, setFilter, isLoadingTickets,
     statusList, filteredTickets, createTicket, getCategories } = useTicketStore();
 
@@ -40,7 +40,7 @@ const SidebarTicket = () => {
 
   const handleSubmit = async () => {
     if (!formState.category) {
-      alert("All fields are required");
+      toast.error("Category is required");
       return;
     }
 
@@ -68,7 +68,7 @@ const SidebarTicket = () => {
     }
   };
   
-  if (isUsersLoading) return <SidebarSkeleton />;
+  if (isTicketsLoading) return <SidebarSkeleton />;
 
   return (
     <aside className="h-full w-full border-r border-base-300 flex flex-col transition-all duration-200">
@@ -84,8 +84,8 @@ const SidebarTicket = () => {
             className="btn flex gap-1 items-center justify-end btn-custom-primary"
             title="Create new ticket"
           >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">New Ticket</span>
+            {/* <Plus className="size-4" /> */}
+            <span>New</span>
           </button>
         </div>
 

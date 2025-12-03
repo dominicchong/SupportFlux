@@ -34,12 +34,18 @@ export const getMyTickets = async (req, res) => {
 
 export const getByTicketId = async (req, res) => {
   try {
-    const ticketId = req.params;
+    const { ticketId } = req.params;
+    console.log("getByTicketId Ticket id:", ticketId);
+    if (!ticketId) {
+      return res.status(403).json({ message: "No ticket id found" });
+    }
 
-    const ticket = await Ticket.findById({ ticketId })
+    const ticket = await Ticket.findById(ticketId)
       .populate("userId", "fullName email role profilePic")
       .populate("staffId", "fullName email role profilePic")
       .sort({ updatedAt: -1 });
+    
+    if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
     res.status(200).json(ticket);
   } catch (error) {

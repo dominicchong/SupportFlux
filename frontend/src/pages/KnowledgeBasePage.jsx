@@ -120,8 +120,8 @@ const KnowledgeBasePage = () => {
               className="btn flex gap-1 items-center btn-custom-primary"
               title="Create new article"
             >
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">New</span>
+              {/* <Plus className="size-4" /> */}
+              <span>New</span>
             </button>
           )}
         </div>

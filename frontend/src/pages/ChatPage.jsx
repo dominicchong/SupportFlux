@@ -4,9 +4,9 @@ import LiveChatPage from "./LiveChatPage";
 
 const ChatPage = () => {
   const { isUserAuthorized } = useAuthStore();
-  const isStaff = isUserAuthorized();
+  const isAuthorized = isUserAuthorized();
 
-  if (isStaff) {
+  if (isAuthorized) {
     return <TicketManagerPage />;
   }
 

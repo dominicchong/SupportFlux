@@ -2,11 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
 import { Search, Plus, Trash, CheckCheck, Clock, Loader } from "lucide-react";
-import TicketModal from "../components/TicketModal"
+import { toastWarning } from "../components/ToastUtils";
+import TicketModal from "../components/TicketModal";
+import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 const TicketManagerPage = () => {
+  const { authUser } = useAuthStore();
   const { tickets, fetchAllTickets, setSelectedTicket, updateTicketStatus, filter, setFilter, isLoadingTickets,
     statusList, filteredTickets, createTicket, getCategories, chatByTicket, deleteAllTickets } = useTicketStore();
+
+  const { latestMessages, getLatestMessages, formatLatestMessages } = useChatStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -17,7 +23,8 @@ const TicketManagerPage = () => {
 
   useEffect(() => {
     fetchAllTickets();
-  }, [fetchAllTickets]);
+    getLatestMessages();
+  }, [fetchAllTickets, getLatestMessages]);
 
   // const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
   const visibleTickets = filteredTickets();
@@ -39,7 +46,7 @@ const TicketManagerPage = () => {
 
   const handleSubmit = async () => {
     if (!formState.category) {
-      alert("All fields are required");
+      toastWarning("Category is required");
       return;
     }
 
@@ -95,8 +102,8 @@ const TicketManagerPage = () => {
             className="btn flex gap-1 items-center btn-custom-primary"
             title="Create new ticket"
           >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">New Ticket</span>
+            {/* <Plus className="size-4" /> */}
+            <span>New</span>
           </button>
         </div>
       </div>
@@ -130,9 +137,8 @@ const TicketManagerPage = () => {
               <table className="table w-full">
                 <thead className="bg-gray-200 text-gray-700 uppercase text-sm">
                   <tr>
-                    <th className="px-4 py-3 text-left">User</th>
-                    <th className="px-4 py-3 text-left">Assigned To</th>
                     <th className="px-4 py-3 text-left">Category</th>
+                    <th className="px-4 py-3 text-left">Assigned To</th>
                     <th className="px-4 py-3 text-left">Latest Message</th>
                     <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-center">Actions</th>
@@ -141,10 +147,9 @@ const TicketManagerPage = () => {
                 <tbody>
                   {visibleTickets.map((ticket) => (
                     <tr key={ticket._id} className="hover:bg-gray-50">
-                      <td>{ticket.userId?.fullName}</td>
-                      <td>{ticket?.staffId?.fullName || "(none)"}</td>
                       <td>{ticket.category}</td>
-                      <td>(change this, add time date)</td>
+                      <td>{ticket?.staffId?.fullName || "(none)"}</td>
+                      <td>{formatLatestMessages(ticket._id, authUser._id)}</td>
                       <td className="space-x-2">
                         <span>{ticket.status}</span>
                         <br />

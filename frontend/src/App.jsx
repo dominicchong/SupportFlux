@@ -17,7 +17,7 @@ import AddNewArticlePage from "./pages/AddNewArticlePage";
 import ChatPage from "./pages/ChatPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import LiveChatPage from "./pages/LiveChatPage";
-import ChatContainer from "./components/ChatContainer";
+import TicketChatPage from "./pages/TicketChatPage";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -58,7 +58,9 @@ const App = () => {
 
         {/* TO-DO */}
         <Route path="/ticket-chats" element={ authUser ? <LiveChatPage /> : <Navigate to="/login" />} />
-        <Route path="/ticket/:ticketId/chat" element={ authUser ? <ChatContainer /> : <Navigate to="/login" />} />
+        <Route path="/ticket/:ticketId/chat" element={ authUser ? <TicketChatPage /> : <Navigate to="/login" />} />
+        {/* <Route path="/ticket" element={ authUser ? <LiveChatPage /> : <Navigate to="/login" />} /> */}
+
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

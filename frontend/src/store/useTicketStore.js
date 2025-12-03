@@ -24,13 +24,13 @@ export const useTicketStore = create((set, get) => ({
       set({ tickets: res.data });
     } catch (error) {
       console.error("Error fetching tickets:", error);
-      toast.error(error.response?.data?.message || "Error fetching tickets");
+      toast.error(error.response?.data?.message || "Error fetching all tickets");
     } finally {
       set({ isLoadingTickets: false });
     }
   },
 
-  // Fetch all tickets
+  // Fetch my tickets
   fetchMyTickets: async () => {
     set({ isLoadingTickets: true });
     try {
@@ -38,9 +38,19 @@ export const useTicketStore = create((set, get) => ({
       set({ myTickets: res.data });
     } catch (error) {
       console.error("Error fetching tickets:", error);
-      toast.error(error.response?.data?.message || "Error fetching tickets");
+      toast.error(error.response?.data?.message || "Error fetching own tickets");
     } finally {
       set({ isLoadingTickets: false });
+    }
+  },
+
+  fetchTicketById: async (ticketId) => {
+    try {
+      const res = await axiosInstance.get(`/ticket/${ticketId}`); 
+      set({ selectedTicket: res.data });
+    } catch (error) {
+      console.error("Error fetching ticket by id:", error);
+      toast.error(error.response?.data?.message || "Error fetching ticket by id");
     }
   },
 
@@ -53,6 +63,8 @@ export const useTicketStore = create((set, get) => ({
     } catch (error) {
       console.error("Error creating new ticket: ", error)
       toast.error("Failed to create new ticket");
+    } finally {
+      get().fetchMyTickets();
     }
   },
 

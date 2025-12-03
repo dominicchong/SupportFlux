@@ -1,28 +1,7 @@
 import Message from "../models/message.model.js";
 import Ticket from "../models/ticket.model.js";
-
 import cloudinary from "../lib/cloudinary.js";
 import { io } from "../lib/socket.js";
-
-export const getTicketsForSidebar = async (req, res) => {
-  try {
-    const loggedInUserId = req.user._id;
-    const role = req.user.role;
-
-    let tickets;
-
-    if (role === "staff") {
-      tickets = await Ticket.find().populate("userId");
-    } else {
-      tickets = await Ticket.find({ userId: loggedInUserId }).populate("userId");
-    }
-
-    return res.status(200).json(tickets);
-  } catch (error) {
-    console.error("Error in getTicketsForSidebar:", error.message);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
 
 export const getMessages = async (req, res) => {
   try {
@@ -30,7 +9,7 @@ export const getMessages = async (req, res) => {
     const myId = req.user._id;
     const role = req.user.role;
 
-    // ACCESS RULE: only staff or the ticket owner
+    // Only staff or the ticket owner can view
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
@@ -38,15 +17,15 @@ export const getMessages = async (req, res) => {
     const isCreator = ticket.userId._id.toString() === myId.toString();
 
     if (!isStaff && !isCreator) {
-      return res.status(403).json({ message: "Unauthorized: You cannot view this ticket" });
+      return res.status(403).json({ message: "You do not have permission to view this ticket" });
     }
 
     // Messages belong ONLY to the ticket now
     const messages = await Message.find({ ticketId }).sort({ createdAt: 1 });
 
     await Message.updateMany(
-      { ticketId, readBy: { $ne: userId } },
-      { $addToSet: { readBy: userId } }
+      { ticketId, readBy: { $ne: myId } },
+      { $addToSet: { readBy: myId } }
     );
 
     res.status(200).json(messages);
@@ -69,7 +48,7 @@ export const sendMessage = async (req, res) => {
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
-    const isStaff = role !== "student";
+    const isStaff = get();
     const isCreator = ticket.userId._id.toString() === senderId.toString();
 
     if (!isStaff && !isCreator) {
@@ -118,19 +97,9 @@ export const getUnreadCounts = async (req, res) => {
 };
 
 export const getLatestMessages = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    
-    // Aggregate messages where the logged-in user is either sender or receiver
+  try {    
+    // Aggregate messages by ticket id
     const latestMessages = await Message.aggregate([
-      {
-        $match: {
-          $or: [
-            { senderId: userId },
-            { receiverId: userId }
-          ]
-        }
-      },
       // Sort by newest first
       { $sort: { createdAt: -1 } },
       // Group to get the latest message per conversation partner
@@ -141,6 +110,7 @@ export const getLatestMessages = async (req, res) => {
           image: { $first: "$image" },
           senderId: { $first: "$senderId" },
           receiverId: { $first: "$receiverId" },
+          // readBy: "$readBy",
           createdAt: { $first: "$createdAt" },
         }
       }

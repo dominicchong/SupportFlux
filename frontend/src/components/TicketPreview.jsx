@@ -1,16 +1,13 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
-import { useTicketStore } from "../store/useTicketStore";
+import TicketStatusBadge from "./utils/TicketStatusBadge";
 
 const TicketPreview = ({ ticket, onlineUsers }) => {
   const { authUser } = useAuthStore();
-  const { unreadCount, latestMessages } = useChatStore();
-  const { selectedTicket } = useTicketStore();
+  const { unreadCount, latestMessages, formatLatestMessages } = useChatStore();
 
   const authUserId = authUser._id;
-  const msg = latestMessages?.[ticket._id];
-  const isYou = msg?.senderId === authUserId;
-  const preview = msg?.text || (msg?.image ? "🖼️ Image" : "");
+  const preview = formatLatestMessages(ticket._id, authUserId);
 
   const ticketStatus = ticket.status;
 
@@ -31,21 +28,11 @@ const TicketPreview = ({ ticket, onlineUsers }) => {
 
         <div className="flex-row text-left min-w-0">
           <span className="font-medium truncate">{ticket.category}</span>
-          <div
-            className={`
-                          text-xs font-semibold px-2 py-0.5 rounded-full w-fit mt-1 mb-1
-                          ${ticketStatus === "New" ? "bg-red-600 text-white" : ""}
-                          ${ticketStatus === "In Progress" ? "bg-blue-600 text-white" : ""}
-                          ${ticketStatus === "Resolved" ? "bg-yellow-600 text-white" : ""}
-                        `}
-          >
-            {ticketStatus}
-          </div>
-
+          <TicketStatusBadge status={ticketStatus}/>
           <div
             className="text-xs text-gray-500 truncate max-w-xs sm:max-w-[120px] md:max-w-[150px]"
           >
-            {msg ? (isYou ? `You: ${preview}` : preview) : ("--No messages yet--")}
+            {preview ? preview : ("--No messages yet--")}
           </div>
         </div>
       </div>

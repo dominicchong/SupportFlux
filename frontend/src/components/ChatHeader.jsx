@@ -1,16 +1,24 @@
 import { X } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
-import { useChatStore } from "../store/useChatStore";
+import { useNavigate } from "react-router-dom";
 import { useTicketStore } from "../store/useTicketStore";
+import TicketStatusBadge from "./utils/TicketStatusBadge";
 
 const ChatHeader = () => {
   const { selectedTicket, setSelectedTicket } = useTicketStore();
+  const navigate = useNavigate();
 
-  const ticketCategory = selectedTicket.category;
-  const ticketStatus = selectedTicket.status;
+  const ticketCategory = selectedTicket?.category;
+  const ticketStatus = selectedTicket?.status;
+  const ticketCreator = selectedTicket?.userId.fullName;
+  const ticketCreatorRole = selectedTicket?.userId.role;
+
+  const handleClose = () => {
+    setSelectedTicket(null);
+    navigate("/live-chat");
+  }
 
   return (
-    <div className="p-2.5 border-b border-base-300">
+    <div className="p-2.5 pl-5 border-b border-base-300">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* User info */}
@@ -18,24 +26,13 @@ const ChatHeader = () => {
             <h3 className="font-medium">
               {ticketCategory}
             </h3>
-            <span
-              className={`
-                          text-xs font-semibold px-2 py-0.5 rounded-full w-fit mt-1 mb-1
-                          ${ticketStatus === "New" ? "bg-red-600 text-white" : ""}
-                          ${ticketStatus === "In Progress" ? "bg-blue-600 text-white" : ""}
-                          ${ticketStatus === "Resolved" ? "bg-yellow-600 text-white" : ""}
-                        `}
-            >
-              {ticketStatus}
-            </span>
-            {/* <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
-            </p> */}
+            <TicketStatusBadge status={ticketStatus}/>
+            <h5 className="font-light">Ticket created by: {ticketCreator} ({ticketCreatorRole})</h5>
           </div>
         </div>
 
         {/* Close button */}
-        <button onClick={() => setSelectedTicket(null)}
+        <button onClick={() => handleClose()}
           className="p-1 rounded-full hover:bg-zinc-100 active:scale-95 transition-all duration-150 cursor-pointer">
           <X className="text-zinc-700" />
         </button>
