@@ -7,10 +7,10 @@ const router = express.Router();
 
 router.get("/all", protectRoute, requireAccess, getAllTickets)
 router.get("/my-tickets", protectRoute, getMyTickets)
-router.post("/create", protectRoute, requireAccess, createTicket)
+router.post("/create", protectRoute, createTicket)
 router.delete("/delete-all", protectRoute, requireAccess, deleteAllTickets)
 
-router.get("/:id", protectRoute, getByTicketId)
+router.get("/:ticketId", protectRoute, getByTicketId)
 router.put("/:id/update-status", protectRoute, requireAccess, updateStatus)
 
 export default router;
