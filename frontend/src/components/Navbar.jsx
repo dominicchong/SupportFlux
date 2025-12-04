@@ -3,7 +3,6 @@ import { Link, NavLink } from "react-router-dom";
 import { Headset, Users, Home, Bot, MessageCircleMore, BookOpen, CircleUser, Menu, X } from "lucide-react";
 import { useAuthStore } from '../store/useAuthStore';
 import { useChatStore } from '../store/useChatStore';
-import UnreadBadge from './UnreadBadge';
 
 const Navbar = () => {
   const { authUser } = useAuthStore();
@@ -13,11 +12,8 @@ const Navbar = () => {
   const buttonRef = useRef(null);
 
   // Messages
-  const { unreadCount, getUnreadCounts, subscribeToMessages } = useChatStore();
-  const totalUnread = useMemo(
-    () => Object.values(unreadCount).reduce((a, b) => a + b, 0),
-    [unreadCount]
-  );
+  const { getUnreadCounts, subscribeToMessages } = useChatStore();
+  
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -37,7 +33,7 @@ const Navbar = () => {
   }, [authUser, getUnreadCounts, subscribeToMessages, menuOpen]);
 
   return (
-    <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg">
+    <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg shadow-xs">
       <div className="flex items-center justify-between h-16
                       px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-16 w-full">
         {/* LEFT SECTION */}
@@ -95,7 +91,6 @@ const Navbar = () => {
                     <MessageCircleMore className="size-5" />
                     <span className="hidden sm:inline">Live Chat</span>
                   </NavLink>
-                  {/* <UnreadBadge count={totalUnread} className="absolute -top-2 -right-1"/> */}
                 </div>
 
                 <NavLink
@@ -169,7 +164,6 @@ const Navbar = () => {
               >
                 <MessageCircleMore className="size-5" />
                 <span>Live Chat</span>
-                <UnreadBadge count={totalUnread} className="ml-2"/>
               </NavLink>
 
               <NavLink
