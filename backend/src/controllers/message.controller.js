@@ -48,10 +48,10 @@ export const sendMessage = async (req, res) => {
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
-    const isStaff = get();
+    const isPrivilegedUser = ["staff", "admin"].includes(role.toLowerCase());
     const isCreator = ticket.userId._id.toString() === senderId.toString();
 
-    if (!isStaff && !isCreator) {
+    if (!isPrivilegedUser && !isCreator) {
       return res.status(403).json({ message: "Unauthorized: You cannot send messages to this ticket" });
     }
 
@@ -66,7 +66,6 @@ export const sendMessage = async (req, res) => {
       senderId,
       text,
       image: imageUrl,
-      isRead: false,
     });
 
     await newMessage.save();
@@ -85,7 +84,11 @@ export const getUnreadCounts = async (req, res) => {
     const userId = req.user._id;
 
     const unreadCounts = await Message.aggregate([
-      { $match: { readBy: { $ne: userId } } },
+      { $match: { 
+          readBy: { $ne: userId },     // user have not read it
+          senderId: { $ne: userId }    // user is not sender
+        } 
+      },
       { $group: { _id: "$ticketId", count: { $sum: 1 }}},
     ]);
 
@@ -109,8 +112,7 @@ export const getLatestMessages = async (req, res) => {
           text: { $first: "$text" },
           image: { $first: "$image" },
           senderId: { $first: "$senderId" },
-          receiverId: { $first: "$receiverId" },
-          // readBy: "$readBy",
+          readBy:  { $first: "$readBy" },
           createdAt: { $first: "$createdAt" },
         }
       }

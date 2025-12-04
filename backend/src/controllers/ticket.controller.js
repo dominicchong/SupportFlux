@@ -89,7 +89,24 @@ export const updateStatus = async (req, res) => {
 
     res.status(200).json(updatedTicket);
   } catch (error) {
-    console.error("markAsInProgress Error:", error);
+    console.error("updateStatus Error:", error);
+    res.status(500).json({ error: "Failed to update ticket status" });
+  }
+};
+
+// Assign staff
+export const updateStaffId = async (req, res) => {
+  try {
+    const { ticketId, staffId } = req.body;
+
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      ticketId,
+      { staffId },
+    );
+
+    res.status(200).json(updatedTicket);
+  } catch (error) {
+    console.error("updateStaffId Error:", error);
     res.status(500).json({ error: "Failed to update ticket" });
   }
 };

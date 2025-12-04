@@ -84,6 +84,19 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
+  // Assign staff to ticket
+  updateTicketStaff: async (ticketId, assignedStaffId) => {
+    try {
+      await axiosInstance.put(`/ticket/assign-staff`, { ticketId, staffId: assignedStaffId });
+      toast.success(`Ticket assigned successfully`);
+    } catch (error) {
+      console.error("Error assigning staff to ticket:", error);
+      toast.error("Failed to assign staff to ticket");
+    } finally {
+      get().fetchAllTickets();
+    }
+  },
+
   // Set current filter tab
   setFilter: (filter) => set({ filter }),
 

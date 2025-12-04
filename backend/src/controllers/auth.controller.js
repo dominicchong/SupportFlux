@@ -205,3 +205,17 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getStaffList = async (req, res) => {
+  try {
+    const staffUsers = await User.find(
+      { role: { $in: ["staff", "admin"] } },   // filter
+      "fullName email role profilePic"         // select only needed fields
+    ).sort({ fullName: 1 });
+
+    res.status(200).json(staffUsers);
+  } catch (error) {
+    console.error("Error fetching staff list:", error);
+    res.status(500).json({ message: "Failed to fetch staff list" });
+  }
+}

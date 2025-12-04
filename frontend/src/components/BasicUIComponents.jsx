@@ -130,6 +130,11 @@ export const DateTimeFormatter = ({
       day: "numeric",
       year: "numeric",
     },
+    preview: {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    },
   };
 
   let displayText;
@@ -143,6 +148,20 @@ export const DateTimeFormatter = ({
         month: "numeric",
         day: "numeric",
         year: "numeric",
+      });
+    }
+  } else if (format === "preview") {
+    if (isToday) {
+      displayText = date.toLocaleTimeString(locale, {
+        timeZone,
+        ...formatPresets.timeOnly
+      });
+    } 
+    else if (isYesterday) displayText = "Yesterday";
+    else {
+      displayText = date.toLocaleDateString(locale, {
+        timeZone,
+        ...formatPresets.preview
       });
     }
   } else {

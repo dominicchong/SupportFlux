@@ -17,6 +17,7 @@ export const useAuthStore = create((set, get) => ({
   socket: null,
   isSendingReset: false,
   users: [],
+  staffList: [],
 
   checkAuth: async () => {
     try {
@@ -184,5 +185,15 @@ export const useAuthStore = create((set, get) => ({
     const { authUser } = get();
     return userId === authUser._id;
   },
+  
+  fetchStaffList: async () => {
+    try {
+      const { data } = await axiosInstance.get("/auth/staff-list");
+      set({ staffList: data });
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+      toast.error("Failed to fetch users");
+    }
+  }
 
 }));

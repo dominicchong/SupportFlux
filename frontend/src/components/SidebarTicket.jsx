@@ -9,7 +9,7 @@ import { useTicketStore } from "../store/useTicketStore";
 import toast from "react-hot-toast";
 
 const SidebarTicket = () => {
-  const { isStudent, onlineUsers } = useAuthStore();
+  const { isStudent, onlineUsers, isUserAuthorized } = useAuthStore();
   const { isTicketsLoading, clearUnread, getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
   const { tickets, fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, filter, setFilter, isLoadingTickets,
     statusList, filteredTickets, createTicket, getCategories } = useTicketStore();
@@ -28,6 +28,7 @@ const SidebarTicket = () => {
   }, [fetchMyTickets, getUnreadCounts, getLatestMessages]);
 
   const ticketCategories = ["All", ...getCategories()];
+  const isAuthorized = isUserAuthorized();
   // console.log("My tickets:", myTickets);
 
   const openCreateModal = () => {
@@ -67,7 +68,7 @@ const SidebarTicket = () => {
       fetchAllTickets();
     }
   };
-  
+
   if (isTicketsLoading) return <SidebarSkeleton />;
 
   return (
@@ -89,14 +90,16 @@ const SidebarTicket = () => {
           </button>
         </div>
 
-        <button
-          onClick={(e) => handleDelete()}
-          className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
-          title="Delete all messages"
-        >
-          <Trash className="size-4" />
-          Delete All
-        </button>
+        {isAuthorized && (
+          <button
+            onClick={(e) => handleDelete()}
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
+            title="Delete all messages"
+          >
+            <Trash className="size-4" />
+            Delete All
+          </button>
+        )}
 
         {/* Search Bar */}
         <div className="flex mt-3 gap-2">

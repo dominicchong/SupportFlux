@@ -172,7 +172,7 @@ export const useChatStore = create((set, get) => ({
           text: msg.text,
           image: msg.image,
           senderId: msg.senderId,
-          receiverId: msg.receiverId,
+          readBy: msg.readBy,
           createdAt: msg.createdAt,
         };
       });

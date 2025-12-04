@@ -11,19 +11,11 @@ const messageSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  receiverId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
   text: {
     type: String,
   },
   image: {
     type: String,
-  },
-  isRead: {
-    type: Boolean,
-    default: false, // newly sent messages are unread by default
   },
   readBy: [
     {
