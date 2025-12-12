@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import { IoCodeSlash, IoSend } from "react-icons/io5";
+import { IoHelpCircleOutline, IoSend, IoArrowDown } from "react-icons/io5";
 import { HiClipboardList, HiCollection } from "react-icons/hi";
 import { TbMessageChatbot } from "react-icons/tb";
 import { useChatbotStore } from "../store/useChatbotStore";
-import { IoArrowDown } from "react-icons/io5";
 import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
 
 const FEATURES = [
-  { text: "How to learn Java effectively?", icon: IoCodeSlash },
-  { text: "How do I resolve the timetable clashes in Universiti Malaya?", icon: HiCollection },
-  { text: "How to register for courses in Universiti Malaya?", icon: HiClipboardList },
-  { text: "How can we use AI for adoption?", icon: TbMessageChatbot },
+  { text: "What is SupportFlux?", icon: IoHelpCircleOutline },
+  { text: "What is the Live Chat function for?", icon: HiCollection },
+  { text: "How to find information related to studies?", icon: HiClipboardList },
+  { text: "I want to talk to a staff/live agent", icon: TbMessageChatbot },
 ];
 
 const ChatbotPage = () => {
@@ -18,6 +18,7 @@ const ChatbotPage = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const { messages, sendPrompt, newChat, isLoading } = useChatbotStore();
   const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
 
   const isResponseScreen = messages.length > 0;
 
@@ -27,12 +28,13 @@ const ChatbotPage = () => {
     if (!container) return;
 
     const handleScroll = () => {
-      const atBottom =
-        container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+      const atBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
       setShowScrollButton(!atBottom);
     };
 
     container.addEventListener("scroll", handleScroll);
+    handleScroll();
+
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -61,53 +63,86 @@ const ChatbotPage = () => {
 
   return (
     <div className="pt-16 min-h-screen bg-[#FFFFFF] text-black flex flex-col">
-      {/* Header */}
+      {/* Desktop sticky header */}
       {isResponseScreen && (
-        <header className="px-4 py-2 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 flex justify-between items-center ">
+        <header className="sticky top-16 z-50 bg-white px-4 py-2 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 flex justify-between items-center shadow-sm ">
           <h2 className="text-2xl">Chatbot</h2>
           <button
             onClick={newChat}
-            className="bg-[#97dbff] rounded-full px-4 sm:px-5 py-2 text-sm hover:bg-[#cbedff] hover:cursor-pointer transition"
+            className="bg-blue-100 text-blue-700 rounded-xl px-4 sm:px-5 py-2 text-sm
+                        border border-blue-200 hover:bg-blue-200 transition shadow-sm"
           >
-            New Chat
+            Clear Chat
           </button>
         </header>
       )}
 
+      {/* Mobile Floating New Chat */}
+      {/* {isResponseScreen && (
+        <button
+          onClick={newChat}
+          className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-3 rounded-full 
+                 shadow-lg sm:hidden"
+        >
+          Clear Chat
+        </button>
+      )} */}
+
       {/* Main */}
       <main
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 pt-8"
-        style={{ maxHeight: "calc(100vh - 160px)", paddingBottom: "100px" }}
+        className="flex-1 overflow-y-auto px-6 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 pt-8"
+        style={{ paddingBottom: "120px" }}
       >
         {isResponseScreen ? (
           /* Chat view */
-          <div className="flex flex-col space-y-4">
-            {messages.map((m, idx) => (
+          <div className="flex flex-col gap-4 sm:gap-6 pb-10">
+            {messages && messages.map((m, idx) => (
               <div
                 key={idx}
-                className={`flex ${
-                  m.type === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${m.type === "user" ? "justify-end" : "justify-start"
+                  }`}
               >
                 <div
                   className={`
-                    relative px-4 py-2 rounded-xl break-words
-                    max-w-[80%]
-                    ${m.type === "bot" ? "bg-purple-100 text-purple-800 text-left" : "bg-[#e0e0e0] text-black text-right"}
+                    relative px-4 py-3 rounded-2xl shadow-sm break-words
+                    max-w-[80%] sm:max-w-[75%] text-sm leading-relaxed
+                    ${m.type === "bot"
+                      ? "bg-white border border-gray-200 text-gray-900"
+                      : "bg-purple-500 text-white ml-auto"}
                   `}
                 >
-                  {/* Arrows */}
+                  {/* Bubble Arrow */}
                   {m.type === "bot" && (
-                    <div className="absolute -left-2 bottom-5 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-r-[10px] border-r-purple-100" />
+                    <div className="absolute -left-2.5 top-3 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-r-[10px] border-r-gray-100" />
                   )}
                   {m.type === "user" && (
-                    <div className="absolute -right-2 bottom-3 w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[10px] border-l-[#e0e0e0]" />
+                    <div
+                      className="
+                        absolute right-[-8px] top-3
+                        w-0 h-0
+                        border-y-[7px] border-y-transparent
+                        border-l-[10px] border-l-purple-500"
+                    />
                   )}
 
                   {/* Text */}
                   {m.type === "bot" ? (
-                    <ReactMarkdown>{m.text}</ReactMarkdown>
+                    <ReactMarkdown 
+                      rehypePlugins={[rehypeSanitize]}
+                      components={{
+                        p: ({ node, ...props }) => <p className="text-gray-900 text-sm leading-relaxed" {...props} />,
+                        strong: ({ node, ...props }) => <strong className="font-semibold text-gray-900" {...props} />,
+                        em: ({ node, ...props }) => <em className="italic text-gray-700" {...props} />,
+                        code: ({ node, ...props }) => (
+                          <code className="bg-gray-100 text-purple-700 px-1 py-0.5 rounded" {...props} />
+                        ),
+                        a: ({ node, ...props }) => <a className="text-blue-600 underline" target="_blank" rel="noreferrer" {...props} />,
+                        li: ({ node, ...props }) => <li className="ml-4 list-disc" {...props} />,
+                      }}
+                    >
+                      {m.text}
+                    </ReactMarkdown>
                   ) : (
                     <p className="whitespace-pre-wrap">{m.text}</p>
                   )}
@@ -124,72 +159,72 @@ const ChatbotPage = () => {
           </div>
         ) : (
           /* Quick‑ask cards */
-          <div className="pt-20 flex flex-col items-center justify-center">
-            <h1 className="text-4xl mb-8">What can I help with you today?</h1>
-            <div className="flex gap-4 justify-center px-4">
+          <div className="py-20 flex flex-col items-center justify-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl mb-8">What can I help with you today?</h1>
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 px-4">
               {FEATURES.map(({ text, icon: Icon }, i) => (
                 <div
                   key={i}
-                  className="relative w-64 min-h-[160px] bg-[#e0e0e0] p-6 rounded-lg cursor-pointer transition hover:bg-[#b4b4b4]"
-                  onClick={() => handleSend(text) }
+                  className="relative bg-white border border-gray-200 p-6 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition"
+                  onClick={() => handleSend(text)}
                 >
-                  <p className="text-base leading-relaxed">{text}</p>
+                  <p className="text-sm sm:text-base leading-relaxed">{text}</p>
                   <Icon className="absolute bottom-3 right-3 text-xl" />
                 </div>
               ))}
             </div>
           </div>
         )}
-
-        {/* Scroll to bottom button */}
-        {showScrollButton && (
-          <button
-            onClick={scrollToBottom}
-            className="absolute bottom-28 right-8 bg-purple-500 text-white p-3 rounded-full shadow-lg hover:bg-purple-600 transition"
-          >
-            <IoArrowDown className="text-xl" />
-          </button>
-        )}
-
-        {/* Fixed Input bar */}
-        <footer className="fixed bottom-0 left-0 right-0 bg-[#FFFFFF] flex flex-col items-center pb-6 pt-4 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72">
-          <div className="w-full flex items-center bg-[#e0e0e0] rounded-2xl py-2 px-4">
-            <textarea
-              placeholder="Write your message here..."
-              className="flex-1 bg-transparent outline-none text-sm resize-none leading-relaxed
-                        min-h-[1.5rem] max-h-[4.5rem] overflow-y-auto"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onInput={(e) => {
-                e.target.style.height = "auto"; // reset height
-                e.target.style.height = `${Math.min(e.target.scrollHeight, 72)}px`; 
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              rows={1}
-              disabled={isLoading}
-            />
-
-            <IoSend
-              className={`text-xl ml-2 ${
-                input.trim() && !isLoading
-                  ? "text-purple-500 cursor-pointer"
-                  : "text-gray-400 cursor-not-allowed"
-              }`}
-              onClick={() => {
-                if (input.trim() && !isLoading) handleSend();
-              }}
-            />
-          </div>
-          <p className="text-gray-400 text-xs mt-4">
-            This chatbot uses Gemini API and may make mistakes.
-          </p>
-        </footer>
       </main>
+
+      {/* Scroll to bottom button */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="fixed bottom-32 right-8 z-50 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
+        >
+          <IoArrowDown className="text-xl" />
+        </button>
+      )}
+
+      {/* Fixed Input bar */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-[#FFFFFF] flex flex-col items-center pb-4 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72">
+        <div className="w-full flex items-center bg-white rounded-2xl py-3 px-4 shadow-md border border-gray-200 focus-within:border-purple-400 transition">
+          <textarea
+            placeholder="Write your message here..."
+            className="flex-1 bg-transparent outline-none text-sm resize-none leading-relaxed
+                        min-h-[1.5rem] max-h-[5rem] overflow-y-auto placeholder-gray-400"
+            value={input}
+            ref={inputRef}
+            onChange={(e) => setInput(e.target.value)}
+            onInput={(e) => {
+              e.target.style.height = "auto"; // reset height
+              e.target.style.height = `${Math.min(e.target.scrollHeight, 72)}px`;
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            rows={1}
+            disabled={isLoading}
+          />
+
+          <IoSend
+            className={`text-xl ml-2 ${input.trim() && !isLoading
+              ? "text-purple-500 cursor-pointer"
+              : "text-gray-400 cursor-not-allowed"
+              }`}
+            onClick={() => {
+              if (input.trim() && !isLoading) handleSend();
+            }}
+          />
+        </div>
+        <p className="text-gray-400 text-center text-xs mt-4 px-4">
+          This chatbot uses Gemini API and may make mistakes.
+        </p>
+      </footer>
     </div>
   );
 };

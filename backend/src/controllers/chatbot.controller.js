@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from "dotenv";
-dotenv.config();
+import KnowledgeItem from "../models/knowledgeItem.model.js";
+import { generateEmbedding } from "../lib/embedding.js";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -17,3 +17,44 @@ export const generateChatbotResponse = async (req, res) => {
     res.status(500).json({ error: "Failed to generate response" });
   }
 };
+
+export const ragSearch = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+
+    const queryVector = await generateEmbedding(prompt);
+
+    // 2️⃣ Vector Search in MongoDB
+    const results = await KnowledgeItem.aggregate([
+      {
+        $vectorSearch: {
+          index: "kb_vector_index",
+          path: "embedding",
+          queryVector,
+          numCandidates: 100,
+          limit: 5,
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          category: 1,
+          score: { $meta: "vectorSearchScore" }
+        }
+      }
+    ]);
+
+    // 3️⃣ Return results with score
+    res.json({
+      success: true,
+      matches: results
+    });
+
+  } catch (err) {
+    console.error("RAG Search Error:", err);
+    res.status(500).json({ error: "Failed to perform vector search" });
+  }
+};
+
