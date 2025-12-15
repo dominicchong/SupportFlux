@@ -90,6 +90,7 @@ const SignUpPage = () => {
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                   className="w-full appearance-none bg-transparent border border-base-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base-content"
                 >
+                  <option value="">Select Role</option>
                   <option value="student">Student</option>
                 </select>
 
