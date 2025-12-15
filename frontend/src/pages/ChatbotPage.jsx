@@ -17,33 +17,43 @@ const ChatbotPage = () => {
   const [input, setInput] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const { messages, sendPrompt, newChat, isLoading } = useChatbotStore();
-  const chatContainerRef = useRef(null);
+  const chatbotRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
   const isResponseScreen = messages.length > 0;
 
   // Detect scroll position
   useEffect(() => {
-    const container = chatContainerRef.current;
+    const container = chatbotRef.current;
     if (!container) return;
 
     const handleScroll = () => {
-      const atBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
-      setShowScrollButton(!atBottom);
+      const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+      setShowScrollButton(!isAtBottom);
     };
 
     container.addEventListener("scroll", handleScroll);
-    handleScroll();
+    requestAnimationFrame(() => handleScroll());  // Only show scroll button after DOM renders
 
     return () => container.removeEventListener("scroll", handleScroll);
+  }, [messages.length]);
+
+  useEffect(() => {
+    if (window.innerWidth < 768) return;
+
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Scroll to bottom function
   const scrollToBottom = () => {
-    chatContainerRef.current?.scrollTo({
-      top: chatContainerRef.current.scrollHeight,
-      behavior: "smooth",
-    });
+    if(messagesEndRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behaviour: "smooth"});
+    }
   };
 
   // Only scroll when user 'sends a message'
@@ -58,11 +68,11 @@ const ChatbotPage = () => {
     }
 
     // After sending, scroll to bottom
-    setTimeout(() => scrollToBottom(), 100);
+    setTimeout(() => scrollToBottom(), 200);
   };
 
   return (
-    <div className="pt-16 min-h-screen bg-[#FFFFFF] text-black flex flex-col">
+    <div className="pt-16 h-screen bg-[#FFFFFF] text-black flex flex-col">
       {/* Desktop sticky header */}
       {isResponseScreen && (
         <header className="sticky top-16 z-50 bg-white px-4 py-2 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 flex justify-between items-center shadow-sm ">
@@ -90,13 +100,12 @@ const ChatbotPage = () => {
 
       {/* Main */}
       <main
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-6 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 pt-8"
-        style={{ paddingBottom: "120px" }}
+        ref={chatbotRef}
+        className="flex-1 overflow-y-auto px-6 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 pt-8 mb-12"
       >
         {isResponseScreen ? (
           /* Chat view */
-          <div className="flex flex-col gap-4 sm:gap-6 pb-10">
+          <div className="flex flex-col gap-2 sm:gap-4 pb-15">
             {messages && messages.map((m, idx) => (
               <div
                 key={idx}
@@ -128,7 +137,7 @@ const ChatbotPage = () => {
 
                   {/* Text */}
                   {m.type === "bot" ? (
-                    <ReactMarkdown 
+                    <ReactMarkdown
                       rehypePlugins={[rehypeSanitize]}
                       components={{
                         p: ({ node, ...props }) => <p className="text-gray-900 text-sm leading-relaxed" {...props} />,
@@ -156,6 +165,7 @@ const ChatbotPage = () => {
                 Thinking...
               </div>
             )}
+            <div ref={messagesEndRef}/>
           </div>
         ) : (
           /* Quick‑ask cards */
@@ -181,11 +191,11 @@ const ChatbotPage = () => {
       {showScrollButton && (
         <button
           onClick={scrollToBottom}
-          className="fixed bottom-32 right-8 z-50 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
+          className="absolute bottom-28 left-1/2 z-50 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition"
         >
           <IoArrowDown className="text-xl" />
         </button>
-      )}
+      )} 
 
       {/* Fixed Input bar */}
       <footer className="fixed bottom-0 left-0 right-0 bg-[#FFFFFF] flex flex-col items-center pb-4 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72">
