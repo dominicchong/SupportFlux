@@ -13,6 +13,9 @@ const ticketSchema = new mongoose.Schema({
   category: {
     type: String,
   },
+  level: {
+    type: String,
+  },
   status: {
     type: String,
   },

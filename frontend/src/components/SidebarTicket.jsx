@@ -9,16 +9,13 @@ import { useTicketStore } from "../store/useTicketStore";
 import toast from "react-hot-toast";
 
 const SidebarTicket = () => {
-  const { isStudent, onlineUsers, isUserAuthorized } = useAuthStore();
+  const { onlineUsers, isUserAuthorized } = useAuthStore();
   const { isTicketsLoading, clearUnread, getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
-  const { tickets, fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, filter, setFilter, isLoadingTickets,
-    statusList, filteredTickets, createTicket, getCategories } = useTicketStore();
+  const { tickets, fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, 
+    createTicket, getCategories, levelList } = useTicketStore();
 
-  const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formState, setFormState] = useState({ category: "" });
-  const [isNewCategory, setIsNewCategory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
@@ -27,14 +24,23 @@ const SidebarTicket = () => {
     getLatestMessages();
   }, [fetchMyTickets, getUnreadCounts, getLatestMessages]);
 
-  const ticketCategories = ["All", ...getCategories()];
+  const defaultNewTicketForm = {
+    category: "",
+    level: "",
+  };
+
+  const [formState, setFormState] = useState(defaultNewTicketForm);
+  const ticketCategories = [...getCategories()];
   const isAuthorized = isUserAuthorized();
-  // console.log("My tickets:", myTickets);
 
   const openCreateModal = () => {
-    setFormState({ category: "" });
-    setIsNewCategory(false);
+    setFormState(defaultNewTicketForm);
     setIsModalOpen(true);
+  };
+
+  const closeTicketModal = () => {
+    setFormState(defaultNewTicketForm);  // ⬅️ Reset form fields
+    setIsModalOpen(false);
   };
 
   const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
@@ -114,13 +120,12 @@ const SidebarTicket = () => {
 
         <TicketModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={closeTicketModal}
           formState={formState}
           handleFormField={handleFormField}
           handleSubmit={handleSubmit}
-          isNewCategory={isNewCategory}
-          setIsNewCategory={setIsNewCategory}
           ticketCategories={ticketCategories}
+          levelList={levelList}
         />
       </div>
 

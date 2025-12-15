@@ -5,9 +5,10 @@ import { requireAccess } from '../middleware/requireAccess.middleware.js';
 
 const router = express.Router();
 
-router.get("/all", protectRoute, requireAccess, getAllTickets)
+router.get("/all", protectRoute, getAllTickets)
 router.get("/my-tickets", protectRoute, getMyTickets)
 router.post("/create", protectRoute, createTicket)
+
 router.put("/assign-staff", protectRoute, requireAccess, updateStaffId)
 router.delete("/delete-all", protectRoute, requireAccess, deleteAllTickets)
 

@@ -35,7 +35,6 @@ export const getMyTickets = async (req, res) => {
 export const getByTicketId = async (req, res) => {
   try {
     const { ticketId } = req.params;
-    console.log("getByTicketId Ticket id:", ticketId);
     if (!ticketId) {
       return res.status(403).json({ message: "No ticket id found" });
     }
@@ -59,11 +58,12 @@ export const getByTicketId = async (req, res) => {
 export const createTicket = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { category } = req.body;
+    const { category, level } = req.body;
 
     const newTicket = await Ticket.create({
       userId,
       category,
+      level,
       status: "New",
     });
 

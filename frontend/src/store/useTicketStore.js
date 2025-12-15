@@ -8,6 +8,7 @@ export const useTicketStore = create((set, get) => ({
   selectedTicket: null,
   filter: "All",
   statusList: ["All", "New", "In Progress", "Resolved"],
+  levelList: ["Undergraduate", "Postgraduate"],
   isLoadingTickets: false,
 
   setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
@@ -107,6 +108,14 @@ export const useTicketStore = create((set, get) => ({
     if (filter === "In Progress") return tickets.filter((t) => t.status === "In Progress");
     if (filter === "Resolved") return tickets.filter((t) => t.status === "Resolved");
     return tickets;
+  },
+
+  getTicketCountByStatus: (status) => {
+    const { tickets } = get();
+    if (status.toLowerCase() === "all") {
+      return tickets.length;
+    }
+    return tickets.filter((t) => t.status === status).length;
   },
 
   getCategories: () => {
