@@ -18,7 +18,7 @@ const TicketModal = ({isOpen, onClose, formState, handleFormField,
     <GeneralModal
       isOpen={isOpen}
       onClose={onClose}
-      title="New Ticket"
+      title="New Chat"
       actions={
         <>
           <button onClick={onClose} className="btn btn-ghost">

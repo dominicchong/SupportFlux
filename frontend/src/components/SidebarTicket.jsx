@@ -10,8 +10,8 @@ import toast from "react-hot-toast";
 
 const SidebarTicket = () => {
   const { onlineUsers, isUserAuthorized } = useAuthStore();
-  const { isTicketsLoading, clearUnread, getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
-  const { tickets, fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, 
+  const { isTicketsLoading, getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
+  const { fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, 
     createTicket, getCategories, levelList } = useTicketStore();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,7 +39,7 @@ const SidebarTicket = () => {
   };
 
   const closeTicketModal = () => {
-    setFormState(defaultNewTicketForm);  // ⬅️ Reset form fields
+    setFormState(defaultNewTicketForm);  // Reset form fields
     setIsModalOpen(false);
   };
 
@@ -89,14 +89,13 @@ const SidebarTicket = () => {
           <button
             onClick={openCreateModal}
             className="btn flex gap-1 items-center justify-end btn-custom-primary"
-            title="Create new ticket"
+            title="Create new chat"
           >
-            {/* <Plus className="size-4" /> */}
-            <span>New</span>
+            <span>New Chat</span>
           </button>
         </div>
 
-        {isAuthorized && (
+        {/* {isAuthorized && (
           <button
             onClick={(e) => handleDelete()}
             className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
@@ -105,13 +104,13 @@ const SidebarTicket = () => {
             <Trash className="size-4" />
             Delete All
           </button>
-        )}
+        )} */}
 
         {/* Search Bar */}
         <div className="flex mt-3 gap-2">
           <input
             type="text"
-            placeholder="Search tickets..."
+            placeholder="Search chats..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="input input-sm input-bordered w-full"
@@ -133,10 +132,7 @@ const SidebarTicket = () => {
         {myTickets.map((ticket) => (
           <button
             key={ticket._id}
-            onClick={() => {
-              setSelectedTicket(ticket);
-              // clearUnread(ticket._id); // Clear unread count when chat is opened
-            }}
+            onClick={() => { setSelectedTicket(ticket); }}
             className={`
               w-full p-3 flex items-center justify-between gap-3
               hover:bg-base-300 transition-colors

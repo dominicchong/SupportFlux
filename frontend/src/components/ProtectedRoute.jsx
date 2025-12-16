@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { rolePermissions } from "../lib/roles.js"
+import { rolePermissions } from "../constants/roles.js"
 
 const ProtectedRoute = ({ authUser, requiredPermission, children }) => {
   if (!authUser) return <Navigate to="/login" replace />;

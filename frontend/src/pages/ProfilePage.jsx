@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User, LogOut } from "lucide-react";
 import { DateTimeFormatter } from "../components/BasicUIComponents";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile, logout } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [isModalLogoutOpen, setIsModalLogoutOpen] = useState(false);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -31,7 +33,16 @@ const ProfilePage = () => {
         setSelectedImg(originalImage); // Revert on failure
       }
     };
-};
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 
 
   return (
@@ -102,7 +113,7 @@ const ProfilePage = () => {
               <div className="flex items-center justify-between py-2 mt-2">
                 <span>Member Since</span>
                 <span>
-                  <DateTimeFormatter value={authUser?.createdAt} format="simple"/>
+                  <DateTimeFormatter value={authUser?.createdAt} format="simple" />
                 </span>
               </div>
             </div>
@@ -112,12 +123,7 @@ const ProfilePage = () => {
             <button
               className="flex gap-2 items-center bg-red-500 hover:bg-red-600 text-white 
               px-4 py-2 rounded cursor-pointer transition-colors"
-              onClick={() => {
-                const confirmLogout = window.confirm("Are you sure you want to log out?");
-                if (confirmLogout) {
-                  logout();
-                }
-              }}
+              onClick={() => { setIsModalLogoutOpen(true) }}
             >
               <LogOut className="size-5" />
               <span>Logout</span>
@@ -125,6 +131,16 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isModalLogoutOpen}
+        onClose={() => setIsModalLogoutOpen(false)}
+        title="Confirmation"
+        children="Do you want to logout?"
+        primaryButton={{ label: "Logout", onClick: handleLogout }}
+        primaryButtonStyle={"bg-red-500 border-red-500 hover:bg-red-600 text-white"}
+        secondaryButton={{ label: "Cancel", onClick: () => setIsModalLogoutOpen(false) }}
+      ></ConfirmationModal>
     </div>
   );
 };

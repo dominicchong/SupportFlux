@@ -1,27 +1,28 @@
 import { Link } from "react-router-dom";
 import { Bot, MessageCircleMore, BookOpen } from "lucide-react";
 import { Card, CardContent } from "../components/BasicUIComponents";
+import { ROUTES } from "../constants/paths";
 
 export const FEATURES = [
   {
     title: "Chatbot Assistant",
     description: "Instant answers from our smart support bot.",
     icon: <Bot className="size-8 text-primary" />,
-    link: "/chatbot",
+    link: ROUTES.CHATBOT,
     gradient: "from-cyan-100 to-cyan-300",
   },
   {
     title: "Live Chat with Staff",
     description: "Chat with faculty staff in real-time.",
     icon: <MessageCircleMore className="size-8 text-primary" />,
-    link: "/live-chat",
+    link: ROUTES.LIVE_CHAT,
     gradient: "from-gray-100 to-gray-300",
   },
   {
     title: "Knowledge Base",
     description: "Browse articles and FAQs about course of study.",
     icon: <BookOpen className="size-8 text-primary" />,
-    link: "/knowledgebase",
+    link: ROUTES.KNOWLEDGE_BASE,
     gradient: "from-blue-100 to-blue-300",
   },
 ];

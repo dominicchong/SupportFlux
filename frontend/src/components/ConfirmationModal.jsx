@@ -4,8 +4,9 @@ const ConfirmationModal = ({
   isOpen, 
   onClose, 
   title, 
-  children,        // new: allows arbitrary JSX content
-  primaryButton, 
+  children,        // allows JSX content
+  primaryButton,
+  primaryButtonStyle,
   secondaryButton,
   size = "w-96"    // optional: control modal width
 }) => {
@@ -23,7 +24,7 @@ const ConfirmationModal = ({
         <div className="flex justify-end space-x-3">
           {secondaryButton && (
             <button
-              className="btn btn-outline"
+              className="btn border-gray-300"
               onClick={secondaryButton.onClick || onClose}
             >
               {secondaryButton.label || "Cancel"}
@@ -31,7 +32,7 @@ const ConfirmationModal = ({
           )}
           {primaryButton && (
             <button
-              className="btn btn-primary"
+              className={`btn btn-primary ${primaryButtonStyle}`}
               onClick={primaryButton.onClick}
             >
               {primaryButton.label || "Confirm"}

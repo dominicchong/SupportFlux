@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import { preloadHeroImage } from "./components/BasicUIComponents";
+import { ROUTES } from "./constants/paths";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -20,6 +21,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import LiveChatPage from "./pages/LiveChatPage";
 import TicketChatPage from "./pages/TicketChatPage";
 import NotAuthorizedPage from "./pages/NotAuthorizedPage";
+import TicketManagerPage from "./pages/TicketManagerPage";
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -45,40 +47,38 @@ const App = () => {
 
       <Routes>
         {/* Public Routes */}
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
-        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-        {/* <Route path="/forget-password" element={!authUser ? <ForgotPasswordPage /> : <Navigate to="/" />} /> */}
+        <Route path={ROUTES.SIGNUP} element={!authUser ? <SignUpPage /> : <Navigate to={ROUTES.HOME} />} />
+        <Route path={ROUTES.LOGIN} element={!authUser ? <LoginPage /> : <Navigate to={ROUTES.HOME} />} />
         
         {/* Protected Routes */}
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
-        <Route path="/chatbot" element={authUser ? <ChatbotPage /> : <Navigate to="/login" />} />
-        <Route path="/live-chat" element={ authUser ? <ChatPage /> : <Navigate to="/login" />} />
-        <Route path="/knowledgebase" element={authUser ? <KnowledgeBasePage /> : <Navigate to="/login" />} />
-        <Route path="/profile" element={ authUser ? <ProfilePage /> : <Navigate to="/login" />} />
-        {/* <Route path="/add-new-article" element={authUser ? <AddNewArticlePage /> : <Navigate to="/login" />} /> */}
+        <Route path={ROUTES.HOME} element={authUser ? <HomePage /> : <Navigate to={ROUTES.LOGIN} />} />
+        <Route path={ROUTES.CHATBOT} element={authUser ? <ChatbotPage /> : <Navigate to={ROUTES.LOGIN} />} />
+        <Route path={ROUTES.LIVE_CHAT} element={ authUser ? <LiveChatPage /> : <Navigate to={ROUTES.LOGIN} />} />
+        <Route path={ROUTES.KNOWLEDGE_BASE} element={authUser ? <KnowledgeBasePage /> : <Navigate to={ROUTES.LOGIN} />} />
+        <Route path={ROUTES.PROFILE} element={ authUser ? <ProfilePage /> : <Navigate to={ROUTES.LOGIN} />} />
 
-        <Route path="/accounts" element={ 
-            <ProtectedRoute authUser={authUser} requiredPermission="ACCOUNT_MANAGE">
+        <Route path={ROUTES.ACCOUNTS} element={ 
+            <ProtectedRoute authUser={authUser} requiredPermission="ACCOUNT_MANAGER">
               <AccountsManagerPage />
             </ProtectedRoute>
           } 
         />
 
         {/* TO-DO */}
-        <Route path="/ticket-chats" element={ 
-            <ProtectedRoute authUser={authUser} requiredPermission="TICKET_CHAT_MANAGE">
-              <LiveChatPage />
+        <Route path={ROUTES.CHAT_MANAGER} element={ 
+            <ProtectedRoute authUser={authUser} requiredPermission="CHAT_MANAGER">
+              <TicketManagerPage />
             </ProtectedRoute>
           } 
         />
-        <Route path="/ticket/:ticketId/chat" element={ 
+        <Route path={ROUTES.TICKET_CHAT} element={ 
             <ProtectedRoute authUser={authUser} requiredPermission="TICKET_TO_CHAT">
               <TicketChatPage />
             </ProtectedRoute>
           }
         />
 
-        <Route path="/not-authorized" element={<NotAuthorizedPage />} />
+        <Route path={ROUTES.NOT_AUTHORIZED} element={<NotAuthorizedPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 

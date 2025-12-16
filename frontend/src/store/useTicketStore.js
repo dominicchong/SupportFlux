@@ -137,5 +137,9 @@ export const useTicketStore = create((set, get) => ({
       toast.error("Error deleting all tickets");
       console.error("Error in deleteAllTickets: ", error);
     }
-  }
+  },
+
+  isTicketCreator: (ticket, authUser) => {
+    return ticket.userId._id === authUser._id;
+  },
 }));

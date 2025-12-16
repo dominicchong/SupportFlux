@@ -1,20 +1,25 @@
 import { useState, useEffect } from "react";
 import { Input } from "../components/BasicUIComponents";
-import { Pencil, Trash, Plus, Loader } from "lucide-react";
+import { Pencil, Trash, Loader } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import toast from "react-hot-toast";
 import DateTimeFormatter from "../components/DateTimeFormatter";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 const AccountsManagerPage = () => {
+  const { users, fetchUsers, saveUser, deleteUser, isLoadingUsers } = useAuthStore();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
   const [formState, setFormState] = useState({
     fullName: "",
     email: "",
     role: "student",
     password: "",
   });
-  const [editingId, setEditingId] = useState(null);
-
-  const { users, fetchUsers, saveUser, deleteUser, isLoadingUsers } = useAuthStore();
 
   useEffect(() => {
     fetchUsers();
@@ -44,7 +49,7 @@ const AccountsManagerPage = () => {
 
   const handleSubmit = async () => {
     if (!formState.fullName.trim() || !formState.email.trim()) {
-      alert("Name and email are required.");
+      toast.error("Name and email are required.");
       return;
     }
 
@@ -58,22 +63,24 @@ const AccountsManagerPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      await deleteUser(id);
+  const handleDelete = async () => {
+    try {
+      await deleteUser(selectedUserId);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   return (
     <div className="p-6 pt-20 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Manage Accounts</h2>
         <button onClick={openCreateModal} className="btn btn-custom-primary" title="Create new user">
-          <Plus className="size-4" />
-          <span className="ml-1">Add User</span>
+          <span>New User</span>
         </button>
       </div>
+      <h3 className="text-sm font-light mb-4">{users.length} users found</h3>
 
       {/* Table */}
       <div className="overflow-x-auto">
@@ -106,10 +113,10 @@ const AccountsManagerPage = () => {
                     <td>{user.email}</td>
                     <td>{user.role}</td>
                     <td>
-                      <DateTimeFormatter value={user.createdAt} format="full" />
+                      <DateTimeFormatter value={user.createdAt} format="simple" />
                     </td>
                     <td>
-                      <DateTimeFormatter value={user.updatedAt} format="full" />
+                      <DateTimeFormatter value={user.updatedAt} format="simple" />
                     </td>
                     <td className="flex gap-2">
                       <button
@@ -120,7 +127,10 @@ const AccountsManagerPage = () => {
                         <Pencil className="size-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(user._id)}
+                        onClick={() => {
+                          setIsModalDeleteOpen(true); 
+                          setSelectedUserId(user._id)
+                        }}
                         className="btn btn-sm btn-error"
                         title="Delete"
                       >
@@ -185,6 +195,16 @@ const AccountsManagerPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isModalDeleteOpen}
+        onClose={() => setIsModalDeleteOpen(false)}
+        title="Confirmation"
+        children="Do you want to delete this user?"
+        primaryButton={{ label: "Delete", onClick: handleDelete }}
+        primaryButtonStyle={"bg-red-500 border-red-500 hover:bg-red-600 text-white"}
+        secondaryButton={{ label: "Cancel", onClick: () => setIsModalDeleteOpen(false) }}
+      ></ConfirmationModal>
     </div>
   );
 };

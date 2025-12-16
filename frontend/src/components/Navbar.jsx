@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, NavLink } from "react-router-dom";
-import { Headset, Users, Home, Bot, MessageCircleMore, BookOpen, CircleUser, Menu, X } from "lucide-react";
+import { Headset, Users, Home, Bot, MessageCircleMore, BookOpen, CircleUser, Menu, X, FolderKanban } from "lucide-react";
 import { useAuthStore } from '../store/useAuthStore';
 import { useChatStore } from '../store/useChatStore';
+import { ROUTES } from '../constants/paths';
 
 const Navbar = () => {
-  const { authUser } = useAuthStore();
+  const { authUser, isUserAuthorized } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const isAdmin = authUser?.role === "admin";
   const menuRef = useRef(null);
@@ -13,7 +14,7 @@ const Navbar = () => {
 
   // Messages
   const { getUnreadCounts, subscribeToMessages } = useChatStore();
-  
+
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -51,7 +52,7 @@ const Navbar = () => {
 
           {isAdmin && (
             <NavLink
-              to="/accounts"
+              to={ROUTES.ACCOUNTS}
               className={({ isActive }) => `btn btn-sm gap-2 hidden lg:flex ${isActive ? "btn-primary" : ""}`}
               onClick={() => setMenuOpen(false)}
             >
@@ -68,7 +69,7 @@ const Navbar = () => {
             {authUser && (
               <>
                 <NavLink
-                  to="/"
+                  to={ROUTES.HOME}
                   className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
                 >
                   <Home className="size-5" />
@@ -76,25 +77,39 @@ const Navbar = () => {
                 </NavLink>
 
                 <NavLink
-                  to="/chatbot"
+                  to={ROUTES.CHATBOT}
                   className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
                 >
                   <Bot className="size-5" />
                   <span className="hidden sm:inline">Chatbot</span>
                 </NavLink>
 
-                <div className="relative inline-block">
-                  <NavLink
-                    to="/live-chat"
-                    className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
-                  >
-                    <MessageCircleMore className="size-5" />
-                    <span className="hidden sm:inline">Live Chat</span>
-                  </NavLink>
-                </div>
+                {!isUserAuthorized() &&
+                  <div className="relative inline-block">
+                    <NavLink
+                      to={ROUTES.LIVE_CHAT}
+                      className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                    >
+                      <MessageCircleMore className="size-5" />
+                      <span className="hidden sm:inline">Live Chat</span>
+                    </NavLink>
+                  </div>
+                }
+
+                {isUserAuthorized() &&
+                  <div className="relative inline-block">
+                    <NavLink
+                      to={ROUTES.CHAT_MANAGER}
+                      className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
+                    >
+                      <FolderKanban className="size-5" />
+                      <span className="hidden sm:inline">Chat Manager</span>
+                    </NavLink>
+                  </div>
+                }
 
                 <NavLink
-                  to="/knowledgebase"
+                  to={ROUTES.KNOWLEDGE_BASE}
                   className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
                 >
                   <BookOpen className="size-5" />
@@ -102,7 +117,7 @@ const Navbar = () => {
                 </NavLink>
 
                 <NavLink
-                  to="/profile"
+                  to={ROUTES.PROFILE}
                   className={({ isActive }) => `btn btn-sm gap-2 ${isActive ? "btn-primary" : ""}`}
                 >
                   <CircleUser className="size-5" />
@@ -129,18 +144,18 @@ const Navbar = () => {
 
       {/* Mobile Dropdown Menu */}
       {menuOpen && (
-        <div 
+        <div
           ref={menuRef}
           className={`lg:hidden absolute right-4 top-16 bg-base-100 border border-base-300 rounded-xl shadow-lg flex flex-col items-start px-4 py-3 space-y-2 w-56 transition-all duration-300 ease-in-out 
             ${menuOpen
-                ? "opacity-100 translate-y-0 pointer-events-auto"
-                : "opacity-0 -translate-y-2 pointer-events-none"
-          }`}>
-          
+              ? "opacity-100 translate-y-0 pointer-events-auto"
+              : "opacity-0 -translate-y-2 pointer-events-none"
+            }`}>
+
           {authUser && (
             <>
               <NavLink
-                to="/"
+                to={ROUTES.HOME}
                 className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
@@ -149,7 +164,7 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                to="/chatbot"
+                to={ROUTES.CHATBOT}
                 className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
@@ -158,7 +173,7 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                to="/live-chat"
+                to={ROUTES.LIVE_CHAT}
                 className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
@@ -167,7 +182,7 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
-                to="/knowledgebase"
+                to={ROUTES.KNOWLEDGE_BASE}
                 className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
@@ -177,7 +192,7 @@ const Navbar = () => {
 
               {isAdmin && (
                 <NavLink
-                  to="/accounts"
+                  to={ROUTES.ACCOUNTS}
                   className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
                   onClick={() => setMenuOpen(false)}
                 >
@@ -187,7 +202,7 @@ const Navbar = () => {
               )}
 
               <NavLink
-                to="/profile"
+                to={ROUTES.PROFILE}
                 className={({ isActive }) => `btn btn-m w-full justify-start ${isActive ? "btn-primary" : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
