@@ -22,6 +22,7 @@ import LiveChatPage from "./pages/LiveChatPage";
 import TicketChatPage from "./pages/TicketChatPage";
 import NotAuthorizedPage from "./pages/NotAuthorizedPage";
 import TicketManagerPage from "./pages/TicketManagerPage";
+import ChatDashboardPage from "./pages/ChatDashboardPage"
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -68,6 +69,12 @@ const App = () => {
         <Route path={ROUTES.CHAT_MANAGER} element={ 
             <ProtectedRoute authUser={authUser} requiredPermission="CHAT_MANAGER">
               <TicketManagerPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path={ROUTES.CHAT_DASHBOARD} element={ 
+            <ProtectedRoute authUser={authUser} requiredPermission="CHAT_DASHBOARD">
+              <ChatDashboardPage />
             </ProtectedRoute>
           } 
         />

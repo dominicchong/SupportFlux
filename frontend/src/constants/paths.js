@@ -16,6 +16,7 @@ export const ROUTES = {
 
   // Admin
   ACCOUNTS: "/accounts",
+  CHAT_DASHBOARD: "/chat-dashboard",
 
   // System
   NOT_AUTHORIZED: "/not-authorized",

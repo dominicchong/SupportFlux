@@ -5,15 +5,30 @@ import { useAuthStore } from './useAuthStore';
 import { useTicketStore } from './useTicketStore';
 
 export const useChatStore = create((set, get) => ({
+  allMessages: [],
   messages: [],
   isMessagesLoading: false,
   isSendMessageLoading: false,
   unreadCount: {}, // { userId: count }
   latestMessages: {},
   activeDate: null,
+  commonWords: [],
 
-  setActiveDate: (date) => set ({activeDate: date}),
+  setActiveDate: (date) => set({ activeDate: date }),
   resetActiveDate: () => set({ activeDate: null }),
+
+  // Get all messages for dashboard
+  getAllMessages: async () => {
+    try {
+      // Fetch all messages (and backend will auto-mark as read)
+      const res = await axiosInstance.get(`/messages/all-messages`);
+      const messagesData = res.data;
+      set({ allMessages: messagesData });
+
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error fetching all messages");
+    } 
+  },
 
   // Fetch messages for selected ticket
   getMessages: async (ticketId) => {
@@ -26,7 +41,7 @@ export const useChatStore = create((set, get) => ({
       set({ messages: messagesData });
 
       if (messageLength > 0) {
-        const lastMessage = messagesData[messageLength- 1];
+        const lastMessage = messagesData[messageLength - 1];
         get().setLatestMessage(ticketId, lastMessage);
       }
 
@@ -135,7 +150,7 @@ export const useChatStore = create((set, get) => ({
       const { [ticketId]: _, ...rest } = state.unreadCount;
       return { unreadCount: rest };
     }),
-  
+
   getUnreadCounts: async () => {
     try {
       const res = await axiosInstance.get("/messages/unread-counts");
@@ -159,7 +174,7 @@ export const useChatStore = create((set, get) => ({
   getLatestMessages: async () => {
     try {
       const res = await axiosInstance.get("/messages/latest-messages");
-      
+
       if (!Array.isArray(res.data)) {
         console.warn("Unexpected latest-messages response:", res.data);
         return;
@@ -218,12 +233,12 @@ export const useChatStore = create((set, get) => ({
   getFirstUnreadIndex: () => {
     const { selectedTicket, messages, authUser } = get();
     if (!selectedTicket || !messages?.length || !authUser) return -1;
-    const lastReadTime = selectedTicket.lastRead 
+    const lastReadTime = selectedTicket.lastRead
       ? new Date(selectedTicket.lastRead).getTime() : null;
 
     return messages.findIndex(
-      (msg) => 
-        msg.senderId !== authUser._id && 
+      (msg) =>
+        msg.senderId !== authUser._id &&
         (!lastReadTime || new Date(msg.createdAt).getTime() > lastReadTime)
     );
   },
@@ -234,7 +249,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   // TODO: add the method to the controller backend to link with database
-  deleteMessagesByTicketId: async (ticketId) => { 
+  deleteMessagesByTicketId: async (ticketId) => {
     try {
       await axiosInstance.delete(`/messages/${ticketId}/delete-ticket`);
       toast.success("All messages is deleted!");
@@ -252,6 +267,49 @@ export const useChatStore = create((set, get) => ({
       toast.error("Error deleting all messages");
       console.error("Error in deleteAllMessages: ", error);
     }
+  },
+
+  getCommonWords: () => {
+    const allMessages = get().allMessages;
+
+    // Normalize to flat array
+    const messages = Array.isArray(allMessages)
+      ? allMessages
+      : Object.values(allMessages || {}).flat();
+
+    const stopWords = new Set([
+      "the", "is", "and", "to", "a", "of", "in", "on",
+      "for", "with", "that", "this", "it", "i", "you",
+      "we", "they", "he", "she", "please", "hi", "hello",
+      "thanks", "thank"
+    ]);
+
+    const wordCount = {};
+
+    messages.forEach(msg => {
+      const text = msg?.text || msg?.message;
+      if (!text) return;
+
+      text
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")   // remove punctuation
+        .split(/\s+/)
+        .forEach(word => {
+          if (word.length > 2 && !stopWords.has(word)) {
+            wordCount[word] = (wordCount[word] || 0) + 1;
+          }
+        });
+    });
+
+    return Object.entries(wordCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([word, count]) => ({ word, count }));
+  },
+
+  fetchAllMessages: () => {
+    const messages = get().getAllMessages();
+    set({ allMessages: messages });
   },
 
 }));

@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
-import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2 } from "lucide-react";
+import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2, LayoutDashboard, MessageCircleMore } from "lucide-react";
 import { toastWarning } from "../components/ToastUtils";
 import TicketModal from "../components/TicketModal";
 import { useChatStore } from "../store/useChatStore";
@@ -11,7 +11,6 @@ import { DateTimeFormatter } from "../components/BasicUIComponents";
 import UnreadBadge from '../components/UnreadBadge';
 import ConfirmationModal from "../components/ConfirmationModal";
 import Select from "react-select";
-import { ROUTES } from "../constants/paths";
 
 const TicketManagerPage = () => {
   const { authUser, staffList, fetchStaffList } = useAuthStore();
@@ -139,17 +138,26 @@ const TicketManagerPage = () => {
         </div>
         
         <div className="flex items-top justify-right space-x-3">
+          {/* <button
+            onClick={(e) => navigate(ROUTES.CHAT_DASHBOARD)}
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-orange-400 hover:text-orange-800 cursor-pointer"
+            title="Navigate to Dashboard"
+          >
+            <LayoutDashboard />
+            Dashboard
+          </button>
           <button
             onClick={(e) => navigate(ROUTES.LIVE_CHAT)}
-            className="btn flex p-1 rounded hover:bg-base-200 transition bg-emerald-400 cursor-pointer"
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-emerald-400 hover:text-emerald-600 cursor-pointer"
             title="Navigate to Live Chat"
           >
+            <MessageCircleMore className="size-5" />
             Live Chat
-          </button>
+          </button> */}
 
           <button
             onClick={(e) => setIsModalDeleteOpen(true)}
-            className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 cursor-pointer"
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 hover:text-red-600 cursor-pointer"
             title="Delete all tickets"
           >
             <Trash className="size-4" />
