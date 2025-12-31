@@ -58,7 +58,7 @@ export const NavbarItem = ({ item, authUser, isUserAuthorized, setMenuOpen, isMo
   return (
     <div
       ref={containerRef}
-      className="relative flex"
+      className="relative flex w-full"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

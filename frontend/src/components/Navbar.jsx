@@ -12,13 +12,10 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
 
-  const { getUnreadCounts, subscribeToMessages } = useChatStore();
+  const { subscribeToMessages } = useChatStore();
 
   useEffect(() => {
-    if (authUser) {
-      getUnreadCounts();
-      subscribeToMessages();
-    }
+    subscribeToMessages();
 
     const handleClickOutside = (e) => {
       if (menuRef.current?.contains(e.target) || buttonRef.current?.contains(e.target)) return;
@@ -26,7 +23,7 @@ const Navbar = () => {
     };
     if (menuOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [authUser, getUnreadCounts, subscribeToMessages, menuOpen]);
+  }, [authUser, subscribeToMessages, menuOpen]);
 
   return (
     <header className="bg-base-100 border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg shadow-xs">

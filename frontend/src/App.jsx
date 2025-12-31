@@ -15,8 +15,6 @@ import ProfilePage from "./pages/ProfilePage";
 import KnowledgeBasePage from "./pages/KnowledgeBasePage";
 import ChatbotPage from "./pages/ChatbotPage";
 import AccountsManagerPage from "./pages/AccountsManagerPage";
-import AddNewArticlePage from "./pages/AddNewArticlePage";
-import ChatPage from "./pages/ChatPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import LiveChatPage from "./pages/LiveChatPage";
 import TicketChatPage from "./pages/TicketChatPage";

@@ -75,7 +75,6 @@ const SignUpPage = () => {
                 <Headset className="w-5 h-5 text-primary" />
               </div>
               <h1 className="text-2xl font-bold mt-2">Register Account</h1>
-              <p className="text-base-content/60">Get started with your free account</p>
             </div>
           </div>
 

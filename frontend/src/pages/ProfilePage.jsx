@@ -12,10 +12,7 @@ const ProfilePage = () => {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 74 * 1024) {
-      toast.warning("Please upload an image smaller than 74KB.");
-      return;
-    }
+
     const reader = new FileReader();
     reader.readAsDataURL(file);
 
@@ -40,9 +37,10 @@ const ProfilePage = () => {
       await logout();
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsModalLogoutOpen(false);
     }
   }
-
 
 
   return (
