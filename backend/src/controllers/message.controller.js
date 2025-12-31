@@ -23,20 +23,25 @@ export const getMessages = async (req, res) => {
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) return res.status(404).json({ message: "Ticket not found" });
 
-    const isStaff = role !== "student";  
+    const isStaff = role !== "student";
     const isCreator = ticket.userId._id.toString() === myId.toString();
 
     if (!isStaff && !isCreator) {
       return res.status(403).json({ message: "You do not have permission to view this ticket" });
     }
 
-    // Messages belong ONLY to the ticket now
-    const messages = await Message.find({ ticketId }).sort({ createdAt: 1 });
-
     await Message.updateMany(
-      { ticketId, readBy: { $ne: myId } },
+      { ticketId, senderId: { $ne: myId }, readBy: { $ne: myId } },
       { $addToSet: { readBy: myId } }
     );
+
+    io.to(ticketId).emit("messagesRead", {
+      ticketId,
+      userId: myId,
+    });
+
+    // Messages belong ONLY to the ticket now
+    const messages = await Message.find({ ticketId }).sort({ createdAt: 1 });
 
     res.status(200).json(messages);
   } catch (error) {
@@ -94,12 +99,13 @@ export const getUnreadCounts = async (req, res) => {
     const userId = req.user._id;
 
     const unreadCounts = await Message.aggregate([
-      { $match: { 
+      {
+        $match: {
           readBy: { $ne: userId },     // user have not read it
           senderId: { $ne: userId }    // user is not sender
-        } 
+        }
       },
-      { $group: { _id: "$ticketId", count: { $sum: 1 }}},
+      { $group: { _id: "$ticketId", count: { $sum: 1 } } },
     ]);
 
     res.status(200).json(unreadCounts);
@@ -110,7 +116,7 @@ export const getUnreadCounts = async (req, res) => {
 };
 
 export const getLatestMessages = async (req, res) => {
-  try {    
+  try {
     // Aggregate messages by ticket id
     const latestMessages = await Message.aggregate([
       // Sort by newest first
@@ -122,7 +128,7 @@ export const getLatestMessages = async (req, res) => {
           text: { $first: "$text" },
           image: { $first: "$image" },
           senderId: { $first: "$senderId" },
-          readBy:  { $first: "$readBy" },
+          readBy: { $first: "$readBy" },
           createdAt: { $first: "$createdAt" },
         }
       }
@@ -131,7 +137,7 @@ export const getLatestMessages = async (req, res) => {
     if (!Array.isArray(latestMessages)) {
       return res.status(200).json([]);
     }
-    
+
     res.status(200).json(latestMessages);
   } catch (error) {
     console.error("Error in getLatestMessages controller:", error.message);
@@ -143,7 +149,7 @@ export const deleteAllMessages = async (req, res) => {
   try {
     await Message.deleteMany();
 
-    res.status(200).json({ message: "All messages deleted sucessfully"});
+    res.status(200).json({ message: "All messages deleted sucessfully" });
   } catch (error) {
     console.error("Error in deleteAllMessages controller:", error);
     res.status(500).json({ message: error.message });

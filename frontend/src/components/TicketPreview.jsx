@@ -1,10 +1,12 @@
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import { useTicketStore } from "../store/useTicketStore";
 import TicketStatusBadge from "./utils/TicketStatusBadge";
 
 const TicketPreview = ({ ticket, onlineUsers }) => {
   const { authUser } = useAuthStore();
-  const { unreadCount, latestMessages, formatLatestMessages } = useChatStore();
+  const { latestMessages, formatLatestMessages } = useChatStore();
+  const { unreadCount } = useTicketStore();
 
   const authUserId = authUser._id;
   const preview = formatLatestMessages(ticket._id, authUserId);

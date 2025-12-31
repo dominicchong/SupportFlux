@@ -172,6 +172,17 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+export const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const user = await User.find(userId).select("-password");
+    res.json(user);
+  } catch (error) {
+    console.error("Failed to get user:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const updateUser = async (req, res) => {
   try {
     const { fullName, email, role, password } = req.body;

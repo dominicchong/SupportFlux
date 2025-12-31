@@ -3,6 +3,7 @@ import { axiosInstance } from '../lib/axios.js';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
 import { useTicketStore } from './useTicketStore.js';
+import { useChatbotStore } from './useChatbotStore.js';
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
@@ -18,6 +19,7 @@ export const useAuthStore = create((set, get) => ({
   isSendingReset: false,
   users: [],
   staffList: [],
+  usersById: {},
 
   checkAuth: async () => {
     try {
@@ -62,9 +64,10 @@ export const useAuthStore = create((set, get) => ({
   logout: async () => {
     set({ isLoggingOut: true });
     try {
-      useTicketStore.getState().resetTicketStore(); // Clear my tickets on logout
-
       await axiosInstance.post('/auth/logout');
+      useTicketStore.getState().resetTicketStore(); // Clear my tickets on logout
+      useChatbotStore.getState().resetChat();
+
       set({ authUser: null });
       toast.success('Logged out successfully');
       get().disconnectSocket();
@@ -111,7 +114,12 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoadingUsers: true });
     try {
       const { data } = await axiosInstance.get("/auth/users/get-all");
-      set({ users: data });
+      const userMap = {};
+      data.forEach((u) => {
+        userMap[u._id] = u;
+      });
+
+      set({ users: data, usersById: userMap });
     } catch (error) {
       console.error("Failed to fetch users", error);
       toast.error("Failed to fetch users");
@@ -119,6 +127,8 @@ export const useAuthStore = create((set, get) => ({
       set({ isLoadingUsers: false })
     }
   },
+
+  getUserById: (userId) => get().usersById[userId] || null,
 
   // Create or update a user
   saveUser: async (id, userData) => {
@@ -185,7 +195,7 @@ export const useAuthStore = create((set, get) => ({
     const { authUser } = get();
     return userId === authUser._id;
   },
-  
+
   fetchStaffList: async () => {
     try {
       const { data } = await axiosInstance.get("/auth/staff-list");
@@ -194,6 +204,6 @@ export const useAuthStore = create((set, get) => ({
       console.error("Failed to fetch users", error);
       toast.error("Failed to fetch users");
     }
-  }
+  },
 
 }));

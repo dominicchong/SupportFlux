@@ -10,15 +10,16 @@ import toast from "react-hot-toast";
 
 const SidebarTicket = () => {
   const { onlineUsers, isUserAuthorized } = useAuthStore();
-  const { isTicketsLoading, getUnreadCounts, getLatestMessages, deleteAllMessages } = useChatStore();
+  const { isTicketsLoading, getLatestMessages, deleteAllMessages } = useChatStore();
   const { fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, 
-    createTicket, getCategories, levelList } = useTicketStore();
+    createTicket, getCategories, levelList, getUnreadCounts } = useTicketStore();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    fetchAllTickets();
     fetchMyTickets();
     getUnreadCounts();
     getLatestMessages();
@@ -47,7 +48,10 @@ const SidebarTicket = () => {
 
   const handleSubmit = async () => {
     if (!formState.category) {
-      toast.error("Category is required");
+      toast.error("Category is required!");
+      return;
+    } else if (!formState.level) {
+      toast.error("Level of study is required!");
       return;
     }
 
@@ -73,6 +77,18 @@ const SidebarTicket = () => {
       setIsDeleting(false);
       fetchAllTickets();
     }
+  };
+
+  const handleSearch = async () => {
+    setSearchQuery(e.target.value)
+
+    // try {
+
+    // } catch (error) {
+    //   console.error(error);
+    // } finally {
+    //   fetchAllTickets();
+    // }
   };
 
   if (isTicketsLoading) return <SidebarSkeleton />;
@@ -112,7 +128,7 @@ const SidebarTicket = () => {
             type="text"
             placeholder="Search chats..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearch(e)}
             className="input input-sm input-bordered w-full"
           />
         </div>

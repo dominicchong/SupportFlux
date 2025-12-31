@@ -7,6 +7,7 @@ export const useTicketStore = create((set, get) => ({
   myTickets: [],
   selectedTicket: null,
   filter: "All",
+  unreadCount: {},
   statusList: ["All", "New", "In Progress", "Resolved"],
   levelList: ["Undergraduate", "Postgraduate"],
   isLoadingTickets: false,
@@ -21,7 +22,7 @@ export const useTicketStore = create((set, get) => ({
   fetchAllTickets: async () => {
     set({ isLoadingTickets: true });
     try {
-      const res = await axiosInstance.get("/ticket/all"); 
+      const res = await axiosInstance.get("/ticket/all");
       set({ tickets: res.data });
     } catch (error) {
       console.error("Error fetching tickets:", error);
@@ -35,7 +36,7 @@ export const useTicketStore = create((set, get) => ({
   fetchMyTickets: async () => {
     set({ isLoadingTickets: true });
     try {
-      const res = await axiosInstance.get(`/ticket/my-tickets`); 
+      const res = await axiosInstance.get(`/ticket/my-tickets`);
       set({ myTickets: res.data });
     } catch (error) {
       console.error("Error fetching tickets:", error);
@@ -47,7 +48,7 @@ export const useTicketStore = create((set, get) => ({
 
   fetchTicketById: async (ticketId) => {
     try {
-      const res = await axiosInstance.get(`/ticket/${ticketId}`); 
+      const res = await axiosInstance.get(`/ticket/${ticketId}`);
       set({ selectedTicket: res.data });
     } catch (error) {
       console.error("Error fetching ticket by id:", error);
@@ -55,12 +56,16 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
+  searchTicket: async () => {
+
+  },
+
   // Create new ticket
   createTicket: async (item) => {
     try {
       const { data } = await axiosInstance.post("/ticket/create", item);
       set((s) => ({ tickets: [data, ...s.tickets] }));
-      toast.success("Ticket created");
+      toast.success("Chat created");
     } catch (error) {
       console.error("Error creating new ticket: ", error)
       toast.error("Failed to create new ticket");
@@ -141,5 +146,42 @@ export const useTicketStore = create((set, get) => ({
 
   isTicketCreator: (ticket, authUser) => {
     return ticket.userId._id === authUser._id;
+  },
+
+  // Unread message utilities
+  setUnreadCount: (newUnread) => set({ unreadCount: newUnread }),
+
+  incrementUnread: (fromTicketId) =>
+    set((state) => ({
+      unreadCount: {
+        ...state.unreadCount,
+        [fromTicketId]: (state.unreadCount[fromTicketId] || 0) + 1,
+      },
+    })),
+
+  clearUnread: (ticketId) =>
+    set((state) => {
+      const { [ticketId]: _, ...rest } = state.unreadCount;
+      return { unreadCount: rest };
+    }),
+
+  getUnreadCounts: async () => {
+    try {
+      const res = await axiosInstance.get("/messages/unread-counts");
+      const unreadMap = {};
+
+      if (Array.isArray(res.data)) {
+        res.data.forEach((item) => {
+          // Skip invalid entries (no _id or count)
+          if (!item?._id || typeof item.count !== "number") return;
+          unreadMap[item._id] = item.count;
+        });
+      }
+
+      set({ unreadCount: unreadMap });
+    } catch (error) {
+      console.error("Error loading unread count: ", error);
+      toast.error("Failed loading unread count");
+    }
   },
 }));

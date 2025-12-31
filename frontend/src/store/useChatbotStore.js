@@ -102,7 +102,7 @@ export const useChatbotStore = create((set, get) => ({
     }
   },
 
-  newChat: () => {
+  resetChat: () => {
     try {
       set({
         messages: [],

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import {useChatStore} from "../store/useChatStore";
+import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from '../store/useAuthStore';
 
 import ChatHeader from "./ChatHeader";
@@ -10,13 +10,13 @@ import { PreviewImage } from './PreviewImage';
 import { useTicketStore } from '../store/useTicketStore';
 
 const ChatContainer = () => {
-  const { isYou } = useAuthStore();
-  const {messages, getMessages, isMessageLoading, subscribeToMessages, 
-    unsubscribeFromMessages, getGroupedMessages, activeDate, setActiveDate, resetActiveDate, 
-    getFirstUnreadIndex, hasUnread} = useChatStore();
+  const { isYou, fetchUsers, getUserById } = useAuthStore();
+  const { messages, getMessages, isMessageLoading, subscribeToMessages,
+    unsubscribeFromMessages, getGroupedMessages, activeDate, setActiveDate, resetActiveDate,
+    getFirstUnreadIndex, hasUnread } = useChatStore();
 
   const { selectedTicket } = useTicketStore();
-  
+
   const [previewImage, setPreviewImage] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -39,12 +39,13 @@ const ChatContainer = () => {
   };
 
   useEffect(() => {
-    if(!selectedTicket?._id) {
+    if (!selectedTicket?._id) {
       return;
     }
     resetActiveDate();  //Resets date banner when navigated to different chat
     getMessages(selectedTicket._id);
     subscribeToMessages();
+    fetchUsers();
 
     return () => unsubscribeFromMessages();
   }, [selectedTicket, getMessages, subscribeToMessages, unsubscribeFromMessages, resetActiveDate]);
@@ -52,7 +53,7 @@ const ChatContainer = () => {
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
-    
+
     // Scroll to first unread message on load
     if (hasUnreadMsg && unreadIndex !== -1 && messages?.length > 0) {
       const unreadMessage = container.querySelector(
@@ -120,9 +121,9 @@ const ChatContainer = () => {
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   // Loading state
-  if(isMessageLoading) {
+  if (isMessageLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
@@ -156,7 +157,7 @@ const ChatContainer = () => {
         {/* Messages grouped by date */}
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div key={date} data-date-banner={date}>
-            
+
             <div className="text-center text-gray-500 text-sm my-1 font-semibold">
               <DateTimeFormatter value={date} format="banner" />
             </div>
@@ -164,9 +165,8 @@ const ChatContainer = () => {
             {msgs.map((message, index) => (
               <div
                 key={message._id || index}
-                className={`chat ${
-                  isYou(message.senderId) ? "chat-end" : "chat-start"
-                }`}
+                className={`chat ${isYou(message.senderId) ? "chat-end" : "chat-start"
+                  }`}
                 ref={messageEndRef}
               >
                 {/* <div className="chat-image avatar">
@@ -181,9 +181,13 @@ const ChatContainer = () => {
                   </div>
                 </div> */}
 
-                <div className={`chat-bubble flex flex-col items-start ${ 
-                  isYou(message.senderId) ? "bg-purple-200" : ""}`}>
-                  <span className='text-blue-900 text-xs font-bold mb-1 truncate'>{isYou(message.senderId) ? "" : selectedTicket?.userId.fullName}</span>
+                <div className={`chat-bubble flex flex-col items-start ${isYou(message.senderId) ? "bg-purple-200" : ""}`}>
+                  {!isYou(message.senderId) && (
+                    <span className="text-blue-900 text-xs font-bold mb-1 truncate">
+                      {getUserById(message.senderId)?.fullName || ""}
+                    </span>
+                  )}
+
                   {message.image && (
                     <img
                       src={message.image}
@@ -192,7 +196,7 @@ const ChatContainer = () => {
                       onClick={() => setPreviewImage(message.image)} // Open preview
                     />
                   )}
-                  {message.text && 
+                  {message.text &&
                     <p className='text-sm'>
                       {message.text}
                     </p>
@@ -209,7 +213,7 @@ const ChatContainer = () => {
           </div>
         ))}
       </div>
-      
+
       <div className="flex-shrink-0">
         <ScrollToBottom visible={showScrollButton} onClick={scrollToBottom} />
         <MessageInput />

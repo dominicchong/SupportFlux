@@ -27,7 +27,7 @@ const ChatHeader = () => {
               {ticketCategory}
             </h3>
             <TicketStatusBadge status={ticketStatus}/>
-            <h5 className="font-light">Ticket created by: {ticketCreator} ({ticketCreatorRole})</h5>
+            <h5 className="font-light">Created by: {ticketCreator} ({ticketCreatorRole})</h5>
           </div>
         </div>
 

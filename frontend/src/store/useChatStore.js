@@ -9,7 +9,6 @@ export const useChatStore = create((set, get) => ({
   messages: [],
   isMessagesLoading: false,
   isSendMessageLoading: false,
-  unreadCount: {}, // { userId: count }
   latestMessages: {},
   activeDate: null,
   commonWords: [],
@@ -27,7 +26,7 @@ export const useChatStore = create((set, get) => ({
 
     } catch (error) {
       toast.error(error.response?.data?.message || "Error fetching all messages");
-    } 
+    }
   },
 
   // Fetch messages for selected ticket
@@ -36,6 +35,8 @@ export const useChatStore = create((set, get) => ({
     try {
       // Fetch all messages (and backend will auto-mark as read)
       const res = await axiosInstance.get(`/messages/${ticketId}`);
+      useTicketStore.getState().clearUnread(ticketId);
+      
       const messagesData = res.data;
       const messageLength = messagesData.length;
       set({ messages: messagesData });
@@ -45,8 +46,6 @@ export const useChatStore = create((set, get) => ({
         get().setLatestMessage(ticketId, lastMessage);
       }
 
-      // Clear unread for this user in local store
-      // get().clearUnread(ticketId);
     } catch (error) {
       toast.error(error.response?.data?.message || "Error fetching messages");
     } finally {
@@ -115,8 +114,9 @@ export const useChatStore = create((set, get) => ({
     socket.on("newMessage", (newMessage) => {
       const selectedTicket = useTicketStore.getState().selectedTicket;
 
-      // Only process messages belonging to the currently open ticket
-      if (!selectedTicket || newMessage.ticketId !== selectedTicket._id) {
+      // If ticket is NOT open → unread
+      if (!selectedTicket || selectedTicket._id !== newMessage.ticketId) {
+        useTicketStore.getState().incrementUnread(newMessage.ticketId);
         return;
       }
 
@@ -134,42 +134,6 @@ export const useChatStore = create((set, get) => ({
     socket?.off("newMessage");
   },
 
-  // Unread message utilities
-  setUnreadCount: (newUnread) => set({ unreadCount: newUnread }),
-
-  incrementUnread: (fromTicketId) =>
-    set((state) => ({
-      unreadCount: {
-        ...state.unreadCount,
-        [fromTicketId]: (state.unreadCount[fromTicketId] || 0) + 1,
-      },
-    })),
-
-  clearUnread: (ticketId) =>
-    set((state) => {
-      const { [ticketId]: _, ...rest } = state.unreadCount;
-      return { unreadCount: rest };
-    }),
-
-  getUnreadCounts: async () => {
-    try {
-      const res = await axiosInstance.get("/messages/unread-counts");
-      const unreadMap = {};
-
-      if (Array.isArray(res.data)) {
-        res.data.forEach((item) => {
-          // Skip invalid entries (no _id or count)
-          if (!item?._id || typeof item.count !== "number") return;
-          unreadMap[item._id] = item.count;
-        });
-      }
-
-      set({ unreadCount: unreadMap });
-    } catch (error) {
-      console.error("Error loading unread count: ", error);
-      toast.error("Failed loading unread count");
-    }
-  },
 
   getLatestMessages: async () => {
     try {

@@ -16,7 +16,7 @@ const FEATURES = [
 const ChatbotPage = () => {
   const [input, setInput] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const { messages, sendPrompt, newChat, isLoading } = useChatbotStore();
+  const { messages, sendPrompt, resetChat, isLoading } = useChatbotStore();
   const chatbotRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -75,10 +75,10 @@ const ChatbotPage = () => {
     <div className="pt-16 h-screen bg-[#FFFFFF] text-black flex flex-col">
       {/* Desktop sticky header */}
       {isResponseScreen && (
-        <header className="sticky top-16 z-50 bg-white px-4 py-2 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 flex justify-between items-center shadow-sm ">
+        <header className="sticky top-16 z-1 bg-white px-4 py-2 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 flex justify-between items-center ">
           <h2 className="text-2xl">Chatbot</h2>
           <button
-            onClick={newChat}
+            onClick={resetChat}
             className="bg-blue-100 text-blue-700 rounded-xl px-4 sm:px-5 py-2 text-sm
                         border border-blue-200 hover:bg-blue-200 transition shadow-sm"
           >
@@ -90,7 +90,7 @@ const ChatbotPage = () => {
       {/* Mobile Floating New Chat */}
       {/* {isResponseScreen && (
         <button
-          onClick={newChat}
+          onClick={resetChat}
           className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-3 rounded-full 
                  shadow-lg sm:hidden"
         >
