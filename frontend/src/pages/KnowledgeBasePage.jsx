@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Search, Plus, Pencil, Trash, Loader } from "lucide-react";
+import { Search, Plus, Pencil, Trash, Loader, X } from "lucide-react";
 import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
 import DateTimeFormatter from "../components/DateTimeFormatter";
+import ConfirmationModal from "../components/ConfirmationModal";
 
 import toast from "react-hot-toast";
+import { SearchInput } from "../components/SearchInput";
 
 const KnowledgeBasePage = () => {
   const { isUserAuthorized } = useAuthStore();
@@ -21,6 +23,8 @@ const KnowledgeBasePage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewItem, setViewItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const isAuthorized = isUserAuthorized();
   const categories = ["All", ...getCategories()];    // Categories and filtered data
@@ -29,11 +33,20 @@ const KnowledgeBasePage = () => {
     fetchKnowledge();
   }, [fetchKnowledge]);
 
+  // Handle Debounce
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300); // Delay 300ms
+
+    return () => clearTimeout(handler); // Cleanup if user types again before 300ms
+  }, [searchTerm]);
+
   const filteredData = knowledgeData.filter((item) => {
     const byCategory = selectedCategory === "All" || item.category === selectedCategory;
     const byText =
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase());
+      item.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      item.description.toLowerCase().includes(debouncedSearch.toLowerCase());
     return byCategory && byText;
   });
 
@@ -54,7 +67,6 @@ const KnowledgeBasePage = () => {
   const openViewModal = (item) => {
     setViewItem(item);
     setIsViewModalOpen(true);
-    // console.log("VIEW ITEM:", item);
   };
 
   const handleFormField = (field, val) => setFormState((p) => ({ ...p, [field]: val }));
@@ -74,15 +86,13 @@ const KnowledgeBasePage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this article?")) return;
-    setIsDeleting(true);
-
+  const handleDelete = async () => {
     try {
-      await deleteKnowledge(id);
+      await deleteKnowledge(selectedItem._id);
     } catch (error) {
       console.error(error);
     } finally {
+      setSelectedItem(null);
       setIsDeleting(false);
     }
   };
@@ -90,26 +100,13 @@ const KnowledgeBasePage = () => {
 
   return (
     <div className="p-4 pt-20 space-y-6 max-w-[95%] mx-auto">
-      {/* <h1 className="flex w-full text-xl font-bold items-center">
-        Knowledge Base        
-      </h1> */}
+      <div className="text-center">
+          <h1 className="font-bold text-lg lg:text-xl">Knowledge Base</h1>
+          <span className="text-sm lg:text-base">Search for articles to find information related to topics</span>
+        </div>
       <div className="w-full flex flex-wrap items-center gap-4 mx-auto">
-        {/* Search Input */}
         <div className="relative flex-grow md:flex-1 order-1 md:mx-0 sm:pl-[22%]">
-          <label
-            className="flex items-center w-full lg:w-[70%] border border-gray-300 rounded-lg px-3 py-2
-                      focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent
-                      bg-base-100 transition-all cursor-text"
-          >
-            <Search className="size-5 text-base-content/40 mr-2" />
-            <input
-              type="text"
-              placeholder="Search information..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-transparent border-none focus:outline-none text-sm"
-            />
-          </label>
+          <SearchInput searchQuery={searchTerm} setSearchQuery={setSearchTerm} placeholder="Search information..."/>
         </div>
 
         {/* Add Buttons */}
@@ -120,7 +117,6 @@ const KnowledgeBasePage = () => {
               className="btn flex gap-1 items-center btn-custom-primary"
               title="Create new article"
             >
-              {/* <Plus className="size-4" /> */}
               <span>New</span>
             </button>
           )}
@@ -159,7 +155,7 @@ const KnowledgeBasePage = () => {
             filteredData.map((item) => (
               <Card key={item._id} className="hover:shadow-lg transition-shadow relative cursor-pointer" onClick={() => openViewModal(item)}>
                 <CardContent className="p-4 space-y-2">
-                  <h2 className="text-lg font-semibold truncate">{item.title}</h2>
+                  <h2 className="text-base lg:text-lg font-semibold truncate">{item.title}</h2>
                   <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
                   <div className="flex gap-2 justify-between">
                     <Badge className="items-center" variant="secondary">{item.category}</Badge>
@@ -184,7 +180,8 @@ const KnowledgeBasePage = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(item._id);
+                        setSelectedItem(item);
+                        setIsDeleting(true);
                       }}
                       className="p-1 rounded hover:bg-base-200 transition text-error cursor-pointer"
                       title="Delete"
@@ -276,6 +273,7 @@ const KnowledgeBasePage = () => {
         </div>
       )}
 
+      {/* View modal when an article card is clicked */}
       {isViewModalOpen && viewItem && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-base-100 p-6 rounded-lg w-full max-w-lg space-y-4 shadow-lg">
@@ -300,7 +298,8 @@ const KnowledgeBasePage = () => {
 
                   <button
                     onClick={() => {
-                      handleDelete(viewItem._id);
+                      setSelectedItem(viewItem);
+                      setIsDeleting(true);
                       setIsViewModalOpen(false);
                     }}
                     className="p-1 rounded hover:bg-base-200 text-error"
@@ -335,7 +334,22 @@ const KnowledgeBasePage = () => {
         </div>
       )}
 
-
+      <ConfirmationModal
+        isOpen={isDeleting}
+        onClose={() => setIsDeleting(false)}
+        title="Confirmation"
+        children={
+          <div>
+            <span>Delete this article?</span><br />
+            <span className="text-sm text-gray-500">
+              Title: {selectedItem?.title} <br />
+            </span>
+          </div>
+        }
+        primaryButton={{ label: "Delete", onClick: handleDelete }}
+        primaryButtonStyle={"bg-red-500 border-red-500 hover:bg-red-600 text-white"}
+        secondaryButton={{ label: "Cancel", onClick: () => setIsDeleting(false) }}
+      ></ConfirmationModal>
     </div>
   );
 };

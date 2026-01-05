@@ -11,12 +11,19 @@ export const useTicketStore = create((set, get) => ({
   statusList: ["All", "New", "In Progress", "Resolved"],
   levelList: ["Undergraduate", "Postgraduate"],
   isLoadingTickets: false,
+  isInfoSidebarOpen: true, 
+  
+  toggleInfoSidebar: () => set({ isInfoSidebarOpen: !get().isInfoSidebarOpen }),
 
   setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
   resetTicketStore: () => set({
     myTickets: [],
     selectedTicket: null,
   }),
+
+  getSimpleTicketId: (ticketId) => {
+    return ticketId.slice(-6);
+  },
 
   // Fetch all tickets
   fetchAllTickets: async () => {

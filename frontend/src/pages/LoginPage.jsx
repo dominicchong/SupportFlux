@@ -83,13 +83,6 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-            {/* <div className="text-right">
-              <p className="text-base-content/60">
-                <Link to="/forget-password" className="link link-primary">
-                  Forget Password?
-                </Link>
-              </p>
-            </div> */}
 
             <button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
               {isLoggingIn ? (
@@ -116,7 +109,7 @@ const LoginPage = () => {
 
       {/* Right Side - Image/Pattern */}
       <AuthImagePattern
-        title={"Welcome back!"}
+        title={"SupportFlux"}
         subtitle={"Sign in to get back in track with the support system."}
       />
     </div>

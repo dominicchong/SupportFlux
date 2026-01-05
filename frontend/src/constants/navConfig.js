@@ -51,7 +51,7 @@ export const NAV_ITEMS = [
     visible: ({ authUser }) => authUser?.role === "admin",
   },
   {
-    label: authUser => authUser?.fullName || "Profile",
+    label: authUser => authUser?.fullName?.split(" ")[0] || "Profile",
     icon: CircleUser,
     to: ROUTES.PROFILE,
     visible: ({ authUser }) => !!authUser,

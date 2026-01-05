@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
-import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2, LayoutDashboard, MessageCircleMore } from "lucide-react";
+import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2 } from "lucide-react";
 import { toastWarning } from "../components/ToastUtils";
 import TicketModal from "../components/TicketModal";
 import { useChatStore } from "../store/useChatStore";
@@ -15,7 +15,7 @@ import Select from "react-select";
 const TicketManagerPage = () => {
   const { authUser, staffList, fetchStaffList } = useAuthStore();
   const { tickets, fetchAllTickets, setSelectedTicket, updateTicketStatus, filter, setFilter, isLoadingTickets,
-    statusList, filteredTickets, createTicket, updateTicketStaff, getCategories, deleteAllTickets, levelList, 
+    statusList, filteredTickets, createTicket, updateTicketStaff, getCategories, deleteAllTickets, levelList,
     getTicketCountByStatus, isTicketCreator, unreadCount, getUnreadCounts } = useTicketStore();
 
   const { latestMessages, getLatestMessages, formatLatestMessages } = useChatStore();
@@ -51,10 +51,10 @@ const TicketManagerPage = () => {
   const ticketCategories = ["All", ...getCategories()];
   const navigate = useNavigate();
 
-  const openCreateModal = () => {
-    setFormState(defaultNewTicketForm);
-    setIsModalOpen(true);
-  };
+  // const openCreateModal = () => {
+  //   setFormState(defaultNewTicketForm);
+  //   setIsModalOpen(true);
+  // };
 
   const handleChat = (ticket) => {
     setSelectedTicket(ticket);
@@ -88,6 +88,20 @@ const TicketManagerPage = () => {
       setIsModalDeleteOpen(false)
       fetchAllTickets();
     }
+  };
+
+  const handleOpenAssignModal = (ticket) => {
+    setAssignFormState({
+      ticketId: ticket._id,
+      ticketCreatorId: ticket.userId._id,
+      staffId: ticket.staffId?._id || ticket.staffId || "",
+    });
+    setIsModalStaffOpen(true);
+  };
+  
+  const handleCloseAssignModal = () => {
+    setIsModalStaffOpen(false);
+    setAssignFormState({ staffId: "" }); // Clear state
   };
 
   const handleAssign = async () => {
@@ -138,9 +152,10 @@ const TicketManagerPage = () => {
           <h2 className="text-xl lg:text-2xl font-semibold">Chat Manager</h2>
           <p className="text-sm text-gray-500">Manage chats with users</p>
         </div>
-        
-        <div className="flex items-top justify-right space-x-3">
-          {/* <button
+
+        {/* Delete All Tickets */}
+        {/* <div className="flex items-top justify-right space-x-3"> */}
+        {/* <button
             onClick={(e) => setIsModalDeleteOpen(true)}
             className="btn flex p-1 rounded hover:bg-base-200 transition bg-red-400 hover:text-red-600 cursor-pointer"
             title="Delete all tickets"
@@ -148,7 +163,7 @@ const TicketManagerPage = () => {
             <Trash className="size-4" />
             Delete All
           </button> */}
-        </div>
+        {/* </div> */}
       </div>
 
       {/* Tabs */}
@@ -249,10 +264,13 @@ const TicketManagerPage = () => {
                           <div>
                             <div className="relative inline-block mr-2">
                               <button className="btn btn-sm lg:btn-md btn-custom-primary-light mt-1"
-                                onClick={() => { handleChat(ticket) }}
+                                onClick={() => {
+                                  setSelectedTicket(null);
+                                  handleChat(ticket);
+                                }}
                                 title="Open chat"
                               >
-                                <MessageSquare className="size-5"/>
+                                <MessageSquare className="size-5" />
                               </button>
 
                               <UnreadBadge count={unreadCount[ticket._id]} className="absolute -top-2 -right-1" />
@@ -260,12 +278,11 @@ const TicketManagerPage = () => {
 
                             <button className="btn btn-sm lg:btn-md btn-custom-primary-light mt-1"
                               onClick={() => {
-                                setAssignFormState({ ticketId: ticket._id, ticketCreatorId: ticket.userId._id, staffId: null });
-                                setIsModalStaffOpen(true);
+                                handleOpenAssignModal(ticket)
                               }}    // To-do (Put out a modal to set staff name)
                               title="Assign Staff"
                             >
-                              <UserCheck2 className="size-5"/>
+                              <UserCheck2 className="size-5" />
                             </button>
                           </div>
                         }
@@ -286,7 +303,7 @@ const TicketManagerPage = () => {
         )}
       </div>
 
-      {/* Modal */}
+      {/* New Ticket Modal */}
       <TicketModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -297,30 +314,40 @@ const TicketManagerPage = () => {
         levelList={levelList}
       />
 
+      {/* Assign Staff Modal */}
       <ConfirmationModal
         isOpen={isModalStaffOpen}
         onClose={() => setIsModalStaffOpen(false)}
         title="Assign Staff"
         primaryButton={{ label: "Assign", onClick: handleAssign }}
-        secondaryButton={{ label: "Cancel", onClick: () => setIsModalStaffOpen(false) }}
+        primaryButtonStyle={"bg-blue-500 border-blue-500 hover:bg-blue-600 text-white"}
+        secondaryButton={{ label: "Cancel", onClick: handleCloseAssignModal }}
       >
         <Select
           options={sortedStaffList.map((s) => ({
             value: s._id,
             label: s._id === authUser._id ? `${s.fullName} (You)` : s.fullName
           }))}
-          value={sortedStaffList
-            .map((s) => ({ value: s._id, label: s._id === authUser._id ? `${s.fullName} (You)` : s.fullName }))
-            .find((opt) => opt.value === assignFormState.staffId) || null}
+          value={
+            assignFormState.staffId
+              ? {
+                value: assignFormState.staffId,
+                label: sortedStaffList.find(s => s._id === assignFormState.staffId)?.fullName +
+                  (assignFormState.staffId === authUser._id ? " (You)" : "")
+              }
+              : null
+          }
           onChange={(selected) =>
             setAssignFormState((prev) => ({ ...prev, staffId: selected.value }))
           }
           placeholder="Search staff..."
           isSearchable={true}
+          menuPortalTarget={document.body}
+          styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
         />
       </ConfirmationModal>
 
-      <ConfirmationModal
+      {/* <ConfirmationModal
         isOpen={isModalDeleteOpen}
         onClose={() => setIsModalDeleteOpen(false)}
         title="Confirmation"
@@ -328,7 +355,7 @@ const TicketManagerPage = () => {
         primaryButton={{ label: "Delete All", onClick: handleDelete }}
         primaryButtonStyle={"bg-red-500 border-red-500 hover:bg-red-600 text-white"}
         secondaryButton={{ label: "Cancel", onClick: () => setIsModalDeleteOpen(false) }}
-      ></ConfirmationModal>
+      ></ConfirmationModal> */}
 
     </div>
   );

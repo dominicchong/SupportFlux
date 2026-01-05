@@ -9,8 +9,6 @@ const ChatHeader = () => {
 
   const ticketCategory = selectedTicket?.category;
   const ticketStatus = selectedTicket?.status;
-  const ticketCreator = selectedTicket?.userId.fullName;
-  const ticketCreatorRole = selectedTicket?.userId.role;
 
   const handleClose = () => {
     setSelectedTicket(null);
@@ -18,7 +16,7 @@ const ChatHeader = () => {
   }
 
   return (
-    <div className="p-2.5 pl-5 border-b border-base-300">
+    <div className="p-2.5 pl-5 border-b border-base-300 bg-blue-50">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {/* User info */}
@@ -27,7 +25,6 @@ const ChatHeader = () => {
               {ticketCategory}
             </h3>
             <TicketStatusBadge status={ticketStatus}/>
-            <h5 className="font-light">Created by: {ticketCreator} ({ticketCreatorRole})</h5>
           </div>
         </div>
 

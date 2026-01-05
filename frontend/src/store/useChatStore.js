@@ -15,6 +15,7 @@ export const useChatStore = create((set, get) => ({
 
   setActiveDate: (date) => set({ activeDate: date }),
   resetActiveDate: () => set({ activeDate: null }),
+  resetChat: () => set({ messages: [], activeDate: null }),
 
   // Get all messages for dashboard
   getAllMessages: async () => {
@@ -31,6 +32,7 @@ export const useChatStore = create((set, get) => ({
 
   // Fetch messages for selected ticket
   getMessages: async (ticketId) => {
+    get().resetChat();
     set({ isMessagesLoading: true });
     try {
       // Fetch all messages (and backend will auto-mark as read)

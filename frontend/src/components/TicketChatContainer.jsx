@@ -1,21 +1,22 @@
 import { useEffect, useState, useRef } from 'react';
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from '../store/useAuthStore';
-
-import ChatHeader from "./ChatHeader";
-import MessageInput from "./MessageInput";
-import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { DateTimeFormatter, ScrollToBottom } from "./BasicUIComponents";
 import { PreviewImage } from './PreviewImage';
 import { useTicketStore } from '../store/useTicketStore';
 
-const ChatContainer = () => {
+import MessageInput from "./MessageInput";
+import MessageSkeleton from "./skeletons/MessageSkeleton";
+import TicketInfoSidebar from './TicketInfoSidebar';
+import TicketChatHeader from './TicketChatHeader';
+
+const TicketChatContainer = () => {
   const { isYou, fetchUsers, getUserById } = useAuthStore();
   const { messages, getMessages, isMessageLoading, subscribeToMessages,
     unsubscribeFromMessages, getGroupedMessages, activeDate, setActiveDate, resetActiveDate,
     getFirstUnreadIndex, hasUnread, resetChat } = useChatStore();
 
-  const { selectedTicket } = useTicketStore();
+  const { selectedTicket, isInfoSidebarOpen } = useTicketStore();
 
   const [previewImage, setPreviewImage] = useState(null);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -28,9 +29,6 @@ const ChatContainer = () => {
   const groupedMessages = getGroupedMessages();
   const unreadIndex = getFirstUnreadIndex();
   const hasUnreadMsg = hasUnread();
-
-  // console.log("unreadIndex:", unreadIndex);
-  // console.log("hasUnread:", hasUnread());
 
   const scrollToBottom = () => {
     if (messageEndRef.current) {
@@ -129,7 +127,7 @@ const ChatContainer = () => {
   if (isMessageLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
-        <ChatHeader />
+        <TicketChatHeader />
         <MessageSkeleton />
         <MessageInput />
       </div>
@@ -138,85 +136,92 @@ const ChatContainer = () => {
 
 
   return (
-    <div className="flex flex-col h-full w-full relative">
-      <ChatHeader />
+    <div className="flex h-full w-full relative">
+      <div className='flex flex-1 flex-col min-w-0'>
+        <TicketChatHeader />
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 space-y-1 relative">
-        {/* Floating Sticky Day Banner */}
-        <div
-          className={`sticky top-0 z-10 w-fit mx-auto px-3 py-1 text-sm font-medium
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 space-y-1 relative">
+          {/* Floating Sticky Day Banner */}
+          <div
+            className={`sticky top-0 z-10 w-fit mx-auto px-3 py-1 text-sm font-medium
             bg-gray-800 text-white rounded-sm shadow-md transition-opacity duration-500
             ${isScrolling ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-        >
-          {activeDate && <DateTimeFormatter value={activeDate} format="banner" />}
-        </div>
+          >
+            {activeDate && <DateTimeFormatter value={activeDate} format="banner" />}
+          </div>
 
-        {/* Messages grouped by date */}
-        {Object.entries(groupedMessages).map(([date, msgs]) => (
-          <div key={date} data-date-banner={date}>
+          {/* Messages grouped by date */}
+          {Object.entries(groupedMessages).map(([date, msgs]) => (
+            <div key={date} data-date-banner={date}>
 
-            <div className="text-center text-gray-500 text-sm my-2 font-semibold">
-              <DateTimeFormatter value={date} format="banner" />
-            </div>
+              <div className="text-center text-gray-500 text-sm my-2 font-semibold">
+                <DateTimeFormatter value={date} format="banner" />
+              </div>
 
-            {msgs.map((message, index) => {
-              const prevMessage = msgs[index - 1];
-              const isSameUser = prevMessage?.senderId === message.senderId;
+              {msgs.map((message, index) => {
+                const prevMessage = msgs[index - 1];
+                const isSameUser = prevMessage?.senderId === message.senderId;
 
-              return (
-                <div
-                  key={message._id || index}
-                  className={`chat 
+                return (
+                  <div
+                    key={message._id || index}
+                    className={`chat 
                       ${isYou(message.senderId) ? "chat-end" : "chat-start"}
                       ${isSameUser ? "-mt-1 before:!hidden" : "mt-2"}`}
-                  ref={messageEndRef}
-                >
-                  <div className={`chat-bubble flex flex-col items-start 
+                    ref={messageEndRef}
+                  >
+                    <div className={`chat-bubble flex flex-col items-start 
                       ${isYou(message.senderId) ? "bg-purple-200 text-black" : ""}
                       ${isSameUser ? "rounded-t-none" : ""}`}>
+                      
+                      {!isYou(message.senderId) && !isSameUser && (
+                        <span className="text-blue-900 text-xs font-bold mb-1 truncate">
+                          {getUserById(message.senderId)?.fullName || ""}
+                        </span>
+                      )}
 
-                    {!isYou(message.senderId) && !isSameUser && (
-                      <span className="text-blue-900 text-xs font-bold mb-1 truncate">
-                        {getUserById(message.senderId)?.fullName || ""}
-                      </span>
-                    )}
+                      {message.image && (
+                        <img
+                          src={message.image}
+                          alt="Attachment"
+                          className="max-w-[250px] md:max-w-xs rounded-md mb-2 cursor-pointer transition-transform hover:scale-[1.02]" // Responsive widths + hover zoom
+                          onClick={() => setPreviewImage(message.image)} // Open preview
+                        />
+                      )}
+                      {message.text &&
+                        <p className='text-sm'>
+                          {message.text}
+                        </p>
+                      }
 
-                    {message.image && (
-                      <img
-                        src={message.image}
-                        alt="Attachment"
-                        className="max-w-[250px] md:max-w-xs rounded-md mb-2 cursor-pointer transition-transform hover:scale-[1.02]" // Responsive widths + hover zoom
-                        onClick={() => setPreviewImage(message.image)} // Open preview
-                      />
-                    )}
-                    {message.text &&
-                      <p className='text-sm'>
-                        {message.text}
-                      </p>
-                    }
-
-                    <div className="chat-header mb-1 items-start self-end">
-                      <time className="text-xs opacity-50 ml-1">
-                        <DateTimeFormatter value={message.createdAt} format="timeOnly" />
-                      </time>
+                      <div className="chat-header mb-1 items-start self-end">
+                        <time className="text-xs opacity-50 ml-1">
+                          <DateTimeFormatter value={message.createdAt} format="timeOnly" />
+                        </time>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex-shrink-0 relative">
+          <ScrollToBottom visible={showScrollButton} onClick={scrollToBottom} />
+          <MessageInput />
+          {previewImage && (
+            <PreviewImage previewImage={previewImage} setPreviewImage={setPreviewImage} />
+          )}
+        </div>
       </div>
 
-      <div className="flex-shrink-0 relative">
-        <ScrollToBottom visible={showScrollButton} onClick={scrollToBottom} />
-        <MessageInput />
-        {previewImage && (
-          <PreviewImage previewImage={previewImage} setPreviewImage={setPreviewImage} />
-        )}
-      </div>
+      {/* Sidebar Section */}
+      {isInfoSidebarOpen && (
+        <TicketInfoSidebar className="h-full hidden lg:flex" />
+      )}
     </div>
-  );
+  )
 };
 
-export default ChatContainer
+export default TicketChatContainer

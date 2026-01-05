@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
-import { MessageCircleMore, Plus, Trash } from "lucide-react";
+import { MessageCircleMore, Plus, Trash, X } from "lucide-react";
 import TicketPreview from "./TicketPreview";
 import TicketModal from "./TicketModal"
 import { useTicketStore } from "../store/useTicketStore";
 import toast from "react-hot-toast";
+import { SearchInput } from "./SearchInput";
 
-const SidebarTicket = () => {
+const SidebarChat = () => {
   const { onlineUsers, isUserAuthorized } = useAuthStore();
   const { isTicketsLoading, getLatestMessages, deleteAllMessages } = useChatStore();
   const { fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, 
@@ -65,31 +66,38 @@ const SidebarTicket = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Delete all messages? \nThis is a permanent action.")) return;
-    setIsDeleting(true);
+  // const handleDelete = async () => {
+  //   if (!window.confirm("Delete all messages? \nThis is a permanent action.")) return;
+  //   setIsDeleting(true);
 
-    try {
-      await deleteAllMessages();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsDeleting(false);
-      fetchAllTickets();
-    }
+  //   try {
+  //     await deleteAllMessages();
+  //   } catch (error) {
+  //     console.error(error);
+  //   } finally {
+  //     setIsDeleting(false);
+  //     fetchAllTickets();
+  //   }
+  // };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
   };
 
-  const handleSearch = async () => {
-    setSearchQuery(e.target.value)
-
-    // try {
-
-    // } catch (error) {
-    //   console.error(error);
-    // } finally {
-    //   fetchAllTickets();
-    // }
+  const clearSearch = () => {
+    setSearchQuery("");
   };
+
+  const filteredTickets = myTickets.filter((ticket) => {
+    const query = searchQuery.toLowerCase();
+    
+    return (
+      ticket.category?.toLowerCase().includes(query) || 
+      ticket.level?.toLowerCase().includes(query) ||
+      ticket.staffId?.fullName?.toLowerCase().includes(query)
+    );
+  });
 
   if (isTicketsLoading) return <SidebarSkeleton />;
 
@@ -123,13 +131,11 @@ const SidebarTicket = () => {
         )} */}
 
         {/* Search Bar */}
-        <div className="flex mt-3 gap-2">
-          <input
-            type="text"
+        <div className="flex mt-3 gap-2 relative group">
+          <SearchInput
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
             placeholder="Search chats..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e)}
-            className="input input-sm input-bordered w-full"
           />
         </div>
 
@@ -145,7 +151,7 @@ const SidebarTicket = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {myTickets.map((ticket) => (
+        {filteredTickets.map((ticket) => (
           <button
             key={ticket._id}
             onClick={() => { setSelectedTicket(ticket); }}
@@ -159,11 +165,11 @@ const SidebarTicket = () => {
           </button>
         ))}
 
-        {myTickets.length === 0 && (
+        {filteredTickets.length === 0 && (
           <div className="text-center text-zinc-500 py-4">No tickets found</div>
         )}
       </div>
     </aside>
   );
 };
-export default SidebarTicket;
+export default SidebarChat;

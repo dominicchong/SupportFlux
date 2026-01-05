@@ -11,7 +11,7 @@ const AccountsManagerPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [editingId, setEditingId] = useState(null);
 
   const [formState, setFormState] = useState({
@@ -65,9 +65,11 @@ const AccountsManagerPage = () => {
 
   const handleDelete = async () => {
     try {
-      await deleteUser(selectedUserId);
+      await deleteUser(selectedUser._id);
     } catch (error) {
       console.error(error);
+    } finally {
+      setSelectedUser(null);
     }
   };
 
@@ -128,8 +130,8 @@ const AccountsManagerPage = () => {
                       </button>
                       <button
                         onClick={() => {
+                          setSelectedUser(user)
                           setIsModalDeleteOpen(true); 
-                          setSelectedUserId(user._id)
                         }}
                         className="btn btn-sm btn-error"
                         title="Delete"
@@ -200,7 +202,7 @@ const AccountsManagerPage = () => {
         isOpen={isModalDeleteOpen}
         onClose={() => setIsModalDeleteOpen(false)}
         title="Confirmation"
-        children="Do you want to delete this user?"
+        children={`Delete this user (${selectedUser?.fullName})?`}
         primaryButton={{ label: "Delete", onClick: handleDelete }}
         primaryButtonStyle={"bg-red-500 border-red-500 hover:bg-red-600 text-white"}
         secondaryButton={{ label: "Cancel", onClick: () => setIsModalDeleteOpen(false) }}
