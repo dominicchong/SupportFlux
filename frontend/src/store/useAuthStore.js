@@ -78,19 +78,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  forgotPassword: async (email) => {
-    set({ isSendingReset: true });
-    try {
-      await axiosInstance.post('/auth/forgot-password', { email });
-      toast.success('A reset link has been sent to your email');
-    } catch (error) {
-      const msg = error?.response?.data?.message || error.message || 'Failed to send reset email';
-      toast.error(msg);
-    } finally {
-      set({ isSendingReset: false });
-    }
-  },
-
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
@@ -143,7 +130,7 @@ export const useAuthStore = create((set, get) => ({
       await get().fetchUsers(); // Refresh list
     } catch (error) {
       console.error("Failed to save user", error);
-      toast.error("Failed to save user");
+      toast.error(error?.response?.data?.message || "Failed to save user");
       throw error;
     }
   },

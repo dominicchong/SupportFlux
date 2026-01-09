@@ -61,7 +61,7 @@ Student question: ${message}
 
 Answer:`;
 
-    // 4) Call Gemini (server-side; replace with your existing Gemini call helper)
+    // 4) Call Gemini
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -77,7 +77,7 @@ Answer:`;
       geminiRes?.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Sorry, I couldn't generate a response.";
 
-    // 5) Return model answer + (optional) structured sources
+    // 5) Return model answer + sources
     res.json({
       reply,
       sources: kbResults.map((d) => ({ title: d.title, category: d.category }))

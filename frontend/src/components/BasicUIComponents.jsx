@@ -6,10 +6,10 @@ export const preloadHeroImage = () => {
 };
 
 // Input.jsx
-export const Input = ({ name, placeholder, value, onChange, className }) => {
-  return (
+export const Input = ({ type="text", name, placeholder, value, onChange, className }) => {
+  return (  
     <input
-      type="text"
+      type={type}
       name={name}
       placeholder={placeholder}
       value={value}

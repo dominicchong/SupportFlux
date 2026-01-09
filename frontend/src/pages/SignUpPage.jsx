@@ -91,6 +91,7 @@ const SignUpPage = () => {
                 >
                   <option value="">Select Role</option>
                   <option value="student">Student</option>
+                  <option value="staff">Staff</option>
                 </select>
 
                 {/* Custom arrow icon */}
@@ -98,7 +99,6 @@ const SignUpPage = () => {
                   <ChevronDown className="h-4 w-4 text-base-content/40" />
                 </div>
               </div>
-              <span className='text-sm'><i>*For staff, please ask the approval from admin after registering.</i></span>
             </div>
 
             <div className="form-control">

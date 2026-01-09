@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import TicketChatContainer from '../components/TicketChatContainer';
 
 const TicketChatPage = () => {
-  const { fetchTicketById } = useTicketStore();
+  const { fetchTicketById, setSelectedTicket } = useTicketStore();
   const { ticketId } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +18,7 @@ const TicketChatPage = () => {
     fetchTicketById(ticketId)
       .catch(() => navigate("/live-chat"))
       .finally(setIsLoading(false));
+    return () => setSelectedTicket(null);
   }, [ticketId, fetchTicketById, navigate]);
 
   return (

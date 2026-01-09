@@ -2,8 +2,6 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
-import crypto from "crypto";
-import sendResetPasswordEmail from "../lib/sendResetPasswordEmail.js";
 
 export const createUser = async (req, res) => {
   const { role, email, fullName, password } = req.body;
@@ -12,14 +10,19 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Ensure password is at least 6 characters long 
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Please enter a valid email address" });
     }
 
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "Email already exists" });
+    }
+
+    // Ensure password is at least 6 characters long 
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -91,42 +94,6 @@ export const logout = (req, res) => {
     console.log("Error in logout controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
-};
-
-export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-  const user = await User.findOne({ email });
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  const token = crypto.randomBytes(32).toString('hex');
-  user.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
-  user.resetPasswordExpires = Date.now() + 1000 * 60 * 60; // 60 minutes
-  await user.save();
-
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-
-  // Use nodemailer here
-  await sendResetPasswordEmail(user.email, 'Password Reset', `Reset link: ${resetLink}`);
-
-  res.json({ message: 'Password reset email sent' });
-};
-
-export const resetPassword = async (req, res) => {
-  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
-  const user = await User.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordExpires: { $gt: Date.now() },
-  });
-
-  if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
-
-  const { password } = req.body;
-  user.password = await bcrypt.hash(password, 10);
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  await user.save();
-
-  res.json({ message: 'Password has been reset successfully' });
 };
 
 

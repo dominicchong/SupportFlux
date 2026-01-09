@@ -14,7 +14,7 @@ export const SearchInput = ({searchQuery, setSearchQuery, placeholder = "Search.
   return (
     <div className="relative w-full"> 
       <label
-        className="flex items-center w-full border border-gray-300 rounded-lg px-3 py-2
+        className="flex items-center w-full border border-gray-300 rounded-md px-3 py-2
                    focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent
                    bg-base-100 transition-all cursor-text"
       >

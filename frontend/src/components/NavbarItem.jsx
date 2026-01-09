@@ -72,16 +72,12 @@ export const NavbarItem = ({ item, authUser, isUserAuthorized, setMenuOpen, isMo
             setSubOpen(prev => !prev);
           }}
         >
-          {/* <span className="flex items-center gap-2"> */}
-            {Icon && <Icon className="size-5" />}
-            <span className={isMobile ? "" : "hidden sm:inline"}>{label}</span>
-          {/* </span> */}
+          {Icon && <Icon className="size-5" />}
+          <span className={isMobile ? "" : "hidden sm:inline"}>{label}</span>
 
-          {/* <span> */}
-            {isSubOpen ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-          {/* </span> */}
+          {isSubOpen ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
-      ) : ( 
+      ) : (
         <NavLink
           to={item.to}
           className={({ isActive }) => `whitespace-nowrap ${baseClass} ${isActive ? "btn-primary" : ""}`}
