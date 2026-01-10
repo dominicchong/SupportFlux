@@ -54,7 +54,6 @@ export const useChatbotStore = create((set, get) => ({
             title: kbBest.title,
             category: kbBest.category,
             description: kbBest.description,
-            score: kbBest.score,
           }),
         };
       } else {

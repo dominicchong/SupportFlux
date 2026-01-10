@@ -91,7 +91,6 @@ const SignUpPage = () => {
                 >
                   <option value="">Select Role</option>
                   <option value="student">Student</option>
-                  <option value="staff">Staff</option>
                 </select>
 
                 {/* Custom arrow icon */}
@@ -127,7 +126,7 @@ const SignUpPage = () => {
                 </div>
                 <input
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder="matricno@siswa.um.edu.my"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />

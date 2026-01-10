@@ -76,27 +76,16 @@ const ChatbotPage = () => {
       {/* Desktop sticky header */}
       {isResponseScreen && (
         <header className="sticky top-16 z-1 bg-white px-4 py-2 sm:px-8 md:px-16 lg:px-24 xl:px-40 2xl:px-72 flex justify-between items-center ">
-          <h2 className="text-2xl">Chatbot</h2>
+          <h2 className="text-2xl font-medium">Chatbot</h2>
           <button
             onClick={resetChat}
-            className="bg-blue-100 text-blue-700 rounded-xl px-4 sm:px-5 py-2 text-sm
-                        border border-blue-200 hover:bg-blue-200 transition shadow-sm"
+            className="bg-blue-100 text-cyan-700 rounded-xl px-4 sm:px-5 py-2 text-sm
+                        border border-cyan-200 hover:bg-cyan-50 transition shadow-sm"
           >
             Clear Chat
           </button>
         </header>
       )}
-
-      {/* Mobile Floating New Chat */}
-      {/* {isResponseScreen && (
-        <button
-          onClick={resetChat}
-          className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white px-4 py-3 rounded-full 
-                 shadow-lg sm:hidden"
-        >
-          Clear Chat
-        </button>
-      )} */}
 
       {/* Main */}
       <main

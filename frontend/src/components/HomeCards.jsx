@@ -1,54 +1,74 @@
 import { Link } from "react-router-dom";
-import { Bot, MessageCircleMore, BookOpen } from "lucide-react";
+import { Bot, MessageCircleMore, BookOpen, Clock } from "lucide-react";
 import { Card, CardContent } from "../components/BasicUIComponents";
 import { ROUTES } from "../constants/paths";
 
-export const FEATURES = [
+const FEATURES = [
   {
     title: "Chatbot Assistant",
-    description: "Instant answers from our smart support bot.",
-    icon: <Bot className="size-8 text-primary" />,
+    description: "Have a question? Our smart assistant is ready to help you find exactly what you need in seconds.",
+    time: "Instant",
+    icon: <Bot className="size-8" />,
     link: ROUTES.CHATBOT,
-    gradient: "from-cyan-100 to-cyan-300",
-  },
-  {
-    title: "Live Chat with Staff",
-    description: "Chat with faculty staff in real-time.",
-    icon: <MessageCircleMore className="size-8 text-primary" />,
-    link: ROUTES.LIVE_CHAT,
-    gradient: "from-gray-100 to-gray-300",
+    gradient: "from-cyan-50 to-cyan-100 border-cyan-200",
+    tag: "AI Powered"
   },
   {
     title: "Knowledge Base",
-    description: "Browse articles and FAQs about course of study.",
-    icon: <BookOpen className="size-8 text-primary" />,
+    description: "Know what to find? Browse the source articles, information, and FAQs directly.",
+    time: "Self-Guided",
+    icon: <BookOpen className="size-8" />,
     link: ROUTES.KNOWLEDGE_BASE,
-    gradient: "from-blue-100 to-blue-300",
+    gradient: "from-blue-50 to-blue-100 border-blue-200",
+    tag: "Source Data"
+  },
+  {
+    title: "Chat with Staff",
+    description: "If the chatbot and articles couldn't solve your specific issue, connect with our faculty staff.",
+    time: "Human Expert",
+    icon: <MessageCircleMore className="size-8" />,
+    link: ROUTES.LIVE_CHAT,
+    gradient: "from-purple-50 to-purple-100 border-purple-200",
+    tag: "Escalation"
   },
 ];
 
 const HomeCards = () => {
   return (
-    <div>
-      {/* FEATURES Cards */}
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURES.map((FEATURES, index) => (
-            <Link to={FEATURES.link} key={index} className="block">
-              <Card className={`hover:shadow-lg hover:scale-[1.02] transition-transform duration-300 h-full bg-gradient-to-r ${FEATURES.gradient}`}>
-                <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                  <div className="bg-primary/20 p-4 rounded-full text-primary">
-                    {FEATURES.icon}
-                  </div>
-                  <h2 className="text-xl font-semibold">{FEATURES.title}</h2>
-                  <p className="text-sm text-muted-foreground">{FEATURES.description}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+    <section className="py-16 px-6 max-w-7xl mx-auto">
+      <div className="text-center mb-12">
+        <h3 className="text-2xl font-bold text-gray-800">Your Path to Resolution</h3>
+        <p className="text-gray-500">We recommend following these steps for the quickest assistance.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
+        {FEATURES.map((feature, index) => (
+          <Link to={feature.link} key={index} className="relative group">
+            <Card className={`border-2 transition-all duration-300 hover:shadow-xl bg-gradient-to-b ${feature.gradient}`}>
+              <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                {/* Tag */}
+                <span className="absolute top-4 right-4 bg-white/80 px-2 py-1 rounded text-[10px] font-bold uppercase shadow-sm">
+                  {feature.tag}
+                </span>
+
+                <div className="bg-white p-4 rounded-2xl shadow-sm text-primary group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+
+                <h2 className="text-xl font-bold">{feature.title}</h2>
+                <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
+                
+                <div className="pt-4 border-t border-black/5 w-full">
+                  <span className="text-xs font-semibold flex items-center justify-center gap-1 text-gray-500">
+                    <Clock className="size-3" /> {feature.time}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 };
 

@@ -94,6 +94,7 @@ const SidebarChat = () => {
     return (
       ticket.category?.toLowerCase().includes(query) || 
       ticket.level?.toLowerCase().includes(query) ||
+      ticket.status?.toLowerCase().includes(query) ||
       ticket.staffId?.fullName?.toLowerCase().includes(query)
     );
   });
@@ -105,7 +106,7 @@ const SidebarChat = () => {
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center justify-between">
           <div className="flex gap-2 justify-start">
-            <MessageCircleMore className="size-6" />
+            <MessageCircleMore className="size-6 text-primary" />
             <span className="font-medium">Live Chat</span>
           </div>
 
@@ -164,7 +165,10 @@ const SidebarChat = () => {
         ))}
 
         {filteredTickets.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No chats found</div>
+          <div className="text-center text-zinc-500 py-10 px-4 space-y-2">
+            <p className="font-medium text-sm text-base-content/70">No active conversations</p>
+            <p className="text-xs text-base-content/40 italic">Start a new chat to begin your inquiry</p>
+          </div>
         )}
       </div>
     </aside>

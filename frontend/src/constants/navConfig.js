@@ -23,6 +23,12 @@ export const NAV_ITEMS = [
     visible: ({ authUser }) => !!authUser,
   },
   {
+    label: "Knowledge Base",
+    icon: BookOpen,
+    to: ROUTES.KNOWLEDGE_BASE,
+    visible: ({ authUser }) => !!authUser,
+  },
+  {
     label: "Live Chat",
     icon: MessageCircleMore,
     to: ROUTES.LIVE_CHAT,
@@ -37,12 +43,6 @@ export const NAV_ITEMS = [
       { label: "Manage Chats", to: ROUTES.CHAT_MANAGER },
       { label: "Live Chat", to: ROUTES.LIVE_CHAT },
     ],
-  },
-  {
-    label: "Knowledge Base",
-    icon: BookOpen,
-    to: ROUTES.KNOWLEDGE_BASE,
-    visible: ({ authUser }) => !!authUser,
   },
   {
     label: "Accounts",
