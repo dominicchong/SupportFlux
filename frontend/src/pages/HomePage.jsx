@@ -21,19 +21,22 @@ const HomePage = () => {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed">
-            SupportFlux uses AI-driven intelligence to get you answers instantly.
+            Get instant answers to your campus questions, anytime you need them.
             Empowering your academic journey in Universiti Malaya.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg">
+            <button
+              onClick={() => document.getElementById('resolution-path')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg"
+            >
               Get Started
             </button>
           </div>
         </div>
 
         {/* Subtle scroll indicator to bridge the gap */}
-        <div className="absolute bottom-16 text-white/50">
+        <div className="absolute bottom-16 text-white/50 animate-bounce">
           <ArrowDown className="size-6" />
         </div>
       </section>
@@ -50,15 +53,18 @@ const HomePage = () => {
           </h2>
 
           <p className="text-gray-500 max-w-2xl mx-auto text-base md:text-lg">
-            Don't let an issue stall your study session. Whether you need an 
-            instant answer from our smart bot, a quick guide from the library, or 
+            Don't let an issue stall your study session. Whether you need an
+            instant answer from our smart bot, a quick guide from the library, or
             a real-time chat with our faculty staff, we’ve got you covered.
           </p>
 
-          {/* ACTION CARDS */}
-          <div className="mt-4">
-            <HomeCards />
+          <div id="resolution-path" className="text-center mt-16 mb-4">
+            <h3 className="text-2xl font-bold text-gray-800">Your Path to Resolution</h3>
+            <p className="text-gray-500">We recommend following these steps for the quickest assistance.</p>
           </div>
+
+          {/* ACTION CARDS */}
+          <HomeCards />
         </div>
       </section>
 

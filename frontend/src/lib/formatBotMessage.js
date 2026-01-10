@@ -2,7 +2,7 @@ export const formatBotMessage = ({ title, category, description, updatedAt, scor
   return `
 📚 **Knowledge Base**  
 **Category:** ${category || "N/A"}  
-**${title}** 
+**${title}**  
 ${description} 
 `;
 };

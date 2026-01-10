@@ -35,12 +35,7 @@ const FEATURES = [
 
 const HomeCards = () => {
   return (
-    <section className="py-16 px-6 max-w-7xl mx-auto">
-      <div className="text-center mb-12">
-        <h3 className="text-2xl font-bold text-gray-800">Your Path to Resolution</h3>
-        <p className="text-gray-500">We recommend following these steps for the quickest assistance.</p>
-      </div>
-
+    <section className="py-8 px-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative">
         {FEATURES.map((feature, index) => (
           <Link to={feature.link} key={index} className="relative group">

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
 import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2, Settings2 } from "lucide-react";
-import { toastWarning } from "../components/ToastUtils";
+import toast from "react-hot-toast"; 
 import TicketModal from "../components/TicketModal";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -65,7 +65,7 @@ const TicketManagerPage = () => {
 
   const handleSubmit = async () => {
     if (!formState.category) {
-      toastWarning("Category is required");
+      toast.error("Category is required");
       return;
     }
 
@@ -107,7 +107,7 @@ const TicketManagerPage = () => {
   const handleAssign = async () => {
     const { ticketId, staffId } = assignFormState;
     if (!staffId) {
-      toastWarning("Staff is required");
+      toast.error("Staff is required");
       return;
     }
 
