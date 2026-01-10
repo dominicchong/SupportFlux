@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
-import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2 } from "lucide-react";
+import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2, Settings2 } from "lucide-react";
 import { toastWarning } from "../components/ToastUtils";
 import TicketModal from "../components/TicketModal";
 import { useChatStore } from "../store/useChatStore";
@@ -11,6 +11,7 @@ import { DateTimeFormatter } from "../components/BasicUIComponents";
 import UnreadBadge from '../components/UnreadBadge';
 import ConfirmationModal from "../components/ConfirmationModal";
 import Select from "react-select";
+import CategoryManagementModal from "../components/CategoryManagementModal";
 
 const TicketManagerPage = () => {
   const { authUser, staffList, fetchStaffList } = useAuthStore();
@@ -24,6 +25,7 @@ const TicketManagerPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalStaffOpen, setIsModalStaffOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     fetchAllTickets();
@@ -46,9 +48,7 @@ const TicketManagerPage = () => {
   const [formState, setFormState] = useState(defaultNewTicketForm);
   const [assignFormState, setAssignFormState] = useState(defaultAssignStaffForm);
 
-  // const capitalizeWords = (str) => str.replace(/\b\w/g, (c) => c.toUpperCase());
   const visibleTickets = filteredTickets();
-  const ticketCategories = ["All", ...getCategories()];
   const navigate = useNavigate();
 
   // const openCreateModal = () => {
@@ -98,7 +98,7 @@ const TicketManagerPage = () => {
     });
     setIsModalStaffOpen(true);
   };
-  
+
   const handleCloseAssignModal = () => {
     setIsModalStaffOpen(false);
     setAssignFormState({ staffId: "" }); // Clear state
@@ -151,6 +151,18 @@ const TicketManagerPage = () => {
         <div>
           <h2 className="text-xl lg:text-2xl font-semibold">Chat Manager</h2>
           <p className="text-sm text-gray-500">Manage chats with users</p>
+        </div>
+
+        {/* Delete All Tickets */}
+        <div className="flex items-top justify-right space-x-3">
+          <button
+            onClick={(e) => setIsCategoryModalOpen(true)}
+            className="btn flex p-1 rounded hover:bg-base-200 transition bg-cyan-200 hover:text-cyan-600 cursor-pointer"
+            title="Manage Category"
+          >
+            <Settings2 className="size-4"/>
+            Manage Category
+          </button>
         </div>
 
         {/* Delete All Tickets */}
@@ -310,7 +322,6 @@ const TicketManagerPage = () => {
         formState={formState}
         handleFormField={handleFormField}
         handleSubmit={handleSubmit}
-        ticketCategories={ticketCategories}
         levelList={levelList}
       />
 
@@ -346,6 +357,11 @@ const TicketManagerPage = () => {
           styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
         />
       </ConfirmationModal>
+
+      <CategoryManagementModal 
+        isOpen={isCategoryModalOpen} 
+        onClose={() => setIsCategoryModalOpen(false)} 
+      />
 
       {/* <ConfirmationModal
         isOpen={isModalDeleteOpen}

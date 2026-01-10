@@ -235,13 +235,13 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getCommonWords: () => {
-    const allMessages = get().allMessages;
+  getCommonWords: (filteredMessages) => {
+    const sourceMessages = filteredMessages || get().allMessages;
 
     // Normalize to flat array
-    const messages = Array.isArray(allMessages)
-      ? allMessages
-      : Object.values(allMessages || {}).flat();
+    const messages = Array.isArray(sourceMessages)
+      ? sourceMessages
+      : Object.values(sourceMessages || {}).flat();
 
     const stopWords = new Set([
       "the", "is", "and", "to", "a", "of", "in", "on",

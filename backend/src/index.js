@@ -13,6 +13,7 @@ import knowledgeRoutes from './routes/knowledgebase.route.js';
 import chatragRoutes from './routes/chatrag.route.js';
 import ticketRoutes from './routes/ticket.route.js';
 import healthRoutes from './routes/health.route.js'
+import categoryRoutes from './routes/category.route.js'
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -34,6 +35,7 @@ app.use("/api/knowledge-base", knowledgeRoutes);
 app.use("/api/chatrag", chatragRoutes);
 app.use("/api/ticket", ticketRoutes);
 app.use("/api/health", healthRoutes);
+app.use("/api/category", categoryRoutes);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));

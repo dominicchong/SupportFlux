@@ -11,8 +11,8 @@ export const useTicketStore = create((set, get) => ({
   statusList: ["All", "New", "In Progress", "Resolved"],
   levelList: ["Undergraduate", "Postgraduate"],
   isLoadingTickets: false,
-  isInfoSidebarOpen: true, 
-  
+  isInfoSidebarOpen: true,
+
   toggleInfoSidebar: () => set({ isInfoSidebarOpen: !get().isInfoSidebarOpen }),
 
   setSelectedTicket: (ticket) => set({ selectedTicket: ticket }),
@@ -128,17 +128,6 @@ export const useTicketStore = create((set, get) => ({
       return tickets.length;
     }
     return tickets.filter((t) => t.status === status).length;
-  },
-
-  getCategories: () => {
-    const data = get().tickets;
-    return [
-      ...new Set(
-        data
-          .map((i) => i.category)
-          .filter((c) => typeof c === "string" && c.trim())
-      ),
-    ];
   },
 
   deleteAllTickets: async () => {

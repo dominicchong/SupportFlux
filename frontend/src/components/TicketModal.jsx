@@ -1,18 +1,17 @@
 import { useState, useEffect } from "react";
 import GeneralModal from "./GeneralModal";
-import { Input } from "./BasicUIComponents";
+import { useCategoryStore } from "../store/useCategoryStore";
 
-const TicketModal = ({isOpen, onClose, formState, handleFormField, 
-  handleSubmit, ticketCategories, levelList
+const TicketModal = ({ isOpen, onClose, formState, handleFormField,
+  handleSubmit, levelList
 }) => {
-
-  const [isNewCategory, setIsNewCategory] = useState(false);
+  const { categories, getCategories } = useCategoryStore();
 
   useEffect(() => {
-    if (!isOpen) {
-      setIsNewCategory(false); // reset to default
+    if (isOpen) {
+      getCategories();
     }
-  }, [isOpen]);
+  }, [isOpen, categories.length, getCategories]);
 
   return (
     <GeneralModal
@@ -37,37 +36,18 @@ const TicketModal = ({isOpen, onClose, formState, handleFormField,
         <select
           className={`select select-bordered w-full 
             ${!formState.category ? "text-gray-500" : "text-black"}`}
-          value={isNewCategory ? "__new" : formState.category || ""}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "__new") {
-              setIsNewCategory(true);
-              handleFormField("category", "");
-            } else {
-              setIsNewCategory(false);
-              handleFormField("category", val);
-            }
-          }}
+          value={formState.category || ""}
+          onChange={(e) => handleFormField("category", e.target.value)}
         >
           <option value="" disabled className="text-gray-500">Select category</option>
-          {ticketCategories
-            .filter((item) => item !== "All")
-            .map((item) => (
-              <option key={item} value={item} className="text-black">
-                {item}
-              </option>
-            ))}
-          <option value="__new" className="text-black">+ Add new...</option>
-        </select>
 
-        {isNewCategory && (
-          <Input
-            placeholder="New category"
-            value={formState.category}
-            onChange={(e) => handleFormField("category", e.target.value)}
-            className="mt-2"
-          />
-        )}
+          {/* Directly get the categories from the store object */}
+          {categories.map((cat) => (
+            <option key={cat._id} value={cat.category} className="text-black">
+              {cat.category}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="space-y-1">
@@ -82,7 +62,7 @@ const TicketModal = ({isOpen, onClose, formState, handleFormField,
             handleFormField("level", val);
           }}
         >
-          <option  value="" disabled className="text-gray-500">Select level of study</option>
+          <option value="" disabled className="text-gray-500">Select level of study</option>
           {levelList
             .filter((item) => item !== "All")
             .map((item) => (

@@ -77,12 +77,12 @@ export const useChatbotStore = create((set, get) => ({
         }
       }
       // else {
-      //   // 4️⃣ Otherwise call Gemini API
+      //   // Otherwise call Gemini API
       //   const { data } = await axiosInstance.post("/chatbot/generate-response", { prompt });
       //   botMessage = { type: "bot", text: data.response };
       // }
 
-      // 5️⃣ Update messages
+      // Update messages
       set({
         messages: [...get().messages, botMessage],
         isLoading: false,
@@ -112,7 +112,7 @@ export const useChatbotStore = create((set, get) => ({
       });
     } catch (error) {
       console.error("Error resetting chat:", error);
-      toast.error("Failed to reset chat");
+      toast.error("Failed to clear chat");
     }
   },
 }));

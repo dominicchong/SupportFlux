@@ -13,7 +13,7 @@ const SidebarChat = () => {
   const { onlineUsers, isUserAuthorized } = useAuthStore();
   const { isTicketsLoading, getLatestMessages, deleteAllMessages } = useChatStore();
   const { fetchAllTickets, myTickets, fetchMyTickets, selectedTicket, setSelectedTicket, 
-    createTicket, getCategories, levelList, getUnreadCounts } = useTicketStore();
+    createTicket, levelList, getUnreadCounts } = useTicketStore();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +32,6 @@ const SidebarChat = () => {
   };
 
   const [formState, setFormState] = useState(defaultNewTicketForm);
-  const ticketCategories = [...getCategories()];
   const isAuthorized = isUserAuthorized();
 
   const openCreateModal = () => {
@@ -145,7 +144,6 @@ const SidebarChat = () => {
           formState={formState}
           handleFormField={handleFormField}
           handleSubmit={handleSubmit}
-          ticketCategories={ticketCategories}
           levelList={levelList}
         />
       </div>
@@ -166,7 +164,7 @@ const SidebarChat = () => {
         ))}
 
         {filteredTickets.length === 0 && (
-          <div className="text-center text-zinc-500 py-4">No tickets found</div>
+          <div className="text-center text-zinc-500 py-4">No chats found</div>
         )}
       </div>
     </aside>
