@@ -4,7 +4,7 @@ import HomeCards from "../components/HomeCards";
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-foreground pt-5">
-      {/* 1. COMPACT HERO SECTION */}
+      {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center text-white text-center overflow-hidden">
         <div
           className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 hover:scale-105"
@@ -28,20 +28,15 @@ const HomePage = () => {
           <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={() => document.getElementById('resolution-path')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg"
+              className="bg-white text-gray-900 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg cursor-pointer"
             >
               Get Started
             </button>
           </div>
         </div>
-
-        {/* Subtle scroll indicator to bridge the gap */}
-        <div className="absolute bottom-16 text-white/50 animate-bounce">
-          <ArrowDown className="size-6" />
-        </div>
       </section>
 
-      {/* */}
+      {/* Resolution and Home Cards*/}
       <section className="relative z-10 px-6 -mt-10">
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-gray-100 p-4 md:p-4 text-center">
           <div className="inline-flex items-center gap-2 bg-purple-50 px-4 py-1.5 rounded-full text-purple-600 text-xs font-black uppercase tracking-widest mt-4 mb-6">
@@ -68,6 +63,7 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Footer */}
       <div className="py-12 text-center text-gray-500 text-sm">
         <p>© 2026 SupportFlux</p>
         <span>Faculty of Computer Science & Information Technology, Universiti Malaya</span>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, Plus, Pencil, Trash, Loader, X, Book, Clock, ChevronRight, ArrowRight } from "lucide-react";
+import { IoArrowUp } from "react-icons/io5";
 import { Input, Card, CardContent, Badge } from "../components/BasicUIComponents";
 import { useKnowledgeBaseStore } from "../store/useKnowledgeBaseStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -25,6 +26,7 @@ const KnowledgeBasePage = () => {
   const [viewItem, setViewItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isVisible, setIsVisible] = useState(false);
 
   const isAuthorized = isUserAuthorized();
   const categories = ["All", ...getCategories()];    // Categories and filtered data
@@ -41,6 +43,42 @@ const KnowledgeBasePage = () => {
 
     return () => clearTimeout(handler); // Cleanup if user types again before 300ms
   }, [searchTerm]);
+
+  // Prevent background scrolling when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = isModalOpen || isViewModalOpen || isDeleting;
+
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    // Cleanup function to ensure scroll is restored if component unmounts
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isModalOpen, isViewModalOpen, isDeleting]);
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.scrollY > 2) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener("scroll", toggleVisibility);
+    return () => window.removeEventListener("scroll", toggleVisibility);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   const filteredData = knowledgeData.filter((item) => {
     const byCategory = selectedCategory === "All" || item.category === selectedCategory;
@@ -380,6 +418,17 @@ const KnowledgeBasePage = () => {
           secondaryButton={{ label: "Cancel", onClick: () => setIsDeleting(false) }}
         />
       </div>
+
+      {/* Scroll to up button */}
+      {isVisible && (
+        <button
+          onClick={scrollToTop} // Correctly passed as a reference
+          className="fixed bottom-10 right-5 z-40 bg-blue-500 text-white p-3 rounded-full shadow-2xl hover:bg-blue-600 transition-all animate-in fade-in zoom-in duration-300"
+          aria-label="Scroll to top"
+        >
+          <IoArrowUp className="text-xl" />
+        </button>
+      )}
     </div>
   );
 };
