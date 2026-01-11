@@ -3,13 +3,13 @@ import Ticket from "../models/ticket.model.js";
 import cloudinary from "../lib/cloudinary.js";
 import { io } from "../lib/socket.js";
 
-export const getAllMessages = async (_, res) => {
+export const getAllMessages = async (req, res) => {
   try {
     const allMessages = await Message.find().sort({ createdAt: -1 })
     res.status(200).json(allMessages);
   } catch (err) {
-    console.error(" error:", err);
-    res.status(500).json({ message: "Failed to fetch knowledge base items" });
+    console.error("Error in getAllMessages:", err);
+    res.status(500).json({ message: "Failed to fetch all messages" });
   }
 };
 

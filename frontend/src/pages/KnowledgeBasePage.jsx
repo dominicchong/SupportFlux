@@ -62,7 +62,7 @@ const KnowledgeBasePage = () => {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.scrollY > 2) {
+      if (window.scrollY > 100) {
         setIsVisible(true);
       } else {
         setIsVisible(false);

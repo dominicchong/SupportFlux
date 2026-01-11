@@ -88,7 +88,7 @@ export const deleteKnowledge = async (req, res) => {
     const { id } = req.params;
     const deleted = await KnowledgeItem.findByIdAndDelete(id);
 
-    if (!deleted) return res.status(404).json({ message: "Item not found" });
+    if (!deleted) return res.status(404).json({ message: "Article not found" });
 
     res.json({ _id: deleted._id, message: "Article deleted successfully" });
   } catch (err) {

@@ -25,7 +25,7 @@ export const ragSearch = async (req, res) => {
 
     const queryVector = await generateEmbedding(prompt);
 
-    // 2️⃣ Vector Search in MongoDB
+    // Vector Search in MongoDB
     const results = await KnowledgeItem.aggregate([
       {
         $vectorSearch: {
@@ -46,7 +46,7 @@ export const ragSearch = async (req, res) => {
       }
     ]);
 
-    // 3️⃣ Return results with score
+    // Return results with score
     res.json({
       success: true,
       matches: results

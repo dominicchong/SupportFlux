@@ -15,7 +15,7 @@ const TicketInfoSidebar = () => {
       {/* Sidebar Header */}
       <div className="p-4 lg:px-6 border-b border-base-300 flex items-center gap-2 font-semibold">
         <Info className="size-5" />
-        <span>Ticket Details</span>
+        <span>Chat Details</span>
       </div>
 
       <div className="p-4 lg:px-6 space-y-6">
@@ -93,7 +93,7 @@ const TicketInfoSidebar = () => {
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-zinc-500">
             <Tag className="size-4" />
-            <span>Ticket ID:
+            <span>Chat ID:
               <span className="font-mono text-zinc-400"> #{simpleTicketId}</span>
             </span>
           </div>
