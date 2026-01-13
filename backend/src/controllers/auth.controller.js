@@ -36,8 +36,6 @@ export const createUser = async (req, res) => {
     });
 
     if (newUser) {
-      // generate jwt token
-      generateToken(newUser._id, res);
       await newUser.save();
       res.status(201).json({
         _id: newUser._id,
@@ -141,8 +139,8 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const user = await User.find(userId).select("-password");
+    const { id } = req.body;
+    const user = await User.findById(id).select("-password");
     res.json(user);
   } catch (error) {
     console.error("Failed to get user:", error);
@@ -174,10 +172,22 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const deleted = await User.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "User not found" });
+    const { id } = req.params;
+    const currentUserId = req.user._id.toString();
 
-    res.json({ message: "User deleted", _id: deleted._id });
+    // 1. PREVENT SELF-DELETION
+    if (id === currentUserId) {
+      return res.status(400).json({ 
+        message: "You cannot delete the account you are currently logged into."
+      });
+    }
+
+    const deleted = await User.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User deleted successfully", _id: deleted._id });
   } catch (error) {
     console.error("Delete user error:", error);
     res.status(500).json({ message: "Server error" });

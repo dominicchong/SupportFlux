@@ -141,7 +141,7 @@ export const useTicketStore = create((set, get) => ({
   },
 
   isTicketCreator: (ticket, authUser) => {
-    return ticket.userId._id === authUser._id;
+    return ticket?.userId?._id === authUser._id;
   },
 
   // Unread message utilities

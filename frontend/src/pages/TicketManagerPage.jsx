@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTicketStore } from "../store/useTicketStore";
 import { Search, Plus, Trash, CheckCheck, Clock, Loader, MessageSquare, UserCheck2, Settings2 } from "lucide-react";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
 import TicketModal from "../components/TicketModal";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -93,7 +93,7 @@ const TicketManagerPage = () => {
   const handleOpenAssignModal = (ticket) => {
     setAssignFormState({
       ticketId: ticket._id,
-      ticketCreatorId: ticket.userId._id,
+      ticketCreatorId: ticket.userId?._id || "",
       staffId: ticket.staffId?._id || ticket.staffId || "",
     });
     setIsModalStaffOpen(true);
@@ -145,6 +145,36 @@ const TicketManagerPage = () => {
     return !isTicketCreator(ticket, authUser);
   }
 
+  const sortedVisibleTickets = React.useMemo(() => {
+    return [...visibleTickets].sort((a, b) => {
+      // Helper to get priority weight
+      const getWeight = (ticket) => {
+        // 1. Lowest Priority: Missing User (Deleted/Unknown)
+        if (!ticket.userId) return 2;
+
+        // 2. Highest Priority: Assigned to "You"
+        const assignedToMe = (ticket.staffId?._id || ticket.staffId) === authUser._id;
+        if (assignedToMe) return 0;
+
+        // 3. Medium Priority: Everything else
+        return 1;
+      };
+
+      const weightA = getWeight(a);
+      const weightB = getWeight(b);
+
+      // Sort by weight first
+      if (weightA !== weightB) {
+        return weightA - weightB;
+      }
+
+      // Secondary Sort: Newest messages first within the same weight group
+      const timeA = new Date(latestMessages?.[a._id]?.createdAt || a.createdAt).getTime();
+      const timeB = new Date(latestMessages?.[b._id]?.createdAt || b.createdAt).getTime();
+      return timeB - timeA;
+    });
+  }, [visibleTickets, authUser._id, latestMessages]);
+
   return (
     <div className="p-6 pt-20 w-full mx-auto max-w-5xl space-y-4">
       <div className="flex flex-row justify-between">
@@ -160,7 +190,7 @@ const TicketManagerPage = () => {
             className="btn flex p-1 rounded hover:bg-base-200 transition bg-cyan-200 hover:text-cyan-600 cursor-pointer"
             title="Manage Category"
           >
-            <Settings2 className="size-4"/>
+            <Settings2 className="size-4" />
             Manage Category
           </button>
         </div>
@@ -232,8 +262,8 @@ const TicketManagerPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleTickets.map((ticket) => (
-                    <tr key={ticket._id} className="hover:bg-gray-50">
+                  {sortedVisibleTickets.map((ticket) => (
+                    <tr key={ticket._id} className={ticket.staffId?._id === authUser._id ? "bg-blue-50/50" : "hover:bg-gray-50"}>
                       <td>{ticket.category}</td>
                       <td className="max-w-[150px] truncate whitespace-nowrap overflow-hidden"
                         title="">
@@ -247,8 +277,8 @@ const TicketManagerPage = () => {
                           <DateTimeFormatter value={latestMessages?.[ticket._id]?.createdAt} format="preview" />
                         </span>
                       </td>
-                      <td>{ticket.userId.fullName}</td>
-                      <td>{ticket?.staffId?.fullName || "(none)"}</td>
+                      <td>{ticket?.userId?.fullName || "(Unknown)"}</td>
+                      <td>{ticket?.staffId?.role !== "student" ? ticket?.staffId?.fullName || "(none)" : "(Unknown Staff)"}</td>
                       <td className="space-x-2">
                         <span>{ticket.status}</span>
                         <br />
@@ -343,7 +373,7 @@ const TicketManagerPage = () => {
             assignFormState.staffId
               ? {
                 value: assignFormState.staffId,
-                label: sortedStaffList.find(s => s._id === assignFormState.staffId)?.fullName +
+                label: sortedStaffList.find(s => s._id === assignFormState.staffId)?.fullName || "(Unknown Staff)" +
                   (assignFormState.staffId === authUser._id ? " (You)" : "")
               }
               : null
@@ -358,9 +388,9 @@ const TicketManagerPage = () => {
         />
       </ConfirmationModal>
 
-      <CategoryManagementModal 
-        isOpen={isCategoryModalOpen} 
-        onClose={() => setIsCategoryModalOpen(false)} 
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
       />
 
       {/* <ConfirmationModal

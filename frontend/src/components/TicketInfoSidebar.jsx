@@ -46,26 +46,26 @@ const TicketInfoSidebar = () => {
           <div className="flex items-center gap-3 mt-3">
             <div className={`size-10 rounded-full flex items-center justify-center font-bold 
             overflow-hidden ring-1 ring-zinc-100 ring-offset-1 shadow-sm 
-            ${!selectedTicket.userId.profilePic ? getAvatarBg() : ""}`}>
+            ${!selectedTicket.userId?.profilePic ? getAvatarBg() : ""}`}>
               
-              {selectedTicket.userId.profilePic ? (
+              {selectedTicket.userId?.profilePic ? (
                 <img
-                  src={selectedTicket.userId.profilePic}
+                  src={selectedTicket.userId?.profilePic}
                   alt="profile"
                   className="size-full object-cover" // Ensures image fills the circle
                 />
               ) : (
-                <span>{getInitials(selectedTicket.userId.fullName)}</span>
+                <span>{getInitials(selectedTicket.userId?.fullName || "Unknown")}</span>
               )}
             </div>
 
             <div>
-              <p className="font-medium">{selectedTicket.userId.fullName}</p>
-              <p className="text-sm text-zinc-500 capitalize">{selectedTicket.userId.role}</p>
+              <p className="font-medium">{selectedTicket.userId?.fullName || "Unknown"}</p>
+              <p className="text-sm text-zinc-500 capitalize">{selectedTicket.userId?.role}</p>
             </div>
           </div>
 
-          {selectedTicket.staffId &&
+          {selectedTicket.staffId && selectedTicket.staffId?.role !== "student" &&
             <div>
               <div className="pt-4"></div>
 

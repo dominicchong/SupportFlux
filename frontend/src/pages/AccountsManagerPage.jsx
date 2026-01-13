@@ -155,10 +155,12 @@ const AccountsManagerPage = () => {
   const handleDelete = async () => {
     try {
       await deleteUser(selectedUser._id);
+      await fetchUsers();
     } catch (error) {
       console.error(error);
     } finally {
       setSelectedUser(null);
+      setIsModalDeleteOpen(false);
     }
   };
 
@@ -257,9 +259,10 @@ const AccountsManagerPage = () => {
                         </button>
                         <button
                           onClick={() => {
-                            setSelectedUser(user)
+                            setSelectedUser(user);
                             setIsModalDeleteOpen(true);
                           }}
+                          disabled={user.role == "admin"}
                           className="btn btn-sm btn-error"
                           title="Delete"
                         >
@@ -286,6 +289,7 @@ const AccountsManagerPage = () => {
                 name="role"
                 value={formState.role}
                 onChange={handleInputChange}
+                disabled={formState.role == "admin"}
                 className="select select-bordered max-w-50"
               >
                 <option value="student">Student</option>

@@ -51,6 +51,10 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post('/auth/login', data);
       set({ authUser: res.data });
+
+      // Notify other tabs on login event
+      localStorage.setItem("login-event", Date.now().toString());
+
       toast.success('Logged in successfully');
       get().connectSocket();
 
@@ -65,6 +69,10 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoggingOut: true });
     try {
       await axiosInstance.post('/auth/logout');
+
+      // Notify other tabs to logout
+      localStorage.setItem("logout-event", Date.now().toString());
+
       useTicketStore.getState().resetTicketStore(); // Clear my tickets on logout
       useChatbotStore.getState().resetChat();
 
@@ -76,6 +84,16 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ isLoggingOut: false });
     }
+  },
+
+  handleExternalLogout: () => {
+    if (!get().authUser) return;
+
+    get().disconnectSocket();
+    useTicketStore.getState().resetTicketStore();
+    useChatbotStore.getState().resetChat();
+    set({ authUser: null });
+    toast.success('Logged out');
   },
 
   updateProfile: async (data) => {
@@ -137,14 +155,30 @@ export const useAuthStore = create((set, get) => ({
 
   // Delete a user
   deleteUser: async (id) => {
+    // Double check the ID exists in local state first
+    if (!get().usersById[id]) {
+      toast.error("User already removed or does not exist.");
+      return;
+    }
+
+    // Prevent self-deletion
+    if (get().authUser?._id === id) {
+      toast.error("You cannot delete yourself while logged in.");
+      return;
+    }
+
     try {
       await axiosInstance.delete(`/auth/users/delete/${id}`);
-      await get().fetchUsers();
+
+      const updatedUsers = get().users.filter(u => u._id !== id);
+      const updatedMap = { ...get().usersById };
+      delete updatedMap[id];
+      set({ users: updatedUsers, usersById: updatedMap });
+
       toast.success("User deleted");
     } catch (error) {
       console.error("Failed to delete user", error);
-      toast.error("Failed to delete user");
-      throw error;
+      toast.error(error.response?.data?.message || "Failed to delete user");
     }
   },
 
