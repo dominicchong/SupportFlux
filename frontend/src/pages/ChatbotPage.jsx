@@ -5,6 +5,7 @@ import { TbMessageChatbot } from "react-icons/tb";
 import { useChatbotStore } from "../store/useChatbotStore";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
+import toast from "react-hot-toast";
 
 const FEATURES = [
   { text: "What is SupportFlux?", icon: IoHelpCircleOutline },
@@ -59,7 +60,7 @@ const ChatbotPage = () => {
   // Only scroll when user 'sends a message'
   const handleSend = (customInput) => {
     const inputPrompt = customInput || input;
-    if (!inputPrompt.trim()) return alert("You must write something!");
+    if (!inputPrompt.trim()) return toast.error("You must write something!");
     sendPrompt(inputPrompt.trim());
     setInput("");
 
@@ -221,7 +222,7 @@ const ChatbotPage = () => {
           />
         </div>
         <p className="text-gray-400 text-center text-xs mt-4 px-4">
-          This chatbot uses Gemini API and may make mistakes.
+          This chatbot uses AI and may make mistakes.
         </p>
       </footer>
     </div>
